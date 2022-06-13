@@ -1,0 +1,12 @@
+# generated terraform configurations
+build/terraform/
+
+# generated github workflows
+.github/workflows/
+
+# decrypted + converted secrets and encryption keys
+secrets/*.json
+secrets/*.cue
+secrets/*.txt
+!secrets/secrets.cue
+!secrets/secrets_tool.cue
