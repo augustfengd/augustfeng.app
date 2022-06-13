@@ -43,7 +43,7 @@ command: configure: {
 			}
 		}
 		response: {
-			statusCode: 200 // really cool! we can validate 200 status in the response by "enforcing" it.
+			statusCode: 200
 		}
 	}
 	workspaceVars: http.Get & {
@@ -54,7 +54,7 @@ command: configure: {
 			header: "Authorization": "Bearer \(tfrc.token)"
 		}
 		response: {
-			statusCode: 200 // really cool! we can validate 200 status in the response by "enforcing" it.
+			statusCode: 200
 		}
 	}
 	for _, var in config.terraform.workspace.vars {
