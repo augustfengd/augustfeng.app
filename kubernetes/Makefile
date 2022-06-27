@@ -1,8 +1,7 @@
+all: ../build/kubernetes
+
 CERT_MANAGER_VERSION := v1.8.1
-
-all: ../build/kubernetes downstream.cue
-
-jsonnet/upstream/cert-manager.yaml: ; mkdir -p $(dir $@)
+applications/upstream/cert-manager.yaml: ; mkdir -p $(dir $@)
 	docker run \
 		--rm \
 		-it \
@@ -11,12 +10,18 @@ jsonnet/upstream/cert-manager.yaml: ; mkdir -p $(dir $@)
 		quay.io/jetstack/cert-manager-ctl:$(CERT_MANAGER_VERSION) \
 		x install --dry-run > $@
 
-downstream.cue: jsonnet/main.jsonnet jsonnet/utils.libsonnet jsonnet/cert-manager.libsonnet jsonnet/upstream/cert-manager.yaml
-	jsonnet jsonnet/main.jsonnet | cue import -f json: - -p kubernetes --outfile $@
+.PHONY: secrets
+secrets:
+	 for s in secrets/*.sops.json; do sops --output $${s/.sops.json/.json} -d $${s}; done
 
-../build/kubernetes: $(wildcard *.cue) ; mkdir -p $@
-	cue build && touch $@
+.PHONY: ../build/kubernetes # TODO: un-phony this.
+../build/kubernetes: secrets; mkdir -p $@
+	jsonnet --create-output-dirs \
+		-S \
+		--multi $@ \
+		-e 'local utils = import "utils.libsonnet"; utils.build(import "main.libsonnet")'
 
 .PHONY: clean
 clean:
 	rm -rf ../build/kubernetes
+	for s in secrets/*.sops.json; do rm -f $${s/.sops.json/.json}; done

@@ -10,3 +10,8 @@ secrets/*.cue
 secrets/*.txt
 !secrets/secrets.cue
 !secrets/secrets_tool.cue
+
+# decrypted secrets and encryption keys (kubernetes)
+kubernetes/secrets/*.json
+kubernetes/secrets/*.txt
+!kubernetes/secrets/*.enc.json
