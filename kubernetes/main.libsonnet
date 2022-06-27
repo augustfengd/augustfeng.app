@@ -1,6 +1,7 @@
 local blog = import 'applications/blog.libsonnet';
 local certManager = import 'applications/certManager.libsonnet';
 local example = import 'applications/example.libsonnet';
+local transfersh = import 'applications/transfersh.libsonnet';
 
 {
   values:: {
@@ -13,9 +14,11 @@ local example = import 'applications/example.libsonnet';
     },
     example: {},
     blog: {},
+    transfersh: {},
   },
 
   blog: blog($.values.example),
   certManager: certManager($.values.certManager),
   example: example($.values.example),
+  transfersh: transfersh($.values.transfersh),
 }
