@@ -73,6 +73,13 @@ resource: {
 				type:     "A"
 				address:  "${digitalocean_droplet.\(droplet.#name).ipv4_address}"
 			},
+		] + [
+			// HACK: use wildcard subdomain because external-dns does not support namecheap provider. https://github.com/kubernetes-sigs/external-dns/issues/2069
+			for droplet in resource.digitalocean_droplet {
+				hostname: "*"
+				type:     "A"
+				address:  "${digitalocean_droplet.\(droplet.#name).ipv4_address}"
+			},
 		]
 	}
 
