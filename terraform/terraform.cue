@@ -1,7 +1,7 @@
 package terraform
 
 import (
-	"github.com/augustfengd/augustfeng.app:config"
+	"github.com/augustfengd/augustfeng.app/terraform:config"
 	"encoding/yaml"
 	"strings"
 )

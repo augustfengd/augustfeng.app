@@ -1,20 +1,16 @@
-all: secrets build
+all: build/kubernetes build/terraform .github/workflows
 
-.PHONY: secrets
-secrets:
-	cd secrets; cue decrypt && cue convert
+build/kubernetes: kubernetes
+	cd $<; $(MAKE)
 
-build: build/terraform/main.tf.json .github/workflows/terraform.yml
+build/terraform: terraform
+	cd $<; $(MAKE)
 
-build/terraform/main.tf.json: terraform/terraform.cue config.cue
-	mkdir -p $(dir $@)
-	cue export -f --outfile $@ $<
-
-.github/workflows/terraform.yml: .github/workflows.cue
-	mkdir -p $(dir $@)
-	cue export -f --outfile $@ $<
+.github/workflows: .github/workflows.cue
+	cd $(dir $<); $(MAKE)
 
 .PHONY: clean
 clean:
-	rm -rf build
-	cd secrets; cue clean
+	cd kubernetes; $(MAKE) clean
+	cd terraform; $(MAKE) clean
+	rm -rf .github/workflows

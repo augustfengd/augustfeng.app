@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/augustfengd/augustfeng.app/secrets:secrets"
+	"github.com/augustfengd/augustfeng.app/terraform/secrets:secrets"
 )
 
 terraform: {

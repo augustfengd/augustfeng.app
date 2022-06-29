@@ -4,12 +4,13 @@ build/terraform/
 # generated github workflows
 .github/workflows/
 
-# decrypted + converted secrets and encryption keys
-secrets/*.json
-secrets/*.cue
-secrets/*.txt
-!secrets/secrets.cue
-!secrets/secrets_tool.cue
+# decrypted + converted secrets and encryption keys (terraform)
+terraform/secrets/*.json
+terraform/secrets/*.cue
+terraform/secrets/*.txt
+!terraform/secrets/*.enc.json
+!terraform/secrets/secrets.cue
+!terraform/secrets/secrets_tool.cue
 
 # decrypted secrets and encryption keys (kubernetes)
 kubernetes/secrets/*.json
