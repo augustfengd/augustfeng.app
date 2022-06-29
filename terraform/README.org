@@ -1,0 +1,23 @@
+#+TITLE: terraform
+
+* TODO
+
+** improve kubeconfig retrieval
+
+I'm using either of these two workarounds until I find a satisfying approach to
+manage the integration of the cluster's kubeconfig locally.
+
+*** simple (via internet)
+
+#+begin_src shell
+  export KUBECONFIG=$(mktemp); trap "rm -f ${KUBECONFIG}" EXIT
+  ssh root@server.k3s.augustfeng.app kubectl config view --minify --flatten -ojson | jq '.clusters[].cluster.server = "https://server.k3s.augustfeng.app:6443"' > ${KUBECONFIG}
+#+end_src
+
+*** complex (via tunneling)
+
+#+begin_src shell
+  export KUBECONFIG=$(mktemp); trap "rm -f ${KUBECONFIG}" EXIT
+  ssh root@server.k3s.augustfeng.app kubectl config view --minify --flatten -ojson | jq '.clusters[].cluster."proxy-url" = "socks5://localhost:1080"' > ${KUBECONFIG}
+  ssh -D 1080 -N root@server.k3s.augustfeng.app &; zsh && fg
+#+end_src

@@ -1,0 +1,52 @@
+#+TITLE: augustfeng.app
+
+* Introduction
+
+Hello. This is my project for my personal infrastructure.
+
+I manage a bunch of self-hosted applications here for my own convenience.
+
+😊
+
+* Repository structure
+
+** /kubernetes
+
+I am using [[https://jsonnet.org/][jsonnet]] to generate the kubernetes manifests for my applications.
+
+** /terraform
+
+I am using [[https://cuelang.org/][cuelang]] to generate the terraform configuration files and
+to script the bootstrapping of my terraform cloud workspace.
+
+The credentials for the terraform providers are stored as encrypted files in the
+repository, and decrypted inside the pipeline for consumption.
+
+** /.github
+
+I am using [[https://cuelang.org/][cuelang]] to generate the GitHub Workflows configurations.
+
+* Applications
+** services
+*** DONE blog
+*** DONE file transfer
+  - [ ] [[https://github.com/mickael-kerjean/filestash][filestash]]
+  - [X] [[https://github.com/dutchcoders/transfer.sh][transfer.sh]]
+
+*** TODO dpaste
+*** TODO asciinema
+*** TODO httpbin
+*** TODO huginn
+*** TODO whoami
+  - [ ] ifconfig.me
+  - [ ] echoserver
+** administration
+*** teleport
+*** dashboard
+  - [ ] [[https://github.com/lissy93/dashy][dashy]]
+  - [ ] [[https://github.com/phntxx/dashboard][dashboard]]
+  - [ ] [[https://github.com/pawelmalak/flame][flame]]
+  - [ ] [[https://heimdall.site/][heimdall]]
+  - [ ] [[https://github.com/bastienwirtz/homer][homer]]
+  - [ ] [[https://github.com/Smashing/smashing][smashing]]
+
