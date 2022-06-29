@@ -1,0 +1,7 @@
+#+TITLE: kubernetes
+
+* TODO
+
+** namecheap does not support external-dns
+
+I've configured a wildcard subdomain for augustfeng.app. It does the job. :)

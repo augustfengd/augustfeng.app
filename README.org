@@ -1,0 +1,119 @@
+#+TITLE: augustfeng.app
+
+* Introduction
+
+Hello! This is a project for my personal infrastructure. I manage a set of
+self-hosted applications here for my convenience and learning experience. 😊
+
+* Directory structure
+
+** ./terraform
+
+Terraform configuration can be written in a [[https://www.terraform.io/language/syntax/json][JSON configuration syntax]], which
+enables someone to use a DSL to generate the configuration files
+programmatically.
+
+For this project, I am using [[https://cuelang.org/][CUE]] to generate the configuration files, and its
+scripting capabilities to manage a Terraform Cloud workspace.
+
+** ./kubernetes
+
+I had initially generated the Kubernetes manifest files using [[https://cuelang.org/][CUE]] until I wanted
+to use upstream helm charts.
+
+To overcome the shortcoming of not being able to override fields that have yet
+been templated, the charts are templated and then overridden with mixins using
+configuration language, [[https://jsonnet.org/][Jsonnet]].
+
+** ./containers
+
+The modern-day pipelines are essentially the /cloud equivalent/ of local build
+scripts. The [[https://dagger.io/][dagger.io]] project attempts to consolidate the gap by leveraging [[https://cuelang.org/][CUE]]
+to bring a pipeline execution to a local workstation.
+
+Generally speaking, I like to avoid building containers to save myself the
+footprint and the need to maintain imperative build scripts.
+
+However, the [[https://docs.dagger.io/1221/action/#definition][docker]] package from dagger.io is an enjoyable alternative to a
+~Dockerfile~ + ~Makefile~. I might be a little bit more prolific than usual.
+
+** ./github
+
+The GitHub Workflows configuration files are generated using [[https://cuelang.org/][CUE]]. Programming
+the pipeline configuration feels like a less fragile experience as we can
+abstract certain areas of the configuration files with more meaningful
+semantics.
+
+At a larger scale, using a DSL for generating pipeline configuration can create
+a ton of value that wouldn't be possible otherwise.
+
+For example, imagine a centralized ~configuration.cue~ that defines *N*
+infrastructures. We could generate a pipeline configuration for each
+infrastructure while controlling the composition at a granular-level. This
+approach allows us not to require external systems to implement dynamic
+semantics in our configuration.
+
+* Applications
+
+** services
+
+*** blog
+
+Please visit https://blog.augustfeng.app/ for some content written by yours truly!
+
+*** file transfer
+
+I am hosting a deployment of [[https://github.com/dutchcoders/transfer.sh][transfer.sh]] at https://transfersh.augustfeng.app/.
+
+Please note that the instance is running on the cheapest droplet that
+[[https://digitalocean.com/][DigitalOcean]] offers, so no promises about data availability!
+
+*** dpaste
+
+TODO.
+
+*** asciinema
+
+TODO
+
+*** httpbin
+
+TODO
+
+*** huginn
+
+TODO
+
+*** postfix (smtp)
+
+TODO
+
+*** whoami
+
+TODO
+
+*** ifconfig.me
+
+TODO
+
+*** echoserver
+
+TODO
+
+** administration
+*** teleport
+
+TODO
+
+*** dashboard
+
+I will be choosing a dashboard to centralize the links of my services amongst
+one of the following choices:
+
+  - [ ] [[https://github.com/lissy93/dashy][dashy]]
+  - [ ] [[https://github.com/phntxx/dashboard][dashboard]]
+  - [ ] [[https://github.com/pawelmalak/flame][flame]]
+  - [ ] [[https://heimdall.site/][heimdall]]
+  - [ ] [[https://github.com/bastienwirtz/homer][homer]]
+  - [ ] [[https://github.com/Smashing/smashing][smashing]]
+
