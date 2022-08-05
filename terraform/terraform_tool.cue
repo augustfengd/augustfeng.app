@@ -64,7 +64,7 @@ command: configure: {
 			if len(varsFound) > 0 {
 				variable_id: varsFound[0].id
 				method:      "PATCH"
-				url:         "https://\(cloud.hostname).com/api/v2/workspaces/\(workspace.id)/vars/\(variable_id)"
+				url:         "https://\(cloud.hostname)/api/v2/workspaces/\(workspace.id)/vars/\(variable_id)"
 			}
 			if len(varsFound) == 0 {
 				method: "POST"
