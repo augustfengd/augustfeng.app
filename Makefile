@@ -1,16 +1,21 @@
-all: build/kubernetes build/terraform .github/workflows
+all: terraform .github/workflows
 
-build/kubernetes: kubernetes
-	cd $<; $(MAKE)
+.PHONY: kubernetes
+kubernetes:
+	cd kubernetes; $(MAKE)
 
-build/terraform: terraform
-	cd $<; $(MAKE)
+.PHONY: terraform
+terraform:
+	cd terraform/secrets; cue decrypt && cue convert
+	cd terraform; cue build :scripts
 
-.github/workflows: .github/workflows.cue
-	cd $(dir $<); $(MAKE)
+.PHONY: .github/workflows
+.github/workflows:
+	mkdir -p $@
+	cd .github; cue build :scripts
 
 .PHONY: clean
 clean:
-	cd kubernetes; $(MAKE) clean
-	cd terraform; $(MAKE) clean
+	rm -rf build/kubernetes
+	rm -rf build/terraform
 	rm -rf .github/workflows

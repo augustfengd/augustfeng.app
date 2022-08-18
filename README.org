@@ -40,20 +40,20 @@ scripting capabilities to manage a Terraform Cloud workspace.
 
 ** ./kubernetes
 
-I had initially generated the Kubernetes manifest files using [[https://cuelang.org/][CUE]] until I wanted
+I had initially generated the Kubernetes manifest files using CUE until I wanted
 to use upstream helm charts.
 
 To overcome the shortcoming of not being able to override fields that have yet
 been templated, the charts are templated and then overridden with mixins using
 configuration language, [[https://jsonnet.org/][Jsonnet]].
 
-I may go back to a [[https://cuelang.org/][CUE]] based solution eventually.
+I may go back to a CUE-based solution eventually.
 
 ** ./containers
 
 The modern-day pipelines are essentially the /cloud equivalent/ of local build
-scripts. The [[https://dagger.io/][dagger.io]] project attempts to consolidate the gap by leveraging [[https://cuelang.org/][CUE]]
-to bring a pipeline execution to a local workstation.
+scripts. The [[https://dagger.io/][dagger.io]] project attempts to bring this executation back to the
+local workstation using containers and CUE as its DSL.
 
 Generally speaking, I like to avoid building containers to save myself the
 footprint and the need to maintain imperative build scripts.
@@ -63,19 +63,13 @@ However, the [[https://docs.dagger.io/1221/action/#definition][docker]] package 
 
 ** ./github
 
-The GitHub Workflows configuration files are generated using [[https://cuelang.org/][CUE]]. Programming
+The GitHub Workflows configuration files are generated using CUE. Programming
 the pipeline configuration feels like a less fragile experience as we can
 abstract certain areas of the configuration files with more meaningful
 semantics.
 
-At a larger scale, using a DSL for generating pipeline configuration can create
-a ton of value that wouldn't be possible otherwise.
-
-For example, imagine a centralized ~configuration.cue~ that defines *N*
-infrastructures. We could generate a pipeline configuration for each
-infrastructure while controlling the composition at a granular-level. This
-approach allows us not to require external systems to implement dynamic
-semantics in our configuration.
+At a larger scale, using a DSL for generating pipeline configuration can
+overcome some limitations from the pipeline engine.
 
 ** ./web
 
@@ -88,14 +82,14 @@ enjoy their space here.
 
 *** blog
 
-Please visit https://blog.augustfeng.app/ for some content written by yours truly!
+Please visit https://blog.augustfeng.app/ for view my personal blog.
 
 *** file transfer
 
 I am hosting a deployment of [[https://github.com/dutchcoders/transfer.sh][transfer.sh]] at https://transfersh.augustfeng.app/.
 
 Please note that the deployment is running on a single worker-node kubernetes
-cluster, made with the cheapest ($) droplet that [[https://digitalocean.com/][DigitalOcean]] possible, so no
+cluster, made with the cheapest ($) droplet that [[https://digitalocean.com/][DigitalOcean]] offers, so no
 promises about data availability!
 
 Saving cost is an important feature for me 😉.

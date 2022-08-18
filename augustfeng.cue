@@ -1,11 +1,22 @@
-package config
+package augustfeng
 
 import (
 	"github.com/augustfengd/augustfeng.app/terraform/secrets:secrets"
+	t "github.com/augustfengd/augustfeng.app/terraform:terraform"
 )
 
-terraform: {
-	workspace: _#terraformWorkspace & {
+actions: {} // use defaults.
+
+terraform: t.#c & {
+	configuration: {
+		"do": "k3s": {
+			agent_pool: [{name: "k3s-agent-0"}]
+		}
+		"gcp": {
+			do_droplets: {for droplet in (configuration["do"]["k3s"].server_pool + configuration["do"]["k3s"].agent_pool) {(droplet.name): "${digitalocean_droplet.\(droplet.name).ipv4_address}"}}
+		}
+	}
+	workspace: {
 		organization: "augustfengd"
 		name:         "augustfeng-app"
 		vars: [
@@ -33,26 +44,13 @@ terraform: {
 				category:  "env"
 				sensitive: true
 			},
+			{
+				key:       "GOOGLE_CREDENTIALS"
+				value:     secrets["google-credentials.json"].GOOGLE_CREDENTIALS
+				category:  "env"
+				sensitive: true
+			},
 		]
+		token: secrets["terraform-cloud-secrets.json"].TF_TOKEN_app_terraform_io
 	}
-}
-
-_#terraformWorkspace: {
-	organization: string
-	hostname:     string | *"app.terraform.io"
-	name:         string
-	settings:     _#terraformWorkspaceSettings
-	vars: [... _#terraformWorkspaceVar]
-}
-
-_#terraformWorkspaceSettings: {
-	"terraform-version": string | *"1.2.0"
-}
-
-_#terraformWorkspaceVar: {
-	key:          string
-	value:        string
-	category:     "hcl" | "env"
-	sensitive:    bool | *false
-	description?: string
 }

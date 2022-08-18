@@ -22,11 +22,11 @@
       manifests
     ),
   build(applications): {
-    [application + '/' + kind + '.yaml']:
-      local objects = std.objectValues(applications[application][kind]);
-      std.manifestYamlStream(objects, quote_keys=false)  // TODO: investigate why is this so slow.
+    [application + '/' + kind + '-' + object + '.yaml']:
+      std.manifestJsonEx(applications[application][kind][object], '  ', '\n', ': ')
     for application in std.objectFields(applications)
     for kind in std.objectFields(applications[application])
+    for object in std.objectFields(applications[application][kind])
   },
   mixins: {
     removeLabels(labels):: {

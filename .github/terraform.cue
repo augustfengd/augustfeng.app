@@ -1,23 +1,26 @@
-package workflows
+package terraform
 
 import (
-	"github.com/augustfengd/augustfeng.app/terraform:config"
 	"strings"
 )
 
-_#default_branch:    "main"
-_#terraform_version: config.terraform.workspace.settings["terraform-version"]
+#c: {
+	default_branch: string | *"main"
+	terraform: version: string | *"v1.2.3"
+	terraform: workspace: hostname: string | *"app.terraform.io"
+}
 
 name: "Terraform"
-on: push: branches:         _#default_branch
-on: pull_request: branches: _#default_branch
+on: push: branches:         #c.default_branch
+on: pull_request: branches: #c.default_branch
 jobs: {
 	"generate": {
 		steps: [
 			_#setupTerraform,
 			_#checkoutCode,
-			_#installCue & {_v: "v0.4.3"},
-			_#make,
+			_#installSops & {#v: "v3.7.3"},
+			_#installCue & {#v:  "v0.4.3"},
+			_#withDecryptionKey & _#make,
 		]
 	}
 	"configure": {
@@ -25,23 +28,24 @@ jobs: {
 		steps: [
 			_#setupTerraform & _#withTerraformCredentials,
 			_#checkoutCode,
-			_#installSops & {_v:                    "v3.7.3"},
-			_#installCue & {_v:                     "v0.4.3"},
+			_#installSops & {#v: "v3.7.3"},
+			_#installCue & {#v:  "v0.4.3"},
+			_#withDecryptionKey & _#make,
 			_#terraformInit & {"working-directory": "build/terraform"},
 			_#withDecryptionKey & {
 				name:                "Decrypt secrets"
 				run:                 "cue decrypt"
-				"working-directory": "secrets/"
+				"working-directory": "terraform/secrets"
 			},
 			_#withDecryptionKey & {
 				name:                "Convert secrets"
 				run:                 "cue convert"
-				"working-directory": "secrets/"
+				"working-directory": "terraform/secrets"
 			},
 			_#configureWorkspace & {
 				name:                "Configure workspace"
-				run:                 "cue configure"
-				"working-directory": "terraform/"
+				run:                 "cue configure :scripts"
+				"working-directory": "terraform"
 			},
 		]
 	}
@@ -51,6 +55,9 @@ jobs: {
 		steps: [
 			_#setupTerraform & _#withTerraformCredentials,
 			_#checkoutCode,
+			_#installSops & {#v: "v3.7.3"},
+			_#installCue & {#v:  "v0.4.3"},
+			_#withDecryptionKey & _#make,
 			_#terraformInit & {"working-directory": "build/terraform"},
 			_#terraformPlan & {"working-directory": "build/terraform"},
 		]
@@ -61,6 +68,9 @@ jobs: {
 		steps: [
 			_#setupTerraform & _#withTerraformCredentials,
 			_#checkoutCode,
+			_#installSops & {#v: "v3.7.3"},
+			_#installCue & {#v:  "v0.4.3"},
+			_#withDecryptionKey & _#make,
 			_#terraformInit & {"working-directory":  "build/terraform"},
 			_#terraformApply & {"working-directory": "build/terraform"},
 		]
@@ -75,9 +85,8 @@ jobs: {
 	}
 } & {
 	[op=string]: {
-		"runs-on":   "ubuntu-latest"
-		name:        op
-		environment: "terraform"
+		"runs-on": "ubuntu-latest"
+		name:      op
 	}
 }
 
@@ -86,6 +95,7 @@ _#make: {
 	name: "make"
 	id:   "make"
 	run:  "make"
+	env: [string]: string
 }
 
 _#terraformFmt: {
@@ -118,14 +128,14 @@ _#terraformApply: {
 
 _#checkoutCode: {
 	name: "Checkout code"
-	uses: "actions/checkout@v2"
+	uses: "actions/checkout@v3"
 }
 
 _#setupTerraform: {
 	name: "Setup Terraform"
-	uses: "actions/setup-terraform@v2"
+	uses: "hashicorp/setup-terraform@v2"
 	with: {
-		terraform_version: _#terraform_version
+		terraform_version: #c.terraform.version
 		...
 	}
 }
@@ -133,7 +143,7 @@ _#setupTerraform: {
 _#withTerraformCredentials: {
 	_#setupTerraform
 	with: {
-		cli_config_credentials_hostname: config.terraform.workspace.hostname
+		cli_config_credentials_hostname: #c.terraform.workspace.hostname
 		cli_config_credentials_token:    "${{ secrets.TF_API_TOKEN }}"
 	}
 }
@@ -141,10 +151,10 @@ _#withTerraformCredentials: {
 _#installSops: {
 	name: "Install sops"
 	id:   "sops"
-	_v:   =~"v[0-9]+\\.[0-9]+\\.[0-9]+"
+	#v:   =~"v[0-9]+\\.[0-9]+\\.[0-9]+"
 	run:  """
 	mkdir -p bin/
-	curl -L --output bin/sops https://github.com/mozilla/sops/releases/download/\(_v)/sops-\(_v).linux.amd64
+	curl -L --output bin/sops https://github.com/mozilla/sops/releases/download/\(#v)/sops-\(#v).linux.amd64
 	chmod +x bin/sops
 	echo "${GITHUB_WORKSPACE}/bin" >> $GITHUB_PATH
 	"""
@@ -153,10 +163,10 @@ _#installSops: {
 _#installCue: {
 	name: "Install cue"
 	id:   "cue"
-	_v:   =~"v[0-9]+\\.[0-9]+\\.[0-9]+"
+	#v:   =~"v[0-9]+\\.[0-9]+\\.[0-9]+"
 	run:  """
 	mkdir -p bin/
-	curl -L --output - https://github.com/cue-lang/cue/releases/download/\(_v)/cue_\(_v)_linux_amd64.tar.gz | tar xzf - -C bin/ cue
+	curl -L --output - https://github.com/cue-lang/cue/releases/download/\(#v)/cue_\(#v)_linux_amd64.tar.gz | tar xzf - -C bin/ cue
 	echo "${GITHUB_WORKSPACE}/bin" >> $GITHUB_PATH
 	"""
 }
@@ -170,7 +180,7 @@ _#withDecryptionKey: {
 
 _#configureWorkspace: {
 	env: {
-		(strings.Replace("TF_TOKEN_\(config.terraform.workspace.hostname)", ".", "_", -1)): "${{ secrets.TF_API_TOKEN }}"
+		(strings.Replace("TF_TOKEN_\(#c.terraform.workspace.hostname)", ".", "_", -1)): "${{ secrets.TF_API_TOKEN }}"
 	}
 	...
 }
