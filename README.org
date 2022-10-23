@@ -1,80 +1,6 @@
-* Table of Content                                                      :TOC:
-- [[#about][About]]
-- [[#directory-structure][Directory structure]]
-  - [[#terraform][./terraform]]
-  - [[#kubernetes][./kubernetes]]
-  - [[#containers][./containers]]
-  - [[#github][./github]]
-  - [[#web][./web]]
-- [[#applications][Applications]]
-  - [[#services][services]]
-    - [[#blog][blog]]
-    - [[#file-transfer][file transfer]]
-    - [[#dpaste][dpaste]]
-    - [[#asciinema][asciinema]]
-    - [[#httpbin][httpbin]]
-    - [[#huginn][huginn]]
-    - [[#postfix-smtp][postfix (smtp)]]
-    - [[#whoami][whoami]]
-    - [[#ifconfigme][ifconfig.me]]
-    - [[#echoserver][echoserver]]
-  - [[#administration][administration]]
-    - [[#teleport][teleport]]
-    - [[#dashboard][dashboard]]
-
 * About
 
-Hello! This is a project for my personal infrastructure. I manage a set of
-self-hosted applications here for my convenience and learning experience. 😊
-
-* Directory structure
-
-** ./terraform
-
-Terraform configuration can be written in a [[https://www.terraform.io/language/syntax/json][JSON configuration syntax]], which
-enables someone to use a DSL to generate the configuration files
-programmatically.
-
-For this project, I am using [[https://cuelang.org/][CUE]] to generate the configuration files, and its
-scripting capabilities to manage a Terraform Cloud workspace.
-
-** ./kubernetes
-
-I had initially generated the Kubernetes manifest files using CUE until I wanted
-to use upstream helm charts.
-
-To overcome the shortcoming of not being able to override fields that have yet
-been templated, the charts are templated and then overridden with mixins using
-configuration language, [[https://jsonnet.org/][Jsonnet]].
-
-I may go back to a CUE-based solution eventually.
-
-** ./containers
-
-The modern-day pipelines are essentially the /cloud equivalent/ of local build
-scripts. The [[https://dagger.io/][dagger.io]] project attempts to bring this executation back to the
-local workstation using containers and CUE as its DSL.
-
-Generally speaking, I like to avoid building containers to save myself the
-footprint and the need to maintain imperative build scripts.
-
-However, the [[https://docs.dagger.io/1221/action/#definition][docker]] package from dagger.io is an enjoyable alternative to a
-~Dockerfile~ + ~Makefile~. I might be a little bit more prolific than usual.
-
-** ./github
-
-The GitHub Workflows configuration files are generated using CUE. Programming
-the pipeline configuration feels like a less fragile experience as we can
-abstract certain areas of the configuration files with more meaningful
-semantics.
-
-At a larger scale, using a DSL for generating pipeline configuration can
-overcome some limitations from the pipeline engine.
-
-** ./web
-
-Occasionally I will need want to write my own application or services! They will
-enjoy their space here.
+Hello! This is a project for my personal infrastructure, mostly driven with [[https://cuelang.org/][CUE]].
 
 * Applications
 
@@ -86,50 +12,44 @@ Please visit https://blog.augustfeng.app/ for view my personal blog.
 
 *** file transfer
 
-I am hosting a deployment of [[https://github.com/dutchcoders/transfer.sh][transfer.sh]] at https://transfersh.augustfeng.app/.
-
-Please note that the deployment is running on a single worker-node kubernetes
-cluster, made with the cheapest ($) droplet that [[https://digitalocean.com/][DigitalOcean]] offers, so no
-promises about data availability!
-
-Saving cost is an important feature for me 😉.
+Please visit https://transfersh.augustfeng.app/ for a deployment of [[https://github.com/dutchcoders/transfer.sh][transfer.sh]].
 
 *** dpaste
 
-TODO.
+/TODO./
 
 *** asciinema
 
-TODO
+/TODO./
 
 *** httpbin
 
-TODO
+/TODO./
 
 *** huginn
 
-INPROGRESS
+/INPROGRESS/
 
 *** postfix (smtp)
 
-INPROGRESS
+/INPROGRESS/
 
 *** whoami
 
-TODO
+/TODO./
 
 *** ifconfig.me
 
-TODO
+/TODO./
 
 *** echoserver
 
-TODO
+/TODO./
 
 ** administration
 *** teleport
 
-TODO
+/TODO./
 
 *** dashboard
 
