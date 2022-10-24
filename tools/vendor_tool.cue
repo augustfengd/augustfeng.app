@@ -21,12 +21,6 @@ import (
 	"tool/http"
 )
 
-// For the commands below, note we use simple yet hacky path resolution, rather
-// than anything that might derive the module root using go list or similar, in
-// order that we have zero dependencies.
-
-// importjsonschema vendors a CUE-imported version of the JSONSchema that
-// defines GitHub workflows into the main module's cue.mod/pkg.
 command: importschema: {
 	k8s: {
 		go: exec.Run & {
