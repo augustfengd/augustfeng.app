@@ -1,5 +1,9 @@
 package pipeline
 
+import (
+	"github.com/SchemaStore/schemastore/src/schemas/json/github"
+)
+
 #DefaultBranch: "main"
 
 name: "containers"
@@ -8,7 +12,7 @@ on: push: {
 	paths: ["containers/**"]
 }
 
-jobs: {
+jobs: github.#Workflow.#jobs & {
 	"build": {
 		"runs-on": "ubuntu-latest"
 		steps: [

@@ -1,5 +1,9 @@
 package pipeline
 
+import (
+	"github.com/SchemaStore/schemastore/src/schemas/json/github"
+)
+
 #DefaultBranch:    "main"
 #TerraformVersion: string
 
@@ -8,7 +12,7 @@ on: push: branches:         #DefaultBranch
 on: pull_request: branches: #DefaultBranch
 on: [string]: paths: ["cloud/**"]
 
-jobs: {
+jobs: github.#Workflow.#jobs & {
 	"build": {
 		"runs-on": "ubuntu-latest"
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
