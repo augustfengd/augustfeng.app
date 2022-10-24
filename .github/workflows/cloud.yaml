@@ -16,9 +16,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - env:
+      - name: make
+        env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        name: make
         run: make
   configure:
     needs:
@@ -29,10 +29,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - env:
-          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        name: Decrypt and convert secrets
+      - name: Decrypt and convert secrets
         run: cue decrypt && cue convert
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
         working-directory: cloud/_secrets
       - name: Configure workspace
         run: cue configure ./cloud/augustfeng.app:terraform
@@ -47,9 +47,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - env:
+      - name: make
+        env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        name: make
         run: make
       - name: Terraform Init
         id: init
@@ -70,9 +70,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - env:
+      - name: make
+        env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        name: make
         run: make
       - name: Terraform Init
         id: init
