@@ -9,9 +9,10 @@ build/terraform: cloud
 	cd cloud/_secrets; cue decrypt && cue convert
 	cue export -f ./cloud/augustfeng.app:terraform -e configuration --outfile build/terraform/main.tf.json
 
-.github/workflows: cloud
+.github/workflows: cloud containers
 	mkdir -p $@
 	cue export -f ./cloud/augustfeng.app:pipeline --outfile ./.github/workflows/cloud.yaml
+	cue export -f ./containers:pipeline --outfile ./.github/workflows/containers.yaml
 
 .PHONY: clean
 clean:
