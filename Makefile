@@ -9,6 +9,10 @@ build/terraform: cloud
 	cd cloud/_secrets; cue decrypt && cue convert
 	cue export -f ./cloud/augustfeng.app:terraform -e configuration --outfile build/terraform/main.tf.json
 
+build/kubernetes: cloud
+	mkdir -p build/kubernetes
+	cue export -f ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(manifests)' --out text --outfile build/kubernetes/cloud.yaml
+
 .github/workflows: cloud containers
 	mkdir -p $@
 	cue export -f ./cloud/augustfeng.app:pipeline --outfile ./.github/workflows/cloud.yaml
