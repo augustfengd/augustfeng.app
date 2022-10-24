@@ -1,0 +1,99 @@
+name: cloud
+"on":
+  push:
+    branches: main
+  pull_request:
+    branches: main
+jobs:
+  build:
+    container:
+      image: ghcr.io/augustfengd/toolchain:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        name: make
+        run: make
+  configure:
+    needs:
+      - build
+    container:
+      image: ghcr.io/augustfengd/toolchain:latest
+    steps:
+      - env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        name: make
+        run: make
+      - name: Terraform Init
+        id: init
+        run: terraform init
+        working-directory: build/terraform
+      - env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        name: Decrypt and convert secrets
+        run: cue decrypt && cue convert
+        working-directory: cloud/_secrets
+      - name: Configure workspace
+        run: cue configure ./cloud/augustfeng.app:terraform
+  plan:
+    needs:
+      - build
+      - configure
+    if: github.event_name == 'pull_request'
+    container:
+      image: ghcr.io/augustfengd/toolchain:latest
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.2.7
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        name: make
+        run: make
+      - name: Terraform Init
+        id: init
+        run: terraform init
+        working-directory: build/terraform
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan
+        working-directory: build/terraform
+  apply:
+    needs:
+      - generate
+      - configure
+    if: github.event_name =='push'
+    container:
+      image: ghcr.io/augustfengd/toolchain:latest
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.2.7
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        name: make
+        run: make
+      - name: Terraform Init
+        id: init
+        run: terraform init
+        working-directory: build/terraform
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -auto-approve
+        working-directory: build/terraform
+  finish:
+    needs:
+      - apply
+    if: github.event_name =='push'
+    container:
+      image: ghcr.io/augustfengd/toolchain:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3

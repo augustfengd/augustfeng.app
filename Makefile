@@ -1,18 +1,17 @@
-all: terraform .github/workflows
+all: build/terraform .github/workflows
 
 .PHONY: kubernetes
 kubernetes:
 	cd kubernetes; $(MAKE)
 
-.PHONY: terraform
-terraform:
-	cd terraform/secrets; cue decrypt && cue convert
-	cd terraform; cue build :scripts
+build/terraform: cloud
+	mkdir -p build/terraform
+	cd cloud/_secrets; cue decrypt && cue convert
+	cue export -f ./cloud/augustfeng.app:terraform -e configuration --outfile build/terraform/main.tf.json
 
-.PHONY: .github/workflows
-.github/workflows:
+.github/workflows: cloud
 	mkdir -p $@
-	cd .github; cue build :scripts
+	cue export -f ./cloud/augustfeng.app:pipeline --outfile ./.github/workflows/cloud.yaml
 
 .PHONY: clean
 clean:

@@ -106,7 +106,7 @@ dagger.#Plan & {
 					docker.#Run & {
 						command: {
 							name: "apk"
-							args: ["add", "vim", "ripgrep", "zsh", "curl", "git", "gpg", "gpg-agent", "python3"]
+							args: ["add"] + ["make", "vim", "ripgrep", "zsh", "curl", "git", "gpg", "gpg-agent", "python3"]
 							flags: {
 								"-U":         true
 								"--no-cache": true
