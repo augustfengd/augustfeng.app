@@ -2,10 +2,15 @@ name: cloud
 "on":
   push:
     branches: main
+    paths:
+      - cloud/**
   pull_request:
     branches: main
+    paths:
+      - cloud/**
 jobs:
   build:
+    runs-on: ubuntu-latest
     container:
       image: ghcr.io/augustfengd/toolchain:latest
     steps:
@@ -18,17 +23,12 @@ jobs:
   configure:
     needs:
       - build
+    runs-on: ubuntu-latest
     container:
       image: ghcr.io/augustfengd/toolchain:latest
     steps:
-      - env:
-          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        name: make
-        run: make
-      - name: Terraform Init
-        id: init
-        run: terraform init
-        working-directory: build/terraform
+      - name: Checkout code
+        uses: actions/checkout@v3
       - env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
         name: Decrypt and convert secrets
@@ -41,13 +41,10 @@ jobs:
       - build
       - configure
     if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
     container:
       image: ghcr.io/augustfengd/toolchain:latest
     steps:
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.2.7
       - name: Checkout code
         uses: actions/checkout@v3
       - env:
@@ -64,16 +61,13 @@ jobs:
         working-directory: build/terraform
   apply:
     needs:
-      - generate
+      - build
       - configure
     if: github.event_name =='push'
+    runs-on: ubuntu-latest
     container:
       image: ghcr.io/augustfengd/toolchain:latest
     steps:
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.2.7
       - name: Checkout code
         uses: actions/checkout@v3
       - env:
@@ -92,6 +86,7 @@ jobs:
     needs:
       - apply
     if: github.event_name =='push'
+    runs-on: ubuntu-latest
     container:
       image: ghcr.io/augustfengd/toolchain:latest
     steps:

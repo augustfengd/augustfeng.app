@@ -6,8 +6,11 @@ package pipeline
 name: "cloud"
 on: push: branches:         #DefaultBranch
 on: pull_request: branches: #DefaultBranch
+on: [string]: paths: ["cloud/**"]
+
 jobs: {
 	"build": {
+		"runs-on": "ubuntu-latest"
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 		steps: [
 			_#checkoutCode,
@@ -19,13 +22,10 @@ jobs: {
 	}
 	"configure": {
 		needs: ["build"]
+		"runs-on": "ubuntu-latest"
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 		steps: [
-			_#withDecryptionKey & {
-				name: "make"
-				run:  "make"
-			},
-			_#terraformInit & {"working-directory": "build/terraform"},
+			_#checkoutCode,
 			_#withDecryptionKey & {
 				name:                "Decrypt and convert secrets"
 				run:                 "cue decrypt && cue convert"
@@ -39,10 +39,10 @@ jobs: {
 	}
 	"plan": {
 		needs: ["build", "configure"]
-		if: "github.event_name == 'pull_request'"
+		if:        "github.event_name == 'pull_request'"
+		"runs-on": "ubuntu-latest"
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 		steps: [
-			_#setupTerraform & {_v: #TerraformVersion},
 			_#checkoutCode,
 			_#withDecryptionKey & {
 				name: "make"
@@ -53,11 +53,11 @@ jobs: {
 		]
 	}
 	"apply": {
-		needs: ["generate", "configure"]
-		if: "github.event_name =='push'"
+		needs: ["build", "configure"]
+		if:        "github.event_name =='push'"
+		"runs-on": "ubuntu-latest"
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 		steps: [
-			_#setupTerraform & {_v: #TerraformVersion},
 			_#checkoutCode,
 			_#withDecryptionKey & {
 				name: "make"
@@ -69,7 +69,8 @@ jobs: {
 	}
 	"finish": {
 		needs: ["apply"]
-		if: "github.event_name =='push'"
+		if:        "github.event_name =='push'"
+		"runs-on": "ubuntu-latest"
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 		steps: [
 			_#checkoutCode,
