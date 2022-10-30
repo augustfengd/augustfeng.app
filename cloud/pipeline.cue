@@ -79,15 +79,13 @@ jobs: github.#Workflow.#jobs & {
 			_#checkoutCode,
 			{
 				env: GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
-				name:  "gcloud-auth"
-				run:   "gcloud auth login --cred-file <(printf '%s\n' ${GOOGLE_CREDENTIALS})"
-				shell: "zsh {0}"
+				name: "gcloud-auth"
+				run:  "/opt/google-cloud-sdk/bin/gcloud auth login --cred-file <(printf '%s\n' ${GOOGLE_CREDENTIALS})"
 			},
 			{
-				env: USE_GKE_GCLOUD_AUTH_PLUGIN: "True"
-				name:  "gcloud-kubectl"
-				run:   "gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd"
-				shell: "zsh {0}"
+				// env: USE_GKE_GCLOUD_AUTH_PLUGIN: "True"
+				name: "gcloud-container-clusters"
+				run:  "/opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd"
 			},
 			{
 				name: "build"

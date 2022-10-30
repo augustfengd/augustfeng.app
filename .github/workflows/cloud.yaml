@@ -96,13 +96,9 @@ jobs:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
         name: gcloud-auth
         run: |-
-          gcloud auth login --cred-file <(printf '%s
+          /opt/google-cloud-sdk/bin/gcloud auth login --cred-file <(printf '%s
           ' ${GOOGLE_CREDENTIALS})
-        shell: zsh {0}
-      - env:
-          USE_GKE_GCLOUD_AUTH_PLUGIN: "True"
-        name: gcloud-kubectl
-        run: gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd
-        shell: zsh {0}
+      - name: gcloud-container-clusters
+        run: /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd
       - name: build
         run: jsonnet -m build/argocd -c cloud/argocd/argocd.jsonnet --tla-str fqdn=argocd.augustfeng.app --tla-code-file argocdCmpSecrets=cloud/secrets/sops-secrets.json
