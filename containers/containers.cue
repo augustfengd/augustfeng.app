@@ -76,6 +76,7 @@ dagger.#Plan & {
 
 		toolchain: {
 			_cue:       core.#Pull & {source: "cuelang/cue:0.4.3"}
+			_jsonnet:   core.#Pull & {source: "bitnami/jsonnet:0.19.1"}
 			_terraform: core.#Pull & {source: "hashicorp/terraform:1.3.0"}
 			_sops:      core.#Pull & {source: "mozilla/sops:v3.7.3-alpine"}
 			_kubectl:   core.#Pull & {source: "bitnami/kubectl"}
@@ -125,6 +126,11 @@ dagger.#Plan & {
 							name: "sed"
 							args: ["-i", "s/^plugins=(.*)/plugins=(\(#plugins))/", "/root/.zshrc"]
 						}
+					},
+					docker.#Copy & {
+						contents: _jsonnet.output
+						source:   "/opt/bitnami/jsonnet/bin/jsonnet"
+						dest:     "/usr/local/bin/jsonnet"
 					},
 					docker.#Copy & {
 						contents: _cue.output
