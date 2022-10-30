@@ -27,7 +27,7 @@ jobs: github.#Workflow.#jobs & {
 		steps: [
 			_#checkoutCode,
 			_#withDecryptionKey & {
-				name:                "Decrypt and convert secrets"
+				name:                "Decrypt and Convert Secrets"
 				run:                 "cue decrypt && cue convert"
 				"working-directory": "cloud/secrets"
 			},
@@ -68,6 +68,11 @@ jobs: github.#Workflow.#jobs & {
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 		steps: [
 			_#checkoutCode,
+			_#withDecryptionKey & {
+				name:                "Decrypt and Convert Secrets"
+				run:                 "cue decrypt && cue convert"
+				"working-directory": "cloud/secrets"
+			},
 			{
 				env: GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
 				name: "gcloud-auth"

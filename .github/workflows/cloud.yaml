@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v3
       - env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        name: Decrypt and convert secrets
+        name: Decrypt and Convert Secrets
         run: cue decrypt && cue convert
         working-directory: cloud/secrets
       - name: Configure workspace
@@ -89,6 +89,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      - env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        name: Decrypt and Convert Secrets
+        run: cue decrypt && cue convert
+        working-directory: cloud/secrets
       - env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
         name: gcloud-auth
