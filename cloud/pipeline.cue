@@ -70,14 +70,29 @@ jobs: github.#Workflow.#jobs & {
 			_#terraformApply & {"working-directory": "build/terraform"},
 		]
 	}
-	"finish": {
+	"argocd": {
 		needs: ["apply"]
 		if:        "github.event_name =='push'"
 		"runs-on": "ubuntu-latest"
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 		steps: [
 			_#checkoutCode,
-			// add some epilogue tasks
+			{
+				env: GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
+				name:  "gcloud-auth"
+				run:   "gcloud auth login --cred-file <(printf '%s\n' ${GOOGLE_CREDENTIALS})"
+				shell: "zsh {0}"
+			},
+			{
+				env: USE_GKE_GCLOUD_AUTH_PLUGIN: "True"
+				name:  "gcloud-kubectl"
+				run:   "gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd"
+				shell: "zsh {0}"
+			},
+			{
+				name: "build"
+				run:  "jsonnet -m build/argocd -c cloud/argocd/argocd.jsonnet --tla-str fqdn=argocd.augustfeng.app --tla-code-file argocdCmpSecrets=cloud/secrets/sops-secrets.json"
+			},
 		]
 	}
 }
@@ -91,26 +106,28 @@ _#withDecryptionKey: {
 	env: {
 		SOPS_AGE_KEY: "${{ secrets.SOPS_AGE_KEY }}"
 	}
-	...
+	name:                 string
+	run:                  string
+	"working-directory"?: string
 }
 
 _#terraformInit: {
-	name:                "Terraform Init"
-	id:                  "init"
-	run:                 "terraform init"
-	"working-directory": string
+	name:                 "Terraform Init"
+	id:                   "init"
+	run:                  "terraform init"
+	"working-directory"?: string
 }
 
 _#terraformPlan: {
-	name:                "Terraform Plan"
-	id:                  "plan"
-	run:                 "terraform plan"
-	"working-directory": string
+	name:                 "Terraform Plan"
+	id:                   "plan"
+	run:                  "terraform plan"
+	"working-directory"?: string
 }
 
 _#terraformApply: {
-	name:                "Terraform Apply"
-	id:                  "apply"
-	run:                 "terraform apply -auto-approve"
-	"working-directory": string
+	name:                 "Terraform Apply"
+	id:                   "apply"
+	run:                  "terraform apply -auto-approve"
+	"working-directory"?: string
 }

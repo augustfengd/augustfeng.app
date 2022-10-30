@@ -16,9 +16,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: make
-        env:
+      - env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        name: make
         run: make
   configure:
     needs:
@@ -29,10 +29,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Decrypt and convert secrets
-        run: cue decrypt && cue convert
-        env:
+      - env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        name: Decrypt and convert secrets
+        run: cue decrypt && cue convert
         working-directory: cloud/secrets
       - name: Configure workspace
         run: cue configure ./cloud/augustfeng.app:terraform
@@ -47,9 +47,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: make
-        env:
+      - env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        name: make
         run: make
       - name: Terraform Init
         id: init
@@ -70,9 +70,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: make
-        env:
+      - env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        name: make
         run: make
       - name: Terraform Init
         id: init
@@ -82,7 +82,7 @@ jobs:
         id: apply
         run: terraform apply -auto-approve
         working-directory: build/terraform
-  finish:
+  argocd:
     needs:
       - apply
     if: github.event_name =='push'
@@ -92,3 +92,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      - env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+        name: gcloud-auth
+        run: |-
+          gcloud auth login --cred-file <(printf '%s
+          ' ${GOOGLE_CREDENTIALS})
+        shell: zsh {0}
+      - env:
+          USE_GKE_GCLOUD_AUTH_PLUGIN: "True"
+        name: gcloud-kubectl
+        run: gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd
+        shell: zsh {0}
+      - name: build
+        run: jsonnet -m build/argocd -c cloud/argocd/argocd.jsonnet --tla-str fqdn=argocd.augustfeng.app --tla-code-file argocdCmpSecrets=cloud/secrets/sops-secrets.json
