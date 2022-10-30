@@ -4,8 +4,7 @@ import (
 	"github.com/SchemaStore/schemastore/src/schemas/json/github"
 )
 
-#DefaultBranch:    "main"
-#TerraformVersion: string
+#DefaultBranch: "main"
 
 name: "cloud"
 on: push: branches:         #DefaultBranch
