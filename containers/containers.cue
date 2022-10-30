@@ -75,8 +75,27 @@ dagger.#Plan & {
 		}
 
 		toolchain: {
-			_cue:       core.#Pull & {source: "cuelang/cue:0.4.3"}
-			_jsonnet:   core.#Pull & {source: "bitnami/jsonnet:0.19.1"}
+			_cue: core.#Pull & {source: "cuelang/cue:0.4.3"}
+			_jsonnet: {
+				archive: core.#HTTPFetch & {
+					source: "https://github.com/google/go-jsonnet/releases/download/v0.19.1/go-jsonnet_0.19.1_Linux_x86_64.tar.gz"
+					dest:   "go-jsonnet_0.19.1_Linux_x86_64.tar.gz"
+				}
+				files: {
+					runtime: core.#Pull & {source: "alpine"}
+					extract: core.#Exec & {
+						input: runtime.output
+						mounts: "go-jsonnet": {
+							contents: archive.output
+							dest:     "/mnt/go-jsonnet"
+						}
+						workdir: "/go-jsonnet"
+						args: ["tar", "xf", "/mnt/go-jsonnet/go-jsonnet_0.19.1_Linux_x86_64.tar.gz"]
+					}
+					output: extract.output
+				}
+				output: files.output
+			}
 			_terraform: core.#Pull & {source: "hashicorp/terraform:1.3.0"}
 			_sops:      core.#Pull & {source: "mozilla/sops:v3.7.3-alpine"}
 			_kubectl:   core.#Pull & {source: "bitnami/kubectl"}
@@ -129,7 +148,7 @@ dagger.#Plan & {
 					},
 					docker.#Copy & {
 						contents: _jsonnet.output
-						source:   "/opt/bitnami/jsonnet/bin/jsonnet"
+						source:   "/go-jsonnet/jsonnet"
 						dest:     "/usr/local/bin/jsonnet"
 					},
 					docker.#Copy & {
@@ -160,7 +179,7 @@ dagger.#Plan & {
 					docker.#Run & {
 						command: {
 							name: "/opt/google-cloud-sdk/bin/gcloud"
-							args: ["components", "install", "gke-gcloud-auth-plugin", "--quiet"]
+							args: ["components", "install", "gke-gcloud-auth-plugin", "--quiet", "--no-user-output-enabled"]
 						}
 					},
 					docker.#Set & {
