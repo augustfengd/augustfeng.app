@@ -17,10 +17,7 @@ jobs: github.#Workflow.#jobs & {
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 		steps: [
 			_#checkoutCode,
-			_#withDecryptionKey & {
-				name: "make"
-				run:  "make"
-			},
+			_#withDecryptionKey & _#make,
 		]
 	}
 	"configure": {
@@ -47,10 +44,7 @@ jobs: github.#Workflow.#jobs & {
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 		steps: [
 			_#checkoutCode,
-			_#withDecryptionKey & {
-				name: "make"
-				run:  "make"
-			},
+			_#withDecryptionKey & _#make,
 			_#terraformInit & {"working-directory": "build/terraform"},
 			_#terraformPlan & {"working-directory": "build/terraform"},
 		]
@@ -62,10 +56,7 @@ jobs: github.#Workflow.#jobs & {
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 		steps: [
 			_#checkoutCode,
-			_#withDecryptionKey & {
-				name: "make"
-				run:  "make"
-			},
+			_#withDecryptionKey & _#make,
 			_#terraformInit & {"working-directory":  "build/terraform"},
 			_#terraformApply & {"working-directory": "build/terraform"},
 		]
@@ -104,28 +95,36 @@ _#withDecryptionKey: {
 	env: {
 		SOPS_AGE_KEY: "${{ secrets.SOPS_AGE_KEY }}"
 	}
-	name:                 string
+	name?:                string
 	run:                  string
 	"working-directory"?: string
 }
 
+_#make: {
+	_target: string
+
+	env?: [string]: string
+	name?: string
+	run:   "make \(_target)" | *"make"
+}
+
 _#terraformInit: {
-	name:                 "Terraform Init"
 	id:                   "init"
+	name:                 "Terraform Init"
 	run:                  "terraform init"
 	"working-directory"?: string
 }
 
 _#terraformPlan: {
-	name:                 "Terraform Plan"
 	id:                   "plan"
+	name:                 "Terraform Plan"
 	run:                  "terraform plan"
 	"working-directory"?: string
 }
 
 _#terraformApply: {
-	name:                 "Terraform Apply"
 	id:                   "apply"
+	name:                 "Terraform Apply"
 	run:                  "terraform apply -auto-approve"
 	"working-directory"?: string
 }
