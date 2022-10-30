@@ -36,6 +36,22 @@ command: convert: {
 	}
 }
 
+command: updatekeys: {
+	s: file.Glob & {
+		glob: "*.enc.json"
+	}
+	for _, f in s.files {
+		(f): exec.Run & {
+			cmd: [
+				"sops",
+				"updatekeys",
+				"-y",
+				(f),
+			]
+		}
+	}
+}
+
 command: clean: {
 	s: file.Glob & {
 		glob: "*.enc.json"
