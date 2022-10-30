@@ -1,10 +1,15 @@
 package terraform
 
-// NOTE: disabled. migrated to GCP.
-_configuration: lib.digitalocean & {
-	resource: digitalocean_droplet: "k3s-agent-0": {}
-	resource: digitalocean_droplet: "k3s-server": {}
-}
-
-configuration: lib.gcp & {
+configuration: {
+	lib.gcp & {
+		_gcp: iam: "ci-cd-pipeline": {
+			account_id:   "ci-cd-pipeline"
+			display_name: "GitHub Actions service account"
+			roles: ["roles/container.developer"]
+			key: rotation_days: 30
+		}
+	}
+	lib.github & {
+		_github: secrets: GOOGLE_CREDENTIALS: "${base64decode(google_service_account_key.ci-cd-pipeline.private_key)}"
+	}
 }

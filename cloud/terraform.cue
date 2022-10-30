@@ -24,6 +24,12 @@ configuration: {
 			#settings: "terraform-version": string | *"1.2.7"
 			#vars: [
 				{
+					key:       "GITHUB_TOKEN"
+					value:     s["github-secrets.json"].GITHUB_TOKEN
+					category:  "env"
+					sensitive: true
+				},
+				{
 					key:       "NAMECHEAP_USER_NAME"
 					value:     s["namecheap-secrets.json"].user_name
 					category:  "env"

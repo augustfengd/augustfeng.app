@@ -1,6 +1,22 @@
 package terraform
 
 lib: gcp: {
+
+	_gcp: {
+		iam: [string]: {
+			account_id: string
+			roles: [...string]
+			display_name:     string | *""
+			workloadIdentity: {
+				namespace:      string
+				serviceaccount: string
+			} | *null
+			key: {
+				rotation_days: number
+			} | *null
+		}
+	}
+
 	// Cloud DNS
 	resource: {
 		google_dns_managed_zone: "augustfeng": {
@@ -30,6 +46,41 @@ lib: gcp: {
 				oauth_scopes: [
 					"https://www.googleapis.com/auth/cloud-platform",
 				]
+			}
+		}
+	}
+
+	resource: {
+		for sa, c in _gcp.iam {
+			google_service_account: (sa): {
+				account_id:   c.account_id
+				display_name: c.display_name
+			}
+			for i, r in c.roles {
+				google_project_iam_member: "\(sa)-\(i)": {
+					project: "augustfengd"
+					role:    (r)
+					member:  "serviceAccount:${google_service_account.\(sa).email}"
+				}
+			}
+			if c.workloadIdentity != null {
+				google_service_account_iam_member: "workload-identity-\(sa)": {
+					service_account_id: "${google_service_account.\(sa).name}"
+					role:               "roles/iam.workloadIdentityUser"
+					member:             "serviceAccount:" + "augustfengd" + ".svc.id.goog[" + (c.workloadIdentity.namespace) + "/" + (c.workloadIdentity.serviceaccount) + "]"
+				}
+			}
+
+			if c.key != null {
+				google_service_account_key: (sa): {
+					service_account_id: "${google_service_account.\(sa).name}"
+					keepers: {
+						rotation_time: "${time_rotating.\(sa)-rotation.rotation_rfc3339}"
+					}
+				}
+				time_rotating: "\(sa)-rotation": {
+					rotation_days: c.key.rotation_days
+				}
 			}
 		}
 	}
