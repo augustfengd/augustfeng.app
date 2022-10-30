@@ -17,7 +17,7 @@ jobs:
           curl -L --output bin/sops https://github.com/mozilla/sops/releases/download/v3.7.3/sops-v3.7.3.linux.amd64
           chmod +x bin/sops
           echo "${GITHUB_WORKSPACE}/bin" >> $GITHUB_PATH
-      - name: Publish containers
+      - name: Build and Publish Containers
         uses: dagger/dagger-for-github@v3
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}

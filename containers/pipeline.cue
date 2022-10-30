@@ -33,7 +33,7 @@ jobs: github.#Workflow.#jobs & {
 				"""
 			},
 			{
-				name: "Publish containers"
+				name: "Build and Publish Containers"
 				uses: "dagger/dagger-for-github@v3"
 				env: {
 					SOPS_AGE_KEY: "${{ secrets.SOPS_AGE_KEY }}"
