@@ -2,12 +2,12 @@
 build/terraform/
 
 # decrypted + converted secrets and encryption keys (terraform)
-cloud/_secrets/*.json
-cloud/_secrets/*.cue
-cloud/_secrets/*.txt
-!cloud/_secrets/*.enc.json
-!cloud/_secrets/secrets.cue
-!cloud/_secrets/secrets_tool.cue
+cloud/secrets/*.json
+cloud/secrets/*.cue
+cloud/secrets/*.txt
+!cloud/secrets/*.enc.json
+!cloud/secrets/secrets.cue
+!cloud/secrets/secrets_tool.cue
 
 # decrypted secrets and encryption keys (kubernetes)
 kubernetes/secrets/*.json

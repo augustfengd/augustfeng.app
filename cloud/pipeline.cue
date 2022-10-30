@@ -33,7 +33,7 @@ jobs: github.#Workflow.#jobs & {
 			_#withDecryptionKey & {
 				name:                "Decrypt and convert secrets"
 				run:                 "cue decrypt && cue convert"
-				"working-directory": "cloud/_secrets"
+				"working-directory": "cloud/secrets"
 			},
 			{
 				name: "Configure workspace"

@@ -33,7 +33,7 @@ jobs:
         run: cue decrypt && cue convert
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        working-directory: cloud/_secrets
+        working-directory: cloud/secrets
       - name: Configure workspace
         run: cue configure ./cloud/augustfeng.app:terraform
   plan:

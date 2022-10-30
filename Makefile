@@ -6,7 +6,7 @@ kubernetes:
 
 build/terraform: cloud
 	mkdir -p build/terraform
-	cd cloud/_secrets; cue decrypt && cue convert
+	cd cloud/secrets; cue decrypt && cue convert
 	cue export -f ./cloud/augustfeng.app:terraform -e configuration --outfile build/terraform/main.tf.json
 
 build/kubernetes: cloud

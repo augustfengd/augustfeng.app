@@ -1,7 +1,7 @@
 package terraform
 
 import (
-	s "github.com/augustfengd/augustfeng.app/cloud/_secrets:secrets"
+	s "github.com/augustfengd/augustfeng.app/cloud/secrets"
 )
 
 configuration: {
