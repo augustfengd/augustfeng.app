@@ -11,13 +11,13 @@ lib: gcp: {
 
 	// Google Kubernetes Engine
 	resource: {
-		google_service_account: "google-kubernetes-engine": {
-			account_id:   "google-kubernetes-engine"
+		google_service_account: "cluster": {
+			account_id:   "augustfeng-app-cluster"
 			display_name: "Service Account"
 		}
 
-		google_container_cluster: "main": {
-			name:     "main"
+		google_container_cluster: "cluster": {
+			name:     "augustfeng-app"
 			location: "us-east1-b"
 
 			initial_node_count: 1
@@ -26,25 +26,7 @@ lib: gcp: {
 				preemptible:  true
 				machine_type: "e2-micro"
 
-				service_account: "${google_service_account.google-kubernetes-engine.email}"
-				oauth_scopes: [
-					"https://www.googleapis.com/auth/cloud-platform",
-				]
-			}
-		}
-
-		// NOTE: disabled. use default node pool.
-		_google_container_node_pool: "main": {
-			name:       "main"
-			location:   "us-east1-b"
-			cluster:    "${google_container_cluster.main.name}"
-			node_count: 1
-
-			node_config: {
-				preemptible:  true
-				machine_type: "e2-micro"
-
-				service_account: "${google_service_account.google-kubernetes-engine.email}"
+				service_account: "${google_service_account.cluster.email}"
 				oauth_scopes: [
 					"https://www.googleapis.com/auth/cloud-platform",
 				]
@@ -55,7 +37,7 @@ lib: gcp: {
 	terraform: required_providers: {
 		google: {
 			source:  "hashicorp/google"
-			version: "4.32.0"
+			version: "4.41.0"
 		}
 	}
 
