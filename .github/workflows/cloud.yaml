@@ -11,20 +11,18 @@ name: cloud
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/augustfengd/toolchain:latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
       - env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
         run: make
+    container:
+      image: ghcr.io/augustfengd/toolchain:latest
   configure:
     needs:
       - build
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/augustfengd/toolchain:latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -35,14 +33,14 @@ jobs:
         working-directory: cloud/secrets
       - name: Configure workspace
         run: cue configure ./cloud/augustfeng.app:terraform
-  plan:
+    container:
+      image: ghcr.io/augustfengd/toolchain:latest
+  terraform-plan:
     needs:
       - build
       - configure
-    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/augustfengd/toolchain:latest
+    if: github.event_name == 'pull_request'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -57,14 +55,14 @@ jobs:
         name: Terraform Plan
         run: terraform plan
         working-directory: build/terraform
-  apply:
+    container:
+      image: ghcr.io/augustfengd/toolchain:latest
+  terraform-apply:
     needs:
       - build
       - configure
-    if: github.event_name =='push'
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/augustfengd/toolchain:latest
+    if: github.event_name =='push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -79,13 +77,13 @@ jobs:
         name: Terraform Apply
         run: terraform apply -auto-approve
         working-directory: build/terraform
-  argocd:
-    needs:
-      - apply
-    if: github.event_name =='push'
-    runs-on: ubuntu-latest
     container:
       image: ghcr.io/augustfengd/toolchain:latest
+  argocd-apply:
+    needs:
+      - terraform-apply
+    runs-on: ubuntu-latest
+    if: github.event_name =='push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -104,3 +102,29 @@ jobs:
         run: /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd
       - name: build
         run: jsonnet -m build/argocd -c cloud/argocd/argocd.jsonnet --tla-str fqdn=argocd.augustfeng.app --tla-code-file argocdCmpSecrets=cloud/secrets/sops-secrets.json
+    container:
+      image: ghcr.io/augustfengd/toolchain:latest
+  argocd-diff:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        name: Decrypt and Convert Secrets
+        run: cue decrypt && cue convert
+        working-directory: cloud/secrets
+      - env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+        name: gcloud-auth
+        run: |-
+          /opt/google-cloud-sdk/bin/gcloud auth login --cred-file <(printf '%s
+          ' ${GOOGLE_CREDENTIALS})
+      - name: gcloud-container-clusters
+        run: /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd
+      - name: build
+        run: jsonnet -m build/argocd -c cloud/argocd/argocd.jsonnet --tla-str fqdn=argocd.augustfeng.app --tla-code-file argocdCmpSecrets=cloud/secrets/sops-secrets.json
+    container:
+      image: ghcr.io/augustfengd/toolchain:latest
