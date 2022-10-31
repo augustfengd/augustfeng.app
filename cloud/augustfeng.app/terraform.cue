@@ -5,7 +5,7 @@ configuration: {
 		_gcp: iam: "ci-cd-pipeline": {
 			account_id:   "ci-cd-pipeline"
 			display_name: "GitHub Actions service account"
-			roles: ["roles/container.developer"]
+			roles: ["roles/container.admin"]
 			key: rotation_days: 30
 		}
 	}
