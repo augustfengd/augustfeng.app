@@ -103,10 +103,10 @@ jobs: github.#Workflow.#jobs & {
 				run: "kubectl create ns argocd --dry-run=client -oyaml | kubectl apply -f -"
 			},
 			{
-				run: "kubectl apply -f build/argocd/crds"
+				run: "kubectl -n argocd apply -f build/argocd/crds"
 			},
 			{
-				run: "kubectl apply -f build/argocd"
+				run: "kubectl -n argocd apply -f build/argocd"
 			},
 
 		]

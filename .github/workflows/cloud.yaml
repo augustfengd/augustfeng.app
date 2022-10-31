@@ -111,8 +111,8 @@ jobs:
       - name: gcloud-container-clusters
         run: /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd
       - run: kubectl create ns argocd --dry-run=client -oyaml | kubectl apply -f -
-      - run: kubectl apply -f build/argocd/crds
-      - run: kubectl apply -f build/argocd
+      - run: kubectl -n argocd apply -f build/argocd/crds
+      - run: kubectl -n argocd apply -f build/argocd
     container:
       image: ghcr.io/augustfengd/toolchain:latest
   argocd-diff:
