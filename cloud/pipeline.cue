@@ -21,7 +21,7 @@ jobs: github.#Workflow.#jobs & {
 			_#withDecryptionKey & _#make,
 			// NOTE: encrypt and upload build results as artifacts, but .. we rebuild in each job because it's simpler and faster(?).
 			{
-				name: "archive"
+				name: "Archive Build"
 				run:  "tar cvz build | age -r age13x2cud63r8fr9qjlqdxjcuahlzxh3rvpgx6vgl263dkk2ghgpckqrg5r7p > build.tar.gz.age"
 			},
 			{
@@ -32,7 +32,7 @@ jobs: github.#Workflow.#jobs & {
 				}
 			},
 			{
-				name: "archive"
+				name: "Archive Secrets"
 				run:  "tar cvz cloud/secrets | age -r age13x2cud63r8fr9qjlqdxjcuahlzxh3rvpgx6vgl263dkk2ghgpckqrg5r7p > secrets.tar.gz.age"
 			},
 			{
@@ -46,6 +46,7 @@ jobs: github.#Workflow.#jobs & {
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 	}
 	"configure": {
+		name: "terraform cloud"
 		needs: ["build"]
 		"runs-on": "ubuntu-latest"
 		steps: [
@@ -59,6 +60,7 @@ jobs: github.#Workflow.#jobs & {
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 	}
 	"terraform-plan": {
+		name: "terraform plan"
 		needs: ["build", "configure"]
 		"runs-on": "ubuntu-latest"
 		if:        "github.event_name == 'pull_request'"
@@ -71,6 +73,7 @@ jobs: github.#Workflow.#jobs & {
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 	}
 	"terraform-apply": {
+		name: "terraform apply"
 		needs: ["build", "configure"]
 		"runs-on": "ubuntu-latest"
 		if:        "github.event_name =='push'"
@@ -83,6 +86,7 @@ jobs: github.#Workflow.#jobs & {
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 	}
 	"argocd-apply": {
+		name: "argocd (apply)"
 		needs: ["terraform-apply", "build"]
 		"runs-on": "ubuntu-latest"
 		env: GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
@@ -113,6 +117,7 @@ jobs: github.#Workflow.#jobs & {
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 	}
 	"argocd-diff": {
+		name: "argocd (diff)"
 		needs: ["build"]
 		"runs-on": "ubuntu-latest"
 		env: GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
@@ -157,7 +162,7 @@ _#withDecryptionKey: {
 _#make: {
 	_target: string
 
-	name?: string
+	name: (run)
 	env?: [string]: string
 	if?: string
 	run: "make \(_target)" | *"make"

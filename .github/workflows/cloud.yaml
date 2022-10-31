@@ -15,16 +15,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - env:
+      - name: make
+        env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
         run: make
-      - name: archive
+      - name: Archive Build
         run: tar cvz build | age -r age13x2cud63r8fr9qjlqdxjcuahlzxh3rvpgx6vgl263dkk2ghgpckqrg5r7p > build.tar.gz.age
       - uses: actions/upload-artifact@v3
         with:
           name: build.tar.gz.age
           path: build.tar.gz.age
-      - name: archive
+      - name: Archive Secrets
         run: tar cvz cloud/secrets | age -r age13x2cud63r8fr9qjlqdxjcuahlzxh3rvpgx6vgl263dkk2ghgpckqrg5r7p > secrets.tar.gz.age
       - uses: actions/upload-artifact@v3
         with:
@@ -33,13 +34,15 @@ jobs:
     container:
       image: ghcr.io/augustfengd/toolchain:latest
   configure:
+    name: terraform cloud
     needs:
       - build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - env:
+      - name: make
+        env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
         run: make
       - name: Configure workspace
@@ -47,6 +50,7 @@ jobs:
     container:
       image: ghcr.io/augustfengd/toolchain:latest
   terraform-plan:
+    name: terraform plan
     needs:
       - build
       - configure
@@ -55,7 +59,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - env:
+      - name: make
+        env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
         run: make
       - id: init
@@ -69,6 +74,7 @@ jobs:
     container:
       image: ghcr.io/augustfengd/toolchain:latest
   terraform-apply:
+    name: terraform apply
     needs:
       - build
       - configure
@@ -77,7 +83,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - env:
+      - name: make
+        env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
         run: make
       - id: init
@@ -91,6 +98,7 @@ jobs:
     container:
       image: ghcr.io/augustfengd/toolchain:latest
   argocd-apply:
+    name: argocd (apply)
     needs:
       - terraform-apply
       - build
@@ -101,7 +109,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - env:
+      - name: make
+        env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
         run: make
       - name: gcloud-auth
@@ -116,6 +125,7 @@ jobs:
     container:
       image: ghcr.io/augustfengd/toolchain:latest
   argocd-diff:
+    name: argocd (diff)
     needs:
       - build
     runs-on: ubuntu-latest
@@ -126,7 +136,8 @@ jobs:
       - name: Checkout code
         if: env.GOOGLE_CREDENTIALS != ''
         uses: actions/checkout@v3
-      - env:
+      - name: make
+        env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
         if: env.GOOGLE_CREDENTIALS != ''
         run: make
