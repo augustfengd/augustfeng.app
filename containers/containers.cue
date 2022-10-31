@@ -201,12 +201,14 @@ dagger.#Plan & {
 						source:   "/google-cloud-sdk"
 						dest:     "/opt/google-cloud-sdk"
 					},
-					docker.#Run & {
-						command: {
-							name: "/opt/google-cloud-sdk/bin/gcloud"
-							args: ["components", "install", "gke-gcloud-auth-plugin", "--quiet", "--no-user-output-enabled"]
-						}
-					},
+					// NOTE: excluding this for now; it's adding 800mb~ to the container size.
+					//
+					// docker.#Run & {
+					//  command: {
+					//   name: "/opt/google-cloud-sdk/bin/gcloud"
+					//   args: ["components", "install", "gke-gcloud-auth-plugin", "--quiet", "--no-user-output-enabled"]
+					//  }
+					// },
 					docker.#Set & {
 						config: {
 							label: "org.opencontainers.image.source": "https://github.com/augustfengd/augustfeng.app"
