@@ -96,6 +96,26 @@ dagger.#Plan & {
 				}
 				output: files.output
 			}
+			_age: {
+				archive: core.#HTTPFetch & {
+					source: "https://github.com/FiloSottile/age/releases/download/v1.0.0/age-v1.0.0-linux-amd64.tar.gz"
+					dest:   "age-v1.0.0-linux-amd64.tar.gz"
+				}
+				files: {
+					runtime: core.#Pull & {source: "alpine"}
+					extract: core.#Exec & {
+						input: runtime.output
+						mounts: "age": {
+							contents: archive.output
+							dest:     "/mnt/age"
+						}
+						workdir: "/"
+						args: ["tar", "xf", "/mnt/age/age-v1.0.0-linux-amd64.tar.gz"]
+					}
+					output: extract.output
+				}
+				output: files.output
+			}
 			_terraform: core.#Pull & {source: "hashicorp/terraform:1.3.0"}
 			_sops:      core.#Pull & {source: "mozilla/sops:v3.7.3-alpine"}
 			_kubectl:   core.#Pull & {source: "bitnami/kubectl"}
@@ -147,14 +167,19 @@ dagger.#Plan & {
 						}
 					},
 					docker.#Copy & {
+						contents: _cue.output
+						source:   "/usr/bin/cue"
+						dest:     "/usr/bin/cue"
+					},
+					docker.#Copy & {
 						contents: _jsonnet.output
 						source:   "/go-jsonnet/jsonnet"
 						dest:     "/usr/local/bin/jsonnet"
 					},
 					docker.#Copy & {
-						contents: _cue.output
-						source:   "/usr/bin/cue"
-						dest:     "/usr/bin/cue"
+						contents: _age.output
+						source:   "/age/age"
+						dest:     "/usr/local/bin/age"
 					},
 					docker.#Copy & {
 						contents: _terraform.output
