@@ -83,4 +83,4 @@ function(fqdn='example.com', argocdCmpSecrets={ SOPS_AGE_KEY: '' })
                   valueFrom: { secretKeyRef: { name: 'sops-secrets', key: 'SOPS_AGE_KEY' } },
                 });
 
-  utils.render(build.manifests, apiGroups=['argoproj.io', 'cert-manager.io'])
+  utils.render(build.manifests, apiGroups=['argoproj.io', 'cert-manager.io', 'traefik.containo.us'])
