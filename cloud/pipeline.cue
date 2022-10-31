@@ -110,7 +110,6 @@ jobs: github.#Workflow.#Jobs & {
 			#actions.run & {
 				run: "kubectl -n argocd apply -f build/argocd"
 			},
-
 		]
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 	}
@@ -124,16 +123,16 @@ jobs: github.#Workflow.#Jobs & {
 		steps: [
 			#actions.checkoutCode,
 			#actions.with.decryptionKey & #actions.make,
-			{
+			#actions.run & {
 				name: "gcloud-auth"
 				run:  "/opt/google-cloud-sdk/bin/gcloud auth login --cred-file <(printf '%s\n' ${GOOGLE_CREDENTIALS})"
 			},
-			{
+			#actions.run & {
 				// env: USE_GKE_GCLOUD_AUTH_PLUGIN: "True"
 				name: "gcloud-container-clusters"
 				run:  "/opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd"
 			},
-			{
+			#actions.run & {
 				run: "kubectl diff -f build/argocd" // TODO: we have crd and crd objects.
 			},
 		]
