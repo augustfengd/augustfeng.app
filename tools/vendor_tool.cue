@@ -1,38 +1,48 @@
-// Copyright 2021 The CUE Authors
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package vendor
 
 import (
+	"strings"
+
 	"path"
 
 	"tool/exec"
 	"tool/http"
+	"tool/file"
 )
 
-command: importschema: {
+#root: exec.Run & {
+	cmd:    "git rev-parse --show-toplevel"
+	stdout: string
+	dir:    strings.TrimSpace(stdout)
+}
+
+command: importdefinitions: {
+	root: #root
 	k8s: {
 		go: exec.Run & {
 			cmd: "go get k8s.io/api/...@kubernetes-1.25.3"
+			dir: root.dir
 		}
 		cue: exec.Run & {
 			$dep: go.$done
 			cmd:  "cue get go k8s.io/api/..."
+			dir:  root.dir
 		}
 	}
+	argocd: {
+		go: exec.Run & {
+			version: "v2.5.0"
 
-	// NOTE: this command originates from
+			cmd: "go get github.com/argoproj/argo-cd/v2@\(version)"
+			dir: root.dir
+		}
+		cue: exec.Run & {
+			$dep: go.$done
+			cmd:  "cue get go github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+			dir:  root.dir
+		}
+	}
+	// NOTE: this command originates from cue's project.
 	// https://github.com/cue-lang/cue/blob/master/internal/ci/vendor/vendor_tool.cue
 	github: {
 		getJSONSchema: http.Get & {
@@ -46,6 +56,25 @@ command: importschema: {
 			_outpath: path.FromSlash("cue.mod/pkg/github.com/SchemaStore/schemastore/src/schemas/json/github/workflow.cue", "unix")
 			stdin:    getJSONSchema.response.body
 			cmd:      "cue import -f -p github -l #Workflow: -o \(_outpath) jsonschema: -"
+			dir:      root.dir
 		}
+	}
+}
+
+command: clean: {
+	root: #root
+	k8s:  file.RemoveAll & {
+		path: root.dir + "/" + "cue.mod/gen/k8s.io"
+	}
+	argocd: {
+		argproj: file.RemoveAll & {
+			path: root.dir + "/" + "cue.mod/gen/github.com/argoproj"
+		}
+		time: file.RemoveAll & {
+			path: root.dir + "/" + "cue.mod/gen/time"
+		}
+	}
+	gh: file.RemoveAll & {
+		path: root.dir + "/" + "cue.mod/pkg/github.com"
 	}
 }
