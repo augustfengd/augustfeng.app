@@ -17,7 +17,7 @@ jobs: github.#Workflow.#jobs & {
 		steps: [
 			_#checkoutCode,
 			_#withDecryptionKey & _#make,
-			// NOTE: encrypt and upload build results as artifacts, but .. it's just simpler to rebuild in each job.
+			// NOTE: encrypt and upload build results as artifacts, but .. we rebuild in each job because it's simpler and faster(?).
 			{
 				name: "archive"
 				run:  "tar cvz build | age -r age13x2cud63r8fr9qjlqdxjcuahlzxh3rvpgx6vgl263dkk2ghgpckqrg5r7p > build.tar.gz.age"
@@ -97,6 +97,9 @@ jobs: github.#Workflow.#jobs & {
 				name: "gcloud-container-clusters"
 				run:  "/opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd"
 			},
+			{
+				run: "kubectl create ns argocd; kubectl apply --recursive -f build/argocd"
+			},
 		]
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 	}
@@ -104,8 +107,7 @@ jobs: github.#Workflow.#jobs & {
 		needs: ["build"]
 		"runs-on": "ubuntu-latest"
 		env: GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
-		// NOTE: activate for testing
-		// if:        "github.event_name == 'pull_request'"
+		if: "github.event_name == 'pull_request'"
 		steps: [...{if: "env.GOOGLE_CREDENTIALS != ''"}]
 		steps: [
 			_#checkoutCode,
@@ -120,7 +122,7 @@ jobs: github.#Workflow.#jobs & {
 				run:  "/opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd"
 			},
 			{
-				run: "kubectl diff -f build/argocd"
+				run: "kubectl diff -f build/argocd" // TODO: we have crd and crd objects.
 			},
 		]
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
