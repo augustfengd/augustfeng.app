@@ -12,7 +12,7 @@ on: push: {
 	paths: ["containers/**"]
 }
 
-jobs: github.#Workflow.#jobs & {
+jobs: github.#Workflow.#Jobs & {
 	"build": {
 		"runs-on": "ubuntu-latest"
 		steps: [

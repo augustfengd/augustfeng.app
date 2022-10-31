@@ -13,7 +13,7 @@ on: [string]: paths: ["cloud/**"]
 
 concurrency: "augustfeng.app"
 
-jobs: github.#Workflow.#jobs & {
+jobs: github.#Workflow.#Jobs & {
 	"build": {
 		"runs-on": "ubuntu-latest"
 		steps: [
