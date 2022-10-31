@@ -1,18 +1,25 @@
-all: build/terraform .github/workflows
+all: build/terraform build/argocd .github/workflows
 
-.PHONY: kubernetes
 kubernetes:
 	cd kubernetes; $(MAKE)
 
+.PHONY: build/terraform
 build/terraform: cloud
 	mkdir -p build/terraform
 	cd cloud/secrets; cue decrypt && cue convert
 	cue export -f ./cloud/augustfeng.app:terraform -e configuration --outfile build/terraform/main.tf.json
 
+.PHONY: build/argocd
+build/argocd: cloud
+	mkdir -p build/kubernetes
+	jsonnet -m build/argocd -c cloud/argocd/argocd.jsonnet --tla-str fqdn=argocd.augustfeng.app --tla-code-file argocdCmpSecrets=cloud/secrets/sops-secrets.json
+
+.PHONY: build/kubernetes
 build/kubernetes: cloud
 	mkdir -p build/kubernetes
 	cue export -f ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(manifests)' --out text --outfile build/kubernetes/cloud.yaml
 
+.PHONY: .github/workflows
 .github/workflows: cloud containers
 	mkdir -p $@
 	cue export -f ./cloud/augustfeng.app:pipeline --outfile ./.github/workflows/cloud.yaml
