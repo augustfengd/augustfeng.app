@@ -40,7 +40,6 @@ lib: gcp: {
 			initial_node_count: 1
 
 			node_config: {
-				preemptible:  true
 				machine_type: "e2-micro"
 
 				service_account: "${google_service_account.cluster.email}"
