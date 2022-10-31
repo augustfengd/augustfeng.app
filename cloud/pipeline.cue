@@ -17,8 +17,21 @@ jobs: github.#Workflow.#jobs & {
 		steps: [
 			_#checkoutCode,
 			_#withDecryptionKey & _#make,
+			// NOTE: encrypt and upload build results as artifacts, but .. it's just simpler to rebuild in each job.
 			{
-				run: "tar cvz cloud/secrets | age -r age13x2cud63r8fr9qjlqdxjcuahlzxh3rvpgx6vgl263dkk2ghgpckqrg5r7p > secrets.tar.gz.age"
+				name: "archive"
+				run:  "tar cvz build | age -r age13x2cud63r8fr9qjlqdxjcuahlzxh3rvpgx6vgl263dkk2ghgpckqrg5r7p > build.tar.gz.age"
+			},
+			{
+				uses: "actions/upload-artifact@v3"
+				with: {
+					name: "build.tar.gz.age"
+					path: "build.tar.gz.age"
+				}
+			},
+			{
+				name: "archive"
+				run:  "tar cvz cloud/secrets | age -r age13x2cud63r8fr9qjlqdxjcuahlzxh3rvpgx6vgl263dkk2ghgpckqrg5r7p > secrets.tar.gz.age"
 			},
 			{
 				uses: "actions/upload-artifact@v3"
@@ -35,11 +48,7 @@ jobs: github.#Workflow.#jobs & {
 		"runs-on": "ubuntu-latest"
 		steps: [
 			_#checkoutCode,
-			_#withDecryptionKey & {
-				name:                "Decrypt and Convert Secrets"
-				run:                 "cue decrypt && cue convert"
-				"working-directory": "cloud/secrets"
-			},
+			_#withDecryptionKey & _#make,
 			{
 				name: "Configure workspace"
 				run:  "cue configure ./cloud/augustfeng.app:terraform"
@@ -74,16 +83,12 @@ jobs: github.#Workflow.#jobs & {
 	"argocd-apply": {
 		needs: ["terraform-apply", "build"]
 		"runs-on": "ubuntu-latest"
-		if:        "github.event_name =='push'"
+		env: GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
+		if: "github.event_name =='push'"
 		steps: [
 			_#checkoutCode,
-			_#withDecryptionKey & {
-				name:                "Decrypt and Convert Secrets"
-				run:                 "cue decrypt && cue convert"
-				"working-directory": "cloud/secrets"
-			},
+			_#withDecryptionKey & _#make,
 			{
-				env: GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
 				name: "gcloud-auth"
 				run:  "/opt/google-cloud-sdk/bin/gcloud auth login --cred-file <(printf '%s\n' ${GOOGLE_CREDENTIALS})"
 			},
@@ -91,10 +96,6 @@ jobs: github.#Workflow.#jobs & {
 				// env: USE_GKE_GCLOUD_AUTH_PLUGIN: "True"
 				name: "gcloud-container-clusters"
 				run:  "/opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd"
-			},
-			{
-				name: "build"
-				run:  "jsonnet -m build/argocd -c cloud/argocd/argocd.jsonnet --tla-str fqdn=argocd.augustfeng.app --tla-code-file argocdCmpSecrets=cloud/secrets/sops-secrets.json"
 			},
 		]
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
@@ -102,17 +103,14 @@ jobs: github.#Workflow.#jobs & {
 	"argocd-diff": {
 		needs: ["build"]
 		"runs-on": "ubuntu-latest"
+		env: GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
 		// NOTE: activate for testing
 		// if:        "github.event_name == 'pull_request'"
+		steps: [...{if: "env.GOOGLE_CREDENTIALS != ''"}]
 		steps: [
 			_#checkoutCode,
-			_#withDecryptionKey & {
-				name:                "Decrypt and Convert Secrets"
-				run:                 "cue decrypt && cue convert"
-				"working-directory": "cloud/secrets"
-			},
+			_#withDecryptionKey & _#make,
 			{
-				env: GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
 				name: "gcloud-auth"
 				run:  "/opt/google-cloud-sdk/bin/gcloud auth login --cred-file <(printf '%s\n' ${GOOGLE_CREDENTIALS})"
 			},
@@ -122,8 +120,7 @@ jobs: github.#Workflow.#jobs & {
 				run:  "/opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd"
 			},
 			{
-				name: "build"
-				run:  "jsonnet -m build/argocd -c cloud/argocd/argocd.jsonnet --tla-str fqdn=argocd.augustfeng.app --tla-code-file argocdCmpSecrets=cloud/secrets/sops-secrets.json"
+				run: "kubectl diff -f build/argocd"
 			},
 		]
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
@@ -132,14 +129,16 @@ jobs: github.#Workflow.#jobs & {
 
 _#checkoutCode: {
 	name: "Checkout code"
+	if?:  string
 	uses: "actions/checkout@v3"
 }
 
 _#withDecryptionKey: {
+	name?: string
 	env: {
 		SOPS_AGE_KEY: "${{ secrets.SOPS_AGE_KEY }}"
 	}
-	name?:                string
+	if?:                  string
 	run:                  string
 	"working-directory"?: string
 }
@@ -147,9 +146,10 @@ _#withDecryptionKey: {
 _#make: {
 	_target: string
 
-	env?: [string]: string
 	name?: string
-	run:   "make \(_target)" | *"make"
+	env?: [string]: string
+	if?: string
+	run: "make \(_target)" | *"make"
 }
 
 _#terraformInit: {

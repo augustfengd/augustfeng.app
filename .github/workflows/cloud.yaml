@@ -17,7 +17,14 @@ jobs:
       - env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
         run: make
-      - run: tar cvz cloud/secrets | age -r age13x2cud63r8fr9qjlqdxjcuahlzxh3rvpgx6vgl263dkk2ghgpckqrg5r7p > secrets.tar.gz.age
+      - name: archive
+        run: tar cvz build | age -r age13x2cud63r8fr9qjlqdxjcuahlzxh3rvpgx6vgl263dkk2ghgpckqrg5r7p > build.tar.gz.age
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build.tar.gz.age
+          path: build.tar.gz.age
+      - name: archive
+        run: tar cvz cloud/secrets | age -r age13x2cud63r8fr9qjlqdxjcuahlzxh3rvpgx6vgl263dkk2ghgpckqrg5r7p > secrets.tar.gz.age
       - uses: actions/upload-artifact@v3
         with:
           name: secrets.tar.gz.age
@@ -33,9 +40,7 @@ jobs:
         uses: actions/checkout@v3
       - env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        name: Decrypt and Convert Secrets
-        run: cue decrypt && cue convert
-        working-directory: cloud/secrets
+        run: make
       - name: Configure workspace
         run: cue configure ./cloud/augustfeng.app:terraform
     container:
@@ -89,48 +94,46 @@ jobs:
       - terraform-apply
       - build
     runs-on: ubuntu-latest
+    env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
     if: github.event_name =='push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
       - env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        name: Decrypt and Convert Secrets
-        run: cue decrypt && cue convert
-        working-directory: cloud/secrets
-      - env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-        name: gcloud-auth
+        run: make
+      - name: gcloud-auth
         run: |-
           /opt/google-cloud-sdk/bin/gcloud auth login --cred-file <(printf '%s
           ' ${GOOGLE_CREDENTIALS})
       - name: gcloud-container-clusters
         run: /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd
-      - name: build
-        run: jsonnet -m build/argocd -c cloud/argocd/argocd.jsonnet --tla-str fqdn=argocd.augustfeng.app --tla-code-file argocdCmpSecrets=cloud/secrets/sops-secrets.json
     container:
       image: ghcr.io/augustfengd/toolchain:latest
   argocd-diff:
     needs:
       - build
     runs-on: ubuntu-latest
+    env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
     steps:
       - name: Checkout code
+        if: env.GOOGLE_CREDENTIALS != ''
         uses: actions/checkout@v3
       - env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        name: Decrypt and Convert Secrets
-        run: cue decrypt && cue convert
-        working-directory: cloud/secrets
-      - env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+        if: env.GOOGLE_CREDENTIALS != ''
+        run: make
+      - if: env.GOOGLE_CREDENTIALS != ''
         name: gcloud-auth
         run: |-
           /opt/google-cloud-sdk/bin/gcloud auth login --cred-file <(printf '%s
           ' ${GOOGLE_CREDENTIALS})
-      - name: gcloud-container-clusters
+      - if: env.GOOGLE_CREDENTIALS != ''
+        name: gcloud-container-clusters
         run: /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd
-      - name: build
-        run: jsonnet -m build/argocd -c cloud/argocd/argocd.jsonnet --tla-str fqdn=argocd.augustfeng.app --tla-code-file argocdCmpSecrets=cloud/secrets/sops-secrets.json
+      - if: env.GOOGLE_CREDENTIALS != ''
+        run: kubectl diff -f build/argocd
     container:
       image: ghcr.io/augustfengd/toolchain:latest
