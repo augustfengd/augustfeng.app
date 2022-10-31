@@ -4,13 +4,21 @@
     { manifests:: upstream },
 
   // Render kubernetes manifests for '-m' usage.
-  render(manifests)::
+  render(manifests, apiGroups=['argoproj.io'])::
     local name(manifest) =
+      local apiGroup = if manifest.apiVersion != 'v1' then
+        std.split(manifest.apiVersion, '/')[0]
+      else
+        'noop';
       local kind = manifest.kind;
       local name = manifest.metadata.name;
 
       if kind != 'CustomResourceDefinition' then
-        kind + '.' + name + '.json'
+        // separate custom resources into separate folder
+        if std.member(apiGroups, apiGroup) then
+          apiGroup + '/' + kind + '.' + name + '.json'
+        else
+          kind + '.' + name + '.json'
       else
         'crds/' + name + '.json';
 

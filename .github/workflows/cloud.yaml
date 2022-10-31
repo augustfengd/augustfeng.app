@@ -16,9 +16,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: make
+        run: make
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        run: make
       - name: Archive Build
         run: tar cvz build | age -r age13x2cud63r8fr9qjlqdxjcuahlzxh3rvpgx6vgl263dkk2ghgpckqrg5r7p > build.tar.gz.age
       - uses: actions/upload-artifact@v3
@@ -42,9 +42,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: make
+        run: make
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        run: make
       - name: Configure workspace
         run: cue configure ./cloud/augustfeng.app:terraform
     container:
@@ -60,9 +60,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: make
+        run: make
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        run: make
       - id: init
         name: Terraform Init
         run: terraform init
@@ -84,9 +84,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: make
+        run: make
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        run: make
       - id: init
         name: Terraform Init
         run: terraform init
@@ -97,7 +97,7 @@ jobs:
         working-directory: build/terraform
     container:
       image: ghcr.io/augustfengd/toolchain:latest
-  argocd-apply:
+  cluster-services-apply:
     name: argocd (apply)
     needs:
       - terraform-apply
@@ -110,9 +110,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: make
+        run: make
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        run: make
       - name: gcloud-auth
         run: |-
           /opt/google-cloud-sdk/bin/gcloud auth login --cred-file <(printf '%s
@@ -124,7 +124,7 @@ jobs:
       - run: kubectl -n argocd apply -f build/argocd
     container:
       image: ghcr.io/augustfengd/toolchain:latest
-  argocd-diff:
+  cluster-services-diff:
     name: argocd (diff)
     needs:
       - build
@@ -133,14 +133,14 @@ jobs:
       GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
     if: github.event_name == 'pull_request'
     steps:
-      - name: Checkout code
-        if: env.GOOGLE_CREDENTIALS != ''
+      - if: env.GOOGLE_CREDENTIALS != ''
+        name: Checkout code
         uses: actions/checkout@v3
-      - name: make
+      - if: env.GOOGLE_CREDENTIALS != ''
+        name: make
+        run: make
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        if: env.GOOGLE_CREDENTIALS != ''
-        run: make
       - if: env.GOOGLE_CREDENTIALS != ''
         name: gcloud-auth
         run: |-
