@@ -11,6 +11,8 @@ on: push: branches:         #DefaultBranch
 on: pull_request: branches: #DefaultBranch
 on: [string]: paths: ["cloud/**"]
 
+concurrency: "augustfeng.app"
+
 jobs: github.#Workflow.#jobs & {
 	"build": {
 		"runs-on": "ubuntu-latest"
@@ -98,7 +100,7 @@ jobs: github.#Workflow.#jobs & {
 				run:  "/opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd"
 			},
 			{
-				run: "kubectl create ns argocd; kubectl apply --recursive -f build/argocd"
+				run: "kubectl create ns argocd; kubectl apply -f build/argocd/crds; kubectl apply -f build/argocd"
 			},
 		]
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
