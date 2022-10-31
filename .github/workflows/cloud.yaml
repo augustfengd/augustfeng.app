@@ -17,6 +17,11 @@ jobs:
       - env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
         run: make
+      - run: tar cvz cloud/secrets | age -r age13x2cud63r8fr9qjlqdxjcuahlzxh3rvpgx6vgl263dkk2ghgpckqrg5r7p > secrets.tar.gz.age
+      - uses: actions/upload-artifact@v3
+        with:
+          name: secrets.tar.gz.age
+          path: secrets.tar.gz.age
     container:
       image: ghcr.io/augustfengd/toolchain:latest
   configure:
@@ -82,6 +87,7 @@ jobs:
   argocd-apply:
     needs:
       - terraform-apply
+      - build
     runs-on: ubuntu-latest
     if: github.event_name =='push'
     steps:

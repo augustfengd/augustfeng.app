@@ -17,6 +17,16 @@ jobs: github.#Workflow.#jobs & {
 		steps: [
 			_#checkoutCode,
 			_#withDecryptionKey & _#make,
+			{
+				run: "tar cvz cloud/secrets | age -r age13x2cud63r8fr9qjlqdxjcuahlzxh3rvpgx6vgl263dkk2ghgpckqrg5r7p > secrets.tar.gz.age"
+			},
+			{
+				uses: "actions/upload-artifact@v3"
+				with: {
+					name: "secrets.tar.gz.age"
+					path: "secrets.tar.gz.age"
+				}
+			},
 		]
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 	}
@@ -62,7 +72,7 @@ jobs: github.#Workflow.#jobs & {
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 	}
 	"argocd-apply": {
-		needs: ["terraform-apply"]
+		needs: ["terraform-apply", "build"]
 		"runs-on": "ubuntu-latest"
 		if:        "github.event_name =='push'"
 		steps: [
