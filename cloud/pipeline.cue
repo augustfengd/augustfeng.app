@@ -100,8 +100,15 @@ jobs: github.#Workflow.#jobs & {
 				run:  "/opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd"
 			},
 			{
-				run: "kubectl create ns argocd; kubectl apply -f build/argocd/crds; kubectl apply -f build/argocd"
+				run: "kubectl create ns argocd --dry-run=client -oyaml | kubectl apply -f -"
 			},
+			{
+				run: "kubectl apply -f build/argocd/crds"
+			},
+			{
+				run: "kubectl apply -f build/argocd"
+			},
+
 		]
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 	}
