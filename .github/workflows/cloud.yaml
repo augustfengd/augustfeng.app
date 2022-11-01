@@ -4,10 +4,12 @@ name: cloud
     branches: main
     paths:
       - cloud/**
+      - cue.mod/**
   pull_request:
     branches: main
     paths:
       - cloud/**
+      - cue.mod/**
 concurrency: augustfeng.app
 jobs:
   build:

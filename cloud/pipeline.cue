@@ -9,7 +9,7 @@ import (
 name: "cloud"
 on: push: branches:         #DefaultBranch
 on: pull_request: branches: #DefaultBranch
-on: [string]: paths: ["cloud/**"]
+on: [string]: paths: ["cloud/**", "cue.mod/**"]
 
 concurrency: "augustfeng.app"
 
