@@ -57,6 +57,13 @@ function(fqdn='example.com', argocdCmpSecrets={ SOPS_AGE_KEY: '' })
                   args: ['wget -qO- https://github.com/cue-lang/cue/releases/download/v0.4.3/cue_v0.4.3_linux_amd64.tar.gz | tar xzf - -C /custom-tools/ cue'],
                   volumeMounts: [{ mountPath: '/custom-tools/', name: 'custom-tools' }],
                 })
+                + utils.builder.argocdRepoServerInitContainersAdd({
+                  name: 'download-jsonnet',
+                  image: 'alpine',
+                  command: ['sh', '-c'],
+                  args: ['wget -qO- "https://github.com/google/go-jsonnet/releases/download/v0.19.1/go-jsonnet_0.19.1_Linux_x86_64.tar.gz" | tar xzf - -C /custom-tools/ jsonnet'],
+                  volumeMounts: [{ mountPath: '/custom-tools/', name: 'custom-tools' }],
+                })
                 // install make
                 + utils.builder.argocdRepoServerContainerVolumeMountsAdd({
                   mountPath: '/usr/local/bin/make',
@@ -74,6 +81,11 @@ function(fqdn='example.com', argocdCmpSecrets={ SOPS_AGE_KEY: '' })
                   mountPath: '/usr/local/bin/cue',
                   name: 'custom-tools',
                   subPath: 'cue',
+                })
+                + utils.builder.argocdRepoServerContainerVolumeMountsAdd({
+                  mountPath: '/usr/local/bin/jsonnet',
+                  name: 'custom-tools',
+                  subPath: 'jsonnet',
                 })
 
                 // add decryption keys used in cmp (sops)
