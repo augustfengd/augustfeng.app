@@ -194,10 +194,10 @@
           namespace: 'argocd',
         },
         spec: {
-          // NOTE: required by Pull Request Generator (ApplicationSet) to manage namespace.
+          // NOTE: only used for cloud project right now, so allow everything.
           clusterResourceWhitelist: [{
-            group: '',
-            kind: 'Namespace',
+            group: '*',
+            kind: '*',
           }],
           destinations: [{ name: 'in-cluster', namespace: namespace, server: 'https://kubernetes.default.svc' }],
           sourceRepos: [repository],
