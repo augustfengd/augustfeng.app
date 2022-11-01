@@ -135,10 +135,6 @@ components: {
 			service: {
 				enabled: true
 				type:    "LoadBalancer"
-				annotations: {
-					"networking.gke.io/internal-load-balancer-allow-global-access": "true"
-					"networking.gke.io/load-balancer-type":                         "Internal"
-				}
 			}
 			logs: access: enabled: true
 			providers: kubernetesIngress: publishedService: enabled: true
