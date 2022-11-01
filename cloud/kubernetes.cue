@@ -50,6 +50,7 @@ import (
 			}
 		},
 	]
+	_manifest: _manifests[0]
 }
 
 #secrets: S={
@@ -62,7 +63,8 @@ import (
 			metadata: name: n
 			data: {for k, v in d {(k): base64.Decode(null, base64.Encode(null, v))}} // NOTE: convert string to base64 and then into bytes.
 		}
-	}]
+	}] | *[core.#Secret]
+	_manifest: _manifests[0]
 }
 
 #configmaps: S={
@@ -75,7 +77,8 @@ import (
 			metadata: name: n
 			data: {for k, v in d {(k): v}}
 		}
-	}]
+	}] | *[core.#ConfigMap]
+	_manifest: _manifests[0]
 }
 
 #ingress: {
@@ -98,6 +101,7 @@ import (
 			}]
 		}
 	}]
+	_manifest: _manifests[0]
 }
 
 #ingressroute: {
@@ -111,7 +115,7 @@ import (
 		}]
 	}]
 
-	manifests: [traefik.#IngressRoute & {
+	_manifests: [traefik.#IngressRoute & {
 		metadata: name:                        fqdn
 		spec: routes: [ for r in rules {match: r.match, services: r.services}]
 		spec: {
@@ -128,6 +132,7 @@ import (
 			tls: {secretName: fqdn}
 		}
 	}]
+	_manifest: _manifests[0]
 }
 
 components: {
@@ -167,27 +172,28 @@ components: {
 			providers: kubernetesIngress: publishedService: enabled: true
 		}
 
-		manifests: [ {
-			argocd.#Application & {
-				metadata: name: "traefik.chart"
-				spec: project:  "cloud"
-				spec: source: {
-					repoURL:        "https://helm.traefik.io/traefik"
-					targetRevision: "18.3.0"
-					helm: values: yaml.Marshal(chartConfiguration)
-					chart: "traefik"
-				}
-				spec: destination: namespace: "traefik"
+		_application: argocd.#Application & {
+			metadata: name: "traefik.chart"
+			spec: project:  "cloud"
+			spec: source: {
+				repoURL:        "https://helm.traefik.io/traefik"
+				targetRevision: "18.3.0"
+				helm: values: yaml.Marshal(chartConfiguration)
+				chart: "traefik"
 			}
-		},
-			#ingressroute & {
-				fqdn: #fqdn
-				rules: [{
-					match: "Host(`\(fqdn)`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))"
-					services: [{
-						name: "api@internal"
-						kind: "TraefikService"
-					}]}]
-			}]
+			spec: destination: namespace: "traefik"
+		}
+
+		_ingressroute: (#ingressroute & {
+			fqdn: #fqdn
+			rules: [{
+				match: "Host(`\(fqdn)`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))"
+				services: [{
+					name: "api@internal"
+					kind: "TraefikService"
+				}]}]
+		})._manifest
+
+		manifests: [_application, _ingressroute]
 	}
 }
