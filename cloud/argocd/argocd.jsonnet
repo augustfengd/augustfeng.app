@@ -77,10 +77,10 @@ function(fqdn='example.com', argocdCmpSecrets={ SOPS_AGE_KEY: '' })
                 })
 
                 // add decryption keys used in cmp (sops)
-                + utils.builder.addSecret('sops-secrets', { SOPS_AGE_KEY: std.base64(argocdCmpSecrets.SOPS_AGE_KEY) })
+                + utils.builder.addSecret('sops', { SOPS_AGE_KEY: std.base64(argocdCmpSecrets.SOPS_AGE_KEY) })
                 + utils.builder.argocdRepoServerContainerEnvironmentVariableAdd({
                   name: 'SOPS_AGE_KEY',
-                  valueFrom: { secretKeyRef: { name: 'sops-secrets', key: 'SOPS_AGE_KEY' } },
+                  valueFrom: { secretKeyRef: { name: 'sops', key: 'SOPS_AGE_KEY' } },
                 });
 
   utils.render(build.manifests, apiGroups=['cert-manager.io', 'traefik.containo.us'])
