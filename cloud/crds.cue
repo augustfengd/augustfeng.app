@@ -5,8 +5,8 @@ traefik: #IngressRoute: {
 	apiVersion: "traefik.containo.us/v1alpha1"
 	kind:       "IngressRoute"
 	metadata: {
-		name:      string
-		namespace: string
+		name:       string
+		namespace?: string
 	}
 	#rules: [...{
 		match: string
