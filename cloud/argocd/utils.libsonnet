@@ -246,7 +246,7 @@
         },
         generate: {
           command: ['/bin/sh', '-c'],
-          args: ['cue ${ARGOCD_ENV_args}'],
+          args: ['eval cue ${ARGOCD_ENV_args}'],  // HACK: eval is used to expand the spaces inside of ${ARGOCD_ENV_args}
         },
       },
       local pluginYamlStr = std.toString(std.manifestYamlDoc([cue])),
