@@ -6,7 +6,7 @@ function(fqdn='example.com', argocdCmpSecrets={ SOPS_AGE_KEY: '' })
 
                 // add manifests
                 + utils.builder.addIngress(fqdn)
-                + utils.builder.addAppProject(name='cloud', namespace='*', repository='https://github.com/augustfengd/augustfeng.app.git')
+                + utils.builder.addAppProject(name='cloud', namespace='*', repository='*')
 
                 // configure argocd server for kubernetes ingress controller with tls termination
                 + utils.builder.argocdServerCommandOverride(['argocd-server', '--insecure'])
