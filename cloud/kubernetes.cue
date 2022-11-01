@@ -158,10 +158,7 @@ components: {
 			}
 		},
 			traefik.#IngressRoute & {
-				metadata: {
-					name:      "dashboard"
-					namespace: "traefik"
-				}
+				metadata: name: "dashboard"
 				#rules: [{
 					match: "Host(`\(#fqdn)`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))"
 					services: [{

@@ -5,6 +5,7 @@ package v1alpha1
 	kind:       "Application"
 
 	// sensible defaults
+	metadata: namespace: string | *"argocd"
 	spec: {
 		destination: {
 			server: string | *"https://kubernetes.default.svc"
