@@ -84,7 +84,7 @@ jobs: github.#Workflow.#Jobs & {
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 	}
 	"cluster-services-apply": {
-		name: "argocd (apply)"
+		name: "cluster services (apply)"
 		needs: ["terraform-apply", "build"]
 		"runs-on": "ubuntu-latest"
 		env: GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
@@ -130,7 +130,7 @@ jobs: github.#Workflow.#Jobs & {
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 	}
 	"cluster-services-diff": {
-		name: "argocd (diff)"
+		name: "cluster services (diff)"
 		needs: ["build"]
 		"runs-on": "ubuntu-latest"
 		env: GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"

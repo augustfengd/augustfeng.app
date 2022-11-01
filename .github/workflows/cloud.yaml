@@ -98,7 +98,7 @@ jobs:
     container:
       image: ghcr.io/augustfengd/toolchain:latest
   cluster-services-apply:
-    name: argocd (apply)
+    name: cluster services (apply)
     needs:
       - terraform-apply
       - build
@@ -130,7 +130,7 @@ jobs:
     container:
       image: ghcr.io/augustfengd/toolchain:latest
   cluster-services-diff:
-    name: argocd (diff)
+    name: cluster services (diff)
     needs:
       - build
     runs-on: ubuntu-latest
