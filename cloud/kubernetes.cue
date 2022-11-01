@@ -116,7 +116,7 @@ components: {
 					env: [
 						{
 							name:  "args"
-							value: "./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(components.traefik.manifests)' --out text"
+							value: "export ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(components.traefik.manifests)' --out text"
 						},
 					]
 					name: "cue"
