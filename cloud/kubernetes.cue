@@ -27,10 +27,8 @@ import (
 	_manifests: [
 		apps.#Deployment & {
 			X=metadata: {
-				"name": _name
-				labels: {
-					"app.kubernetes.io/name": _name
-				}
+				name: _name
+				labels: "app.kubernetes.io/name": _name
 			}
 			spec: template: spec: containers: [{
 				"image": image.name + ":" + image.tag
@@ -44,10 +42,8 @@ import (
 		if len(expose.ports) > 0 {
 			core.#Service & {
 				metadata: {
-					"name": _name
-					labels: {
-						"app.kubernetes.io/name": _name
-					}
+					name: _name
+					labels: "app.kubernetes.io/name": _name
 				}
 				spec: ports: [ for n, p in expose.ports {name: n, port: p, targetPort: p, protocol: expose.protocol[n]}]
 			}
