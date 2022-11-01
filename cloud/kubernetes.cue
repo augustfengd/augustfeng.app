@@ -4,8 +4,11 @@ import (
 	core "k8s.io/api/core/v1"
 	apps "k8s.io/api/apps/v1"
 	networking "k8s.io/api/networking/v1"
+	argocd "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+
 	"strings"
 	"encoding/base64"
+	"encoding/yaml"
 )
 
 // NOTE: These definitions (#deployment, #secrets, #configmaps, ...) are
@@ -101,7 +104,50 @@ import (
 }
 
 components: {
-	nginx: #deployment
+	"traefik": {
+		#fqdn: string
+
+		chartConfiguration: {
+			fullnameOverride: "traefik"
+			service: {
+				enabled: true
+				type:    "LoadBalancer"
+				annotations: {
+					"networking.gke.io/internal-load-balancer-allow-global-access": "true"
+					"networking.gke.io/load-balancer-type":                         "Internal"
+				}
+			}
+			logs: access: enabled: true
+			providers: kubernetesIngress: publishedService: enabled: true
+		}
+
+		manifests: [ {
+			argocd.#Application & {
+				metadata: name: "traefik.chart"
+				spec: project:  "cloud"
+				spec: source: {
+					repoURL:        "https://helm.traefik.io/traefik"
+					targetRevision: "18.3.0"
+					helm: values: yaml.Marshal(chartConfiguration)
+					chart: "traefik"
+				}
+				spec: destination: namespace: "traefik"
+			}
+		},
+			traefik.#IngressRoute & {
+				metadata: {
+					name:      "dashboard"
+					namespace: "traefik"
+				}
+				#rules: [{
+					match: "Host(`\(#fqdn)`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))"
+					services: [{
+						name: "api@internal"
+						kind: "TraefikService"
+					}]}]
+				spec: tls: secretName: "traefik.augustfeng.app"
+			}]
+	}
 }
 
-manifests: components.nginx._manifests
+manifests: components.traefik.manifests

@@ -4,7 +4,7 @@
     { manifests:: upstream },
 
   // Render kubernetes manifests for '-m' usage.
-  render(manifests, apiGroups=['argoproj.io'])::
+  render(manifests, apiGroups=[])::
     local name(manifest) =
       local apiGroup = if manifest.apiVersion != 'v1' then
         std.split(manifest.apiVersion, '/')[0]

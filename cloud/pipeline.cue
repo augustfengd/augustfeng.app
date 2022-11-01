@@ -97,7 +97,6 @@ jobs: github.#Workflow.#Jobs & {
 				run:  "/opt/google-cloud-sdk/bin/gcloud auth login --cred-file <(printf '%s\n' ${GOOGLE_CREDENTIALS})"
 			},
 			#actions.run & {
-				// env: USE_GKE_GCLOUD_AUTH_PLUGIN: "True"
 				name: "gcloud-container-clusters"
 				run:  "/opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd"
 			},
@@ -109,6 +108,23 @@ jobs: github.#Workflow.#Jobs & {
 			},
 			#actions.run & {
 				run: "kubectl -n argocd apply -f build/argocd"
+			},
+			// traefik related manifests
+			#actions.run & {
+				run: "cue export ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(components.traefik.manifests)' --out text | kubectl apply -f -"
+			},
+			#actions.run & {
+				run: "timeout 1m sh -c 'until kubectl get crds ingressroutes.traefik.containo.us; do sleep 5; done'" // "kubectl get crds -o=jsonpath='{.items[?(@.spec.group==\"traefik.containo.us\")]}'"
+			},
+			#actions.run & {
+				run: "kubectl -n argocd apply -f build/argocd/traefik.containo.us"
+			},
+			// cert-manager related manifests
+			#actions.run & {
+				run: "timeout 1m sh -c 'until kubectl get crds certificates.cert-manager.io; do sleep 5; done'"
+			},
+			#actions.run & {
+				run: "kubectl -n argocd apply -f build/argocd/cert-manager.io"
 			},
 		]
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
@@ -128,12 +144,11 @@ jobs: github.#Workflow.#Jobs & {
 				run:  "/opt/google-cloud-sdk/bin/gcloud auth login --cred-file <(printf '%s\n' ${GOOGLE_CREDENTIALS})"
 			},
 			#actions.run & {
-				// env: USE_GKE_GCLOUD_AUTH_PLUGIN: "True"
 				name: "gcloud-container-clusters"
 				run:  "/opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd"
 			},
 			#actions.run & {
-				run: "kubectl diff -f build/argocd" // TODO: we have crd and crd objects.
+				run: "kubectl diff -f build/argocd" // TODO: fails on first run because we have custom resource definitions and custom resource objects.
 			},
 		]
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
