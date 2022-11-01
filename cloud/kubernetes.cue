@@ -5,6 +5,7 @@ import (
 	apps "k8s.io/api/apps/v1"
 	networking "k8s.io/api/networking/v1"
 	argocd "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+	traefik "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 
 	"strings"
 	"encoding/base64"
@@ -99,6 +100,36 @@ import (
 	}]
 }
 
+#ingressroute: {
+	fqdn: string
+	rules: [...{
+		match: string
+		services: [...{
+			name:  string
+			port?: number | string
+			kind:  *"Service" | "TraefikService"
+		}]
+	}]
+
+	manifests: [traefik.#IngressRoute & {
+		metadata: name:                        fqdn
+		spec: routes: [ for r in rules {match: r.match, services: r.services}]
+		spec: {
+			entryPoints: ["websecure"]
+			routes: [...{
+				kind:  "Rule"
+				match: string
+				services: [...{
+					name:  string
+					port?: number | string
+					kind:  string
+				}]
+			}]
+			tls: {secretName: fqdn}
+		}
+	}]
+}
+
 components: {
 	"appofapps": {
 		"traefik": argocd.#Application & {
@@ -149,15 +180,14 @@ components: {
 				spec: destination: namespace: "traefik"
 			}
 		},
-			traefik.#IngressRoute & {
-				metadata: name: "dashboard"
-				#rules: [{
-					match: "Host(`\(#fqdn)`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))"
+			#ingressroute & {
+				fqdn: #fqdn
+				rules: [{
+					match: "Host(`\(fqdn)`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))"
 					services: [{
 						name: "api@internal"
 						kind: "TraefikService"
 					}]}]
-				spec: tls: secretName: "traefik.augustfeng.app"
 			}]
 	}
 }

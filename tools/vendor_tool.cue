@@ -20,8 +20,9 @@ command: importdefinitions: {
 	root: #root
 	k8s: {
 		go: exec.Run & {
-			cmd: "go get k8s.io/api/...@kubernetes-1.25.3"
-			dir: root.dir
+			version: "kubernetes-1.25.3"
+			cmd:     "go get k8s.io/api/...@" + (version)
+			dir:     root.dir
 		}
 		cue: exec.Run & {
 			$dep: go.$done
@@ -33,13 +34,32 @@ command: importdefinitions: {
 		go: exec.Run & {
 			version: "v2.5.0"
 
-			cmd: "go get github.com/argoproj/argo-cd/v2@\(version)"
+			cmd: "go get github.com/argoproj/argo-cd/v2@" + (version)
 			dir: root.dir
 		}
 		cue: exec.Run & {
 			$dep: go.$done
 			cmd:  "cue get go github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 			dir:  root.dir
+		}
+	}
+	traefik: {
+		go: exec.Run & {
+			version: "v2.9.4"
+
+			cmd: "go get github.com/traefik/traefik/v2@" + (version)
+			dir: root.dir
+		}
+		cue: exec.Run & {
+			$dep: go.$done
+			cmd:  "cue get go github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
+			dir:  root.dir
+		}
+		// crypto/tls is imported at cue.mod/gen but CUE thinks it's builtin.
+		patch: exec.Run & {
+			$dep: cue.$done
+			cmd: ["gsed", "-i", "s/import \"crypto\\/tls\"/tls: #Certificate: _/", "cue.mod/gen/github.com/traefik/traefik/v2/pkg/tls/certificate_store_go_gen.cue"]
+			dir: root.dir
 		}
 	}
 	// NOTE: this command originates from cue's project.
@@ -72,6 +92,29 @@ command: clean: {
 		}
 		time: file.RemoveAll & {
 			path: root.dir + "/" + "cue.mod/gen/time"
+		}
+	}
+	traefik: {
+		traefik: file.RemoveAll & {
+			path: root.dir + "/" + "cue.mod/gen/github.com/traefik"
+		}
+		context: file.RemoveAll & {
+			path: root.dir + "/" + "cue.mod/gen/context"
+		}
+		crypto: file.RemoveAll & {
+			path: root.dir + "/" + "cue.mod/gen/crypto"
+		}
+		encoding: file.RemoveAll & {
+			path: root.dir + "/" + "cue.mod/gen/encoding"
+		}
+		io: file.RemoveAll & {
+			path: root.dir + "/" + "cue.mod/gen/io"
+		}
+		net: file.RemoveAll & {
+			path: root.dir + "/" + "cue.mod/gen/io"
+		}
+		reflect: file.RemoveAll & {
+			path: root.dir + "/" + "cue.mod/gen/reflect"
 		}
 	}
 	gh: file.RemoveAll & {
