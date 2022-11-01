@@ -104,6 +104,29 @@ import (
 }
 
 components: {
+	"appofapps": {
+		"traefik": argocd.#Application & {
+			metadata: name: "traefik"
+			spec: project:  "cloud"
+			spec: source: {
+				repoURL:        "https://github.com/augustfengd/augustfeng.app.git"
+				path:           "."
+				targetRevision: "main"
+				plugin: {
+					env: [
+						{
+							name:  "args"
+							value: "./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(components.traefik.manifests)' --out text"
+						},
+					]
+					name: "cue"
+				}
+			}
+			spec: destination: namespace: "traefik"
+		}
+
+		manifests: [components.appofapps.traefik]
+	}
 	"traefik": {
 		#fqdn: string
 
@@ -149,5 +172,3 @@ components: {
 			}]
 	}
 }
-
-manifests: components.traefik.manifests

@@ -122,7 +122,7 @@ jobs:
       - run: kubectl create ns argocd --dry-run=client -oyaml | kubectl apply -f -
       - run: kubectl -n argocd apply -f build/argocd/crds
       - run: kubectl -n argocd apply -f build/argocd
-      - run: cue export ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(components.traefik.manifests)' --out text | kubectl apply -f -
+      - run: cue export ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(components.appofapps.manifests)' --out text | kubectl -n argocd apply -f -
       - run: timeout 1m sh -c 'until kubectl get crds ingressroutes.traefik.containo.us; do sleep 5; done'
       - run: kubectl -n argocd apply -f build/argocd/traefik.containo.us
       - run: timeout 1m sh -c 'until kubectl get crds certificates.cert-manager.io; do sleep 5; done'

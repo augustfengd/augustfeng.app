@@ -242,12 +242,11 @@
       local cue = {
         name: 'cue',
         init: {
-          command: ['true'],
-          args: [''],
+          command: ['make'],
         },
         generate: {
-          command: ['true'],
-          args: [''],
+          command: ['/bin/sh', '-c'],
+          args: ['cue ${ARGOCD_ENV_args}'],
         },
       },
       local pluginYamlStr = std.toString(std.manifestYamlDoc([cue])),
