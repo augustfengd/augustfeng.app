@@ -49,14 +49,14 @@ lib: gcp: {
 			}
 		}
 
-		google_container_node_pool: "e2-micro": {
-			name:       "e2-micro-pool"
+		google_container_node_pool: "e2-small": {
+			name:       "e2-small-pool"
 			cluster:    "${google_container_cluster.cluster.id}"
 			node_count: 1
 
 			node_config: {
 				spot:         true
-				machine_type: "e2-micro"
+				machine_type: "e2-small"
 
 				// Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
 				service_account: "${google_service_account.cluster.email}"
