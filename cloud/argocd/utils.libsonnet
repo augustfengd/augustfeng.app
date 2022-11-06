@@ -124,7 +124,7 @@
         apiVersion: 'traefik.containo.us/v1alpha1',
         kind: 'IngressRoute',
         metadata: {
-          name: 'argocd-server',
+          name: '%s' % fqdn,
           namespace: 'argocd',
         },
         spec: {
