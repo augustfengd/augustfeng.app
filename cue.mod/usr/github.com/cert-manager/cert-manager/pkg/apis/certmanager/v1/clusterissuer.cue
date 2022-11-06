@@ -1,6 +1,6 @@
 package v1
 
-#ClusterIsuser: {
+#ClusterIssuer: {
 	apiVersion:  "cert-manager.io/v1"
 	kind:        "ClusterIssuer"
 }
