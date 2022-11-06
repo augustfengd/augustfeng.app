@@ -208,6 +208,7 @@ components: {
 			service: {
 				enabled: true
 				type:    "LoadBalancer"
+				annotations: "external-dns.alpha.kubernetes.io/hostname": "traefik.augustfeng.app"
 			}
 			logs: access: enabled: true
 			providers: kubernetesIngress: publishedService: enabled: true
