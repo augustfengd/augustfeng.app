@@ -58,7 +58,7 @@ jobs: github.#Workflow.#Jobs & {
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 	}
 	"terraform-plan": {
-		name: "terraform plan"
+		name: "terraform (plan)"
 		needs: ["build", "configure"]
 		"runs-on": "ubuntu-latest"
 		if:        "github.event_name == 'pull_request'"
@@ -71,7 +71,7 @@ jobs: github.#Workflow.#Jobs & {
 		container: image: "ghcr.io/augustfengd/toolchain:latest"
 	}
 	"terraform-apply": {
-		name: "terraform apply"
+		name: "terraform (apply)"
 		needs: ["build", "configure"]
 		"runs-on": "ubuntu-latest"
 		if:        "github.event_name =='push'"

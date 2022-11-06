@@ -52,7 +52,7 @@ jobs:
     container:
       image: ghcr.io/augustfengd/toolchain:latest
   terraform-plan:
-    name: terraform plan
+    name: terraform (plan)
     needs:
       - build
       - configure
@@ -76,7 +76,7 @@ jobs:
     container:
       image: ghcr.io/augustfengd/toolchain:latest
   terraform-apply:
-    name: terraform apply
+    name: terraform (apply)
     needs:
       - build
       - configure
