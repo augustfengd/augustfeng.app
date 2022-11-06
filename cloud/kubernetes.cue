@@ -221,7 +221,7 @@ components: {
 		#fqdn: string
 
 		chartConfiguration: {
-			serviceAccount: annotations: annotations: [string]: string
+			serviceAccount: annotations: [string]: string
 			fullnameOverride: "cert-manager"
 		}
 
