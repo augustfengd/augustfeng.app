@@ -286,6 +286,7 @@ components: {
 	"external-dns": {
 		chartConfiguration: {
 			serviceAccount: annotations: [string]: string
+			policy: "sync"
 			fullnameOverride: "external-dns"
 			provider:         "google"
 		}
