@@ -178,7 +178,27 @@ components: {
 			spec: destination: namespace: "cert-manager"
 		}
 
-		manifests: [components.appofapps."traefik", components.appofapps."cert-manager"]
+		"external-dns": argocd.#Application & {
+			metadata: name: "external-dns"
+			spec: project:  "cloud"
+			spec: source: {
+				repoURL:        "https://github.com/augustfengd/augustfeng.app.git"
+				path:           "."
+				targetRevision: "main"
+				plugin: {
+					env: [
+						{
+							name:  "args"
+							value: "export ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(components.\"external-dns\".manifests)' --out text"
+						},
+					]
+					name: "cue"
+				}
+			}
+			spec: destination: namespace: "external-dns"
+		}
+
+		manifests: [components.appofapps."traefik", components.appofapps."external-dns"]
 	}
 	"traefik": {
 		#fqdn: string
@@ -230,8 +250,6 @@ components: {
 		manifests: [_application, _ingressroute, _certificate]
 	}
 	"cert-manager": {
-		#fqdn: string
-
 		chartConfiguration: {
 			serviceAccount: annotations: [string]: string
 			fullnameOverride: "cert-manager"
@@ -263,5 +281,28 @@ components: {
 		}
 
 		manifests: [_application, _clusterissuer]
+	}
+
+	"external-dns": {
+		chartConfiguration: {
+			serviceAccount: annotations: [string]: string
+			fullnameOverride: "external-dns"
+			provider:         "google"
+		}
+
+		_application: argocd.#Application & {
+			metadata: name: "external-dns.chart"
+
+			spec: project: "cloud"
+			spec: source: {
+				repoURL:        "https://kubernetes-sigs.github.io/external-dns/"
+				targetRevision: "1.11.0"
+				helm: values: yaml.Marshal(chartConfiguration)
+				chart: "external-dns"
+			}
+			spec: destination: namespace: "external-dns"
+		}
+
+		manifests: [_application]
 	}
 }

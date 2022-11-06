@@ -5,17 +5,26 @@ configuration: {
 		_gcp: iam: {
 			"ci-cd-pipeline": {
 				account_id:   "ci-cd-pipeline"
-				display_name: "GitHub Actions service account"
+				display_name: "ci-cd-pipeline"
 				roles: ["roles/container.admin"]
 				key: rotation_days: 30
 			}
 			"cert-manager": {
 				account_id:   "cert-manager"
-				display_name: "cert-manager service account"
+				display_name: "cert-manager"
 				roles: ["roles/dns.admin"]
 				workloadIdentity: {
 					namespace:      "cert-manager"
 					serviceaccount: "cert-manager"
+				}
+			}
+			"external-dns": {
+				account_id:   "external-dns"
+				display_name: "external-dns"
+				roles: ["roles/dns.admin"]
+				workloadIdentity: {
+					namespace:      "external-dns"
+					serviceaccount: "external-dns"
 				}
 			}
 		}

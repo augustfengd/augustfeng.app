@@ -34,7 +34,7 @@ lib: gcp: {
 	resource: {
 		google_service_account: "cluster": {
 			account_id:   "augustfeng-app-cluster"
-			display_name: "Service Account"
+			display_name: "augustfeng-app-cluster"
 		}
 
 		google_container_cluster: "cluster": {
