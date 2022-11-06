@@ -171,14 +171,14 @@ components: {
 							name:  "args"
 							value: "export ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(components.\"cert-manager\".manifests)' --out text"
 						},
-				]
+					]
 					name: "cue"
 				}
 			}
 			spec: destination: namespace: "cert-manager"
 		}
 
-		manifests: [components.appofapps.traefik]
+		manifests: [components.appofapps."traefik", components.appofapps."cert-manager"]
 	}
 	"traefik": {
 		#fqdn: string
