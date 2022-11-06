@@ -6,6 +6,7 @@ import (
 	networking "k8s.io/api/networking/v1"
 	argocd "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	traefik "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
+	certmanager "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 
 	"strings"
 	"encoding/base64"
@@ -157,6 +158,26 @@ components: {
 			spec: destination: namespace: "traefik"
 		}
 
+		"cert-manager": argocd.#Application & {
+			metadata: name: "cert-manager"
+			spec: project:  "cloud"
+			spec: source: {
+				repoURL:        "https://github.com/augustfengd/augustfeng.app.git"
+				path:           "."
+				targetRevision: "main"
+				plugin: {
+					env: [
+						{
+							name:  "args"
+							value: "export ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(components.\"cert-manager\".manifests)' --out text"
+						},
+				]
+					name: "cue"
+				}
+			}
+			spec: destination: namespace: "cert-manager"
+		}
+
 		manifests: [components.appofapps.traefik]
 	}
 	"traefik": {
@@ -177,7 +198,7 @@ components: {
 			spec: project:  "cloud"
 			spec: source: {
 				repoURL:        "https://helm.traefik.io/traefik"
-				targetRevision: "18.3.0"
+				targetRevision: "19.0.3"
 				helm: values: yaml.Marshal(chartConfiguration)
 				chart: "traefik"
 			}
@@ -195,5 +216,39 @@ components: {
 		})._manifest
 
 		manifests: [_application, _ingressroute]
+	}
+	"cert-manager": {
+		#fqdn: string
+
+		chartConfiguration: {
+			serviceAccount: annotations: annotations: [string]: string
+			fullnameOverride: "cert-manager"
+		}
+
+		_application: argocd.#Application & {
+			metadata: name: "cert-manager.chart"
+
+			spec: project: "cloud"
+			spec: source: {
+				repoURL:        "https://charts.jetstack.io"
+				targetRevision: "1.10.0"
+				helm: values: yaml.Marshal(chartConfiguration)
+				chart: "cert-manager"
+			}
+			spec: destination: namespace: "cert-manager"
+		}
+		_clusterissuer: certmanager.#ClusterIssuer & {
+			metadata: name: "letsencrypt"
+			spec: acme: {
+				email:  "augustfengd@gmail.com"
+				server: "https://acme-v02.api.letsencrypt.org/directory"
+				privateKeySecretRef: name: "letsencrypt-account-key"
+				solvers: [{
+					dns01: cloudDNS: project: "augustfengd"
+				}]
+			}
+		}
+
+		manifests: [_application, _clusterissuer]
 	}
 }

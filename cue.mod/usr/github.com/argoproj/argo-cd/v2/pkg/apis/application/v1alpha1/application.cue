@@ -4,6 +4,8 @@ package v1alpha1
 	apiVersion: "argoproj.io/v1alpha1"
 	kind:       "Application"
 
+	// TODO: consider these as constraints under ${GIT_ROOT}/cloud directory
+	//
 	// sensible defaults
 	metadata: namespace: string | *"argocd"
 	spec: {
