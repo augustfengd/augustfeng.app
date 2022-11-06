@@ -17,6 +17,10 @@ lib: gcp: {
 		}
 	}
 
+	data: {
+		google_project: "project": {}
+	}
+
 	// Cloud DNS
 	resource: {
 		google_dns_managed_zone: "augustfeng": {
@@ -46,6 +50,9 @@ lib: gcp: {
 				oauth_scopes: [
 					"https://www.googleapis.com/auth/cloud-platform",
 				]
+			}
+			workload_identity_config: {
+				workload_pool: "${data.google_project.project.project_id}.svc.id.goog"
 			}
 		}
 
@@ -84,7 +91,7 @@ lib: gcp: {
 				google_service_account_iam_member: "workload-identity-\(sa)": {
 					service_account_id: "${google_service_account.\(sa).name}"
 					role:               "roles/iam.workloadIdentityUser"
-					member:             "serviceAccount:" + "augustfengd" + ".svc.id.goog[" + (c.workloadIdentity.namespace) + "/" + (c.workloadIdentity.serviceaccount) + "]"
+					member:             "serviceAccount:" + "${data.google_project.project.project_id}" + ".svc.id.goog[" + (c.workloadIdentity.namespace) + "/" + (c.workloadIdentity.serviceaccount) + "]"
 				}
 			}
 
