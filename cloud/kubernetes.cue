@@ -215,7 +215,19 @@ components: {
 				}]}]
 		})._manifest
 
-		manifests: [_application, _ingressroute]
+		_certificate: (certmanager.#Certificate & {
+			metadata: name: #fqdn
+			spec: {
+				dnsNames: [#fqdn]
+				secretName: #fqdn
+				issuerRef: {
+					name: "letsencrypt"
+					kind: "ClusterIssuer"
+				}
+			}
+		})
+
+		manifests: [_application, _ingressroute, _certificate]
 	}
 	"cert-manager": {
 		#fqdn: string
