@@ -223,6 +223,7 @@ components: {
 		chartConfiguration: {
 			serviceAccount: annotations: [string]: string
 			fullnameOverride: "cert-manager"
+			installCRDs:      true
 		}
 
 		_application: argocd.#Application & {
