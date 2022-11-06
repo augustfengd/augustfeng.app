@@ -62,6 +62,25 @@ command: importdefinitions: {
 			dir: root.dir
 		}
 	}
+	"cert-manager": {
+		go: exec.Run & {
+			version: "v1.10.0"
+
+			cmd: "go get github.com/cert-manager/cert-manager@" + (version)
+			dir: root.dir
+		}
+		cue: exec.Run & {
+			$dep: go.$done
+			cmd:  "cue get go github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
+			dir:  root.dir
+		}
+		// preferredChain is optional, but isn't imported as so.
+		patch: exec.Run & {
+			$dep: cue.$done
+			cmd: ["gsed", "-i", "s/preferredChain:/preferredChain?:/", "cue.mod/gen/github.com/cert-manager/cert-manager/pkg/apis/acme/v1/types_issuer_go_gen.cue"]
+			dir: root.dir
+		}
+	}
 	// NOTE: this command originates from cue's project.
 	// https://github.com/cue-lang/cue/blob/master/internal/ci/vendor/vendor_tool.cue
 	github: {
@@ -115,6 +134,11 @@ command: clean: {
 		}
 		reflect: file.RemoveAll & {
 			path: root.dir + "/" + "cue.mod/gen/reflect"
+		}
+	}
+	"cert-manager": {
+		traefik: file.RemoveAll & {
+			path: root.dir + "/" + "cue.mod/gen/github.com/cert-manager"
 		}
 	}
 	gh: file.RemoveAll & {
