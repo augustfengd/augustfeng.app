@@ -119,27 +119,6 @@ dagger.#Plan & {
 			_terraform: core.#Pull & {source: "hashicorp/terraform:1.3.0"}
 			_sops:      core.#Pull & {source: "mozilla/sops:v3.7.3-alpine"}
 			_kubectl:   core.#Pull & {source: "bitnami/kubectl"}
-			_gcloud: {
-				archive: core.#HTTPFetch & {
-					source: "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-403.0.0-linux-x86_64.tar.gz"
-					dest:   "google-cloud-cli-403.0.0-linux-x86_64.tar.gz"
-				}
-				files: {
-					runtime: core.#Pull & {source: "alpine"}
-					extract: core.#Exec & {
-						input: runtime.output
-						mounts: "google-cloud-sdk": {
-							contents: archive.output
-							dest:     "/mnt/google-cloud-sdk"
-						}
-						workdir: "/"
-						args: ["tar", "xf", "/mnt/google-cloud-sdk/google-cloud-cli-403.0.0-linux-x86_64.tar.gz"]
-					}
-					output: extract.output
-				}
-				output: files.output
-			}
-
 			docker.#Build & {
 				steps: [
 					alpine.#Build,
@@ -161,7 +140,7 @@ dagger.#Plan & {
 					},
 					docker.#Run & {
 						command: {
-							let #plugins = strings.Join(["git", "z", "terraform", "gcloud"], " ")
+							let #plugins = strings.Join(["git", "z", "terraform"], " ")
 							name: "sed"
 							args: ["-i", "s/^plugins=(.*)/plugins=(\(#plugins))/", "/root/.zshrc"]
 						}
@@ -196,19 +175,6 @@ dagger.#Plan & {
 						source:   "/opt/bitnami/kubectl/bin/kubectl"
 						dest:     "/usr/local/bin/kubectl"
 					},
-					docker.#Copy & {
-						contents: _gcloud.output
-						source:   "/google-cloud-sdk"
-						dest:     "/opt/google-cloud-sdk"
-					},
-					// NOTE: excluding this for now; it's adding 800mb~ to the container size.
-					//
-					// docker.#Run & {
-					//  command: {
-					//   name: "/opt/google-cloud-sdk/bin/gcloud"
-					//   args: ["components", "install", "gke-gcloud-auth-plugin", "--quiet", "--no-user-output-enabled"]
-					//  }
-					// },
 					docker.#Set & {
 						config: {
 							label: "org.opencontainers.image.source": "https://github.com/augustfengd/augustfeng.app"

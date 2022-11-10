@@ -87,18 +87,17 @@ jobs: github.#Workflow.#Jobs & {
 		name: "cluster services (apply)"
 		needs: ["terraform-apply", "build"]
 		"runs-on": "ubuntu-latest"
-		env: GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
+		env: {
+			GOOGLE_CREDENTIALS:             "${{ secrets.GOOGLE_CREDENTIALS }}"
+			GOOGLE_APPLICATION_CREDENTIALS: "application_default_credentials.json"
+			KUBECONFIG:                     "kubeconfig.yaml"
+		}
 		if: "github.event_name =='push'"
 		steps: [
 			#actions.checkoutCode,
 			#actions.with.decryptionKey & #actions.make,
 			#actions.run & {
-				name: "gcloud-auth"
-				run:  "/opt/google-cloud-sdk/bin/gcloud auth login --cred-file <(printf '%s\n' ${GOOGLE_CREDENTIALS})"
-			},
-			#actions.run & {
-				name: "gcloud-container-clusters"
-				run:  "/opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd"
+				run: "printf '%s' \"${GOOGLE_CREDENTIALS}\" > \"${GOOGLE_APPLICATION_CREDENTIALS}\""
 			},
 			#actions.run & {
 				run: "kubectl create ns argocd --dry-run=client -oyaml | kubectl apply -f -"
@@ -133,19 +132,18 @@ jobs: github.#Workflow.#Jobs & {
 		name: "cluster services (diff)"
 		needs: ["build"]
 		"runs-on": "ubuntu-latest"
-		env: GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
+		env: {
+			GOOGLE_CREDENTIALS:             "${{ secrets.GOOGLE_CREDENTIALS }}"
+			GOOGLE_APPLICATION_CREDENTIALS: "application_default_credentials.json"
+			KUBECONFIG:                     "kubeconfig.yaml"
+		}
 		if: "github.event_name == 'pull_request'"
 		steps: [...{if: "env.GOOGLE_CREDENTIALS != ''"}]
 		steps: [
 			#actions.checkoutCode,
 			#actions.with.decryptionKey & #actions.make,
 			#actions.run & {
-				name: "gcloud-auth"
-				run:  "/opt/google-cloud-sdk/bin/gcloud auth login --cred-file <(printf '%s\n' ${GOOGLE_CREDENTIALS})"
-			},
-			#actions.run & {
-				name: "gcloud-container-clusters"
-				run:  "/opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd"
+				run: "printf '%s' \"${GOOGLE_CREDENTIALS}\" > \"${GOOGLE_APPLICATION_CREDENTIALS}\""
 			},
 			#actions.run & {
 				run: "kubectl diff -f build/argocd" // TODO: fails on first run because we have custom resource definitions and custom resource objects.

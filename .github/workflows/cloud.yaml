@@ -107,6 +107,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      GOOGLE_APPLICATION_CREDENTIALS: application_default_credentials.json
+      KUBECONFIG: kubeconfig.yaml
     if: github.event_name =='push'
     steps:
       - name: Checkout code
@@ -115,12 +117,7 @@ jobs:
         run: make
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-      - name: gcloud-auth
-        run: |-
-          /opt/google-cloud-sdk/bin/gcloud auth login --cred-file <(printf '%s
-          ' ${GOOGLE_CREDENTIALS})
-      - name: gcloud-container-clusters
-        run: /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd
+      - run: printf '%s' "${GOOGLE_CREDENTIALS}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
       - run: kubectl create ns argocd --dry-run=client -oyaml | kubectl apply -f -
       - run: kubectl -n argocd apply -f build/argocd/crds
       - run: kubectl -n argocd apply -f build/argocd
@@ -138,6 +135,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      GOOGLE_APPLICATION_CREDENTIALS: application_default_credentials.json
+      KUBECONFIG: kubeconfig.yaml
     if: github.event_name == 'pull_request'
     steps:
       - if: env.GOOGLE_CREDENTIALS != ''
@@ -149,13 +148,7 @@ jobs:
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
       - if: env.GOOGLE_CREDENTIALS != ''
-        name: gcloud-auth
-        run: |-
-          /opt/google-cloud-sdk/bin/gcloud auth login --cred-file <(printf '%s
-          ' ${GOOGLE_CREDENTIALS})
-      - if: env.GOOGLE_CREDENTIALS != ''
-        name: gcloud-container-clusters
-        run: /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials augustfeng-app --zone us-east1-b --project augustfengd
+        run: printf '%s' "${GOOGLE_CREDENTIALS}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
       - if: env.GOOGLE_CREDENTIALS != ''
         run: kubectl diff -f build/argocd
     container:
