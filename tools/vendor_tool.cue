@@ -8,16 +8,12 @@ import (
 	"tool/exec"
 	"tool/http"
 	"tool/file"
+
+	"github.com/augustfengd/augustfeng.app/tools:git"
 )
 
-#root: exec.Run & {
-	cmd:    "git rev-parse --show-toplevel"
-	stdout: string
-	dir:    strings.TrimSpace(stdout)
-}
-
 command: importdefinitions: {
-	root: #root
+	root: git.#root
 	k8s: {
 		go: exec.Run & {
 			version: "kubernetes-1.25.3"
