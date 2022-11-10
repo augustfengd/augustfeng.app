@@ -113,7 +113,8 @@ jobs: github.#Workflow.#Jobs & {
 				run: "cue export ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(components.appofapps.manifests)' --out text | kubectl -n argocd apply -f -"
 			},
 			#actions.run & {
-				run: "timeout 1m sh -c 'until kubectl get crds ingressroutes.traefik.containo.us; do sleep 5; done'" // "kubectl get crds -o=jsonpath='{.items[?(@.spec.group==\"traefik.containo.us\")]}'"
+				//run: "kubectl get crds -o=jsonpath='{.items[?(@.spec.group==\"traefik.containo.us\")]}'"
+				run: "timeout 1m sh -c 'until kubectl get crds ingressroutes.traefik.containo.us; do sleep 5; done'"
 			},
 			#actions.run & {
 				run: "kubectl -n argocd apply -f build/argocd/traefik.containo.us"

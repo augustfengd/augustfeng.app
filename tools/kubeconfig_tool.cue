@@ -12,7 +12,7 @@ import (
 #kubeconfig: {
 	apiVersion:        "v1"
 	kind:              "Config"
-	"current-context": "augustfeng.app"
+	"current-context": "augustfeng-app"
 	contexts: [{
 		name: "augustfeng-app"
 		context: {

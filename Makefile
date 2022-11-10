@@ -25,6 +25,9 @@ build/kubernetes: cloud
 	cue export -f ./cloud/augustfeng.app:pipeline --outfile ./.github/workflows/cloud.yaml
 	cue export -f ./containers:pipeline --outfile ./.github/workflows/containers.yaml
 
+kubeconfig.yaml: tools/kubeconfig_tool.cue
+	cue create $<
+
 .PHONY: clean
 clean:
 	rm -rf build/kubernetes
