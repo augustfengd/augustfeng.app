@@ -45,6 +45,7 @@ lib: gcp: {
 
 			node_config: {
 				machine_type: "e2-micro"
+				disk_size_gb: "10"
 
 				service_account: "${google_service_account.cluster.email}"
 				oauth_scopes: [
@@ -64,6 +65,7 @@ lib: gcp: {
 			node_config: {
 				spot:         true
 				machine_type: "e2-small"
+				disk_size_gb: "10"
 
 				// Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
 				service_account: "${google_service_account.cluster.email}"
