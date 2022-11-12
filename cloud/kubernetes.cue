@@ -198,7 +198,7 @@ components: {
 			spec: destination: namespace: "external-dns"
 		}
 
-		manifests: [components.appofapps."traefik", components.appofapps."external-dns"]
+		manifests: [components.appofapps."traefik", components.appofapps."cert-manager", components.appofapps."external-dns"]
 	}
 	"traefik": {
 		#fqdn: string
