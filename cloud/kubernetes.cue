@@ -206,7 +206,11 @@ components: {
 		chartConfiguration: {
 			fullnameOverride: "traefik"
 			nodeSelector: "cloud.google.com/gke-nodepool": "default-pool"
-			service: enabled:                              false
+			{
+				ports: web: hostPort:       80
+				ports: websecure: hostPort: 443
+				service: enabled: false
+			}
 			logs: access: enabled: true
 			providers: kubernetesIngress: publishedService: enabled: true
 		}
