@@ -205,11 +205,8 @@ components: {
 
 		chartConfiguration: {
 			fullnameOverride: "traefik"
-			service: {
-				enabled: true
-				type:    "LoadBalancer"
-				annotations: "external-dns.alpha.kubernetes.io/hostname": "traefik.augustfeng.app"
-			}
+			nodeSelector: "cloud.google.com/gke-nodepool": "default-pool"
+			service: enabled:                              false
 			logs: access: enabled: true
 			providers: kubernetesIngress: publishedService: enabled: true
 		}
@@ -287,7 +284,7 @@ components: {
 	"external-dns": {
 		chartConfiguration: {
 			serviceAccount: annotations: [string]: string
-			policy: "sync"
+			policy:           "sync"
 			fullnameOverride: "external-dns"
 			provider:         "google"
 		}
