@@ -5,9 +5,6 @@ all: build/terraform build/argocd .github/workflows
 $(APPS):
 	@cue export ./apps -e '$@.manifests' | jq '.[]'
 
-kubernetes:
-	cd kubernetes; $(MAKE)
-
 .PHONY: build/terraform
 build/terraform: cloud
 	mkdir -p build/terraform
@@ -16,8 +13,10 @@ build/terraform: cloud
 
 .PHONY: build/argocd
 build/argocd: cloud
-	mkdir -p build/kubernetes
-	jsonnet -m build/argocd -c cloud/argocd/argocd.jsonnet --tla-str fqdn=argocd.augustfeng.app --tla-code-file argocdCmpSecrets=cloud/secrets/sops-secrets.json
+	docker run \
+		-v $(shell git rev-parse --show-toplevel):/augustfeng.app \
+		-w /augustfeng.app \
+		ghcr.io/augustfengd/augustfeng.app/toolchain jsonnet -m build/argocd -c cloud/argocd/argocd.jsonnet --tla-str fqdn=argocd.augustfeng.app --tla-code-file argocdCmpSecrets=cloud/secrets/sops-secrets.json
 
 .PHONY: build/kubernetes
 build/kubernetes: cloud

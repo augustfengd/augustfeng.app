@@ -1,5 +1,5 @@
-# generated terraform configurations
-build/terraform/
+# build directory
+build/
 
 # decrypted + converted secrets and encryption keys (terraform)
 cloud/secrets/*.json
