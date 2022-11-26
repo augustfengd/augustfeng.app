@@ -14,7 +14,22 @@ blog: {
 		image: name: "ghcr.io/augustfengd/augustfeng.app/blog"
 		expose: ports: http: 1313
 	}
+	ingressroute: kubernetes.#ingressroute & {
+		fqdn: "blog.augustfeng.app"
+		rules: [{
+			match: "Host(`\(fqdn)`)"
+			services: [{
+				name: "blog"
+				port: 1313
+			}]}]
+	}
+	certificate: kubernetes.#certificate & {
+		fqdn: "blog.augustfeng.app"
+	}
+
 	manifests:
 		[namespace] +
-		deployment.manifests
+		deployment.manifests +
+		ingressroute.manifests +
+		certificate.manifests
 }

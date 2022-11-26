@@ -44,10 +44,11 @@ import (
 
 		if len(expose.ports) > 0 {
 			core.#Service & {
-				metadata: {
+				X=metadata: {
 					name: _name
 					labels: "app.kubernetes.io/name": _name
 				}
+				spec: selector:                                X.labels
 				spec: ports: [ for n, p in expose.ports {name: n, port: p, targetPort: p, protocol: expose.protocol[n]}]
 			}
 		},
@@ -117,6 +118,7 @@ import (
 		}]
 	}]
 
+	manifests: _manifests // TODO: wip: expose manifests as public field everywhere else too.
 	_manifests: [traefik.#IngressRoute & {
 		metadata: name:                        fqdn
 		spec: routes: [ for r in rules {match: r.match, services: r.services}]
@@ -135,6 +137,24 @@ import (
 		}
 	}]
 	_manifest: _manifests[0]
+}
+
+#certificate: {
+	fqdn: string
+
+	manifests: [certmanager.#Certificate & {
+		metadata: name: fqdn
+		spec: {
+			dnsNames: [fqdn]
+			secretName: fqdn
+			issuerRef: {
+				name: "letsencrypt"
+				kind: "ClusterIssuer"
+			}
+		}
+	}]
+
+	manifest: manifests[0]
 }
 
 components: {
