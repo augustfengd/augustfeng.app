@@ -19,13 +19,14 @@ import (
 #deployment: {
 	image: {
 		name: string
-		tag:  string
+		tag:  string | *"latest"
 	}
 	args: [...string]
 	X=expose: ports: [string]: number
 	expose: protocol: {for a, b in X.ports {(a): "UDP" | *"TCP"}} // NOTE: map each port to a protocol and provide an interface for override.
 
 	_name: { let s = strings.Split(image.name, "/"), s[len(s)-1]}
+	manifests: _manifests // TODO: wip: expose manifests as public field everywhere else too.
 	_manifests: [
 		apps.#Deployment & {
 			X=metadata: {

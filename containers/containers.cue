@@ -11,6 +11,10 @@ import (
 
 dagger.#Plan & {
 	client: network: "unix:///var/run/docker.sock": connect: dagger.#Socket
+	client: filesystem: "../apps/blog": read: {
+		contents: dagger.#FS
+		include: ["config.toml", "content"]
+	}
 	client: commands: {
 		gh_token: {
 			name: "sops"
@@ -73,7 +77,35 @@ dagger.#Plan & {
 				},
 			]
 		}
-
+		blog: {
+			docker.#Build & {
+				steps: [
+					docker.#Pull & {
+						source: "klakegg/hugo:latest"
+					},
+					docker.#Copy & {
+						contents: client.filesystem."../apps/blog".read.contents
+						dest:     "/src"
+					},
+					docker.#Run & {
+						entrypoint: ["mkdir", "-p", "/src/themes/hugo-paper"]
+					},
+					docker.#Run & {
+						entrypoint: ["sh"]
+						command: {
+							name: "-c"
+							args: ["wget -qO- 'https://github.com/nanxiaobei/hugo-paper/archive/master.tar.gz' | tar xzf - --strip-components=1 -C /src/themes/hugo-paper"]
+						}
+					},
+					docker.#Set & {
+						config: {
+							label: "org.opencontainers.image.source": "https://github.com/augustfengd/augustfeng.app"
+							cmd: ["serve"]
+						}
+					},
+				]
+			}
+		}
 		toolchain: {
 			_cue: core.#Pull & {source: "cuelang/cue:0.4.3"}
 			_jsonnet: {
@@ -191,7 +223,7 @@ dagger.#Plan & {
 			(i): cli.#Load & {
 				image: actions.build[i].output
 				host:  client.network."unix:///var/run/docker.sock".connect
-				tag:   "ghcr.io/augustfengd/\(i)"
+				tag:   "ghcr.io/augustfengd/augustfeng.app/\(i)"
 			}
 		}
 	}
@@ -200,7 +232,7 @@ dagger.#Plan & {
 		for i, _ in actions.build {
 			(i): docker.#Push & {
 				image: actions.build[i].output
-				dest:  "ghcr.io/augustfengd/\(i)"
+				dest:  "ghcr.io/augustfengd/augustfeng.app/\(i)"
 				auth: {
 					username: "augustfengd" // NOTE: would like to reference secrets in ordinary fields that aren't `dagger.#Secret`.
 					secret:   actions.secrets.gh_token.output.token.contents

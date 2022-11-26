@@ -1,4 +1,9 @@
+APPS := $(shell cue export ./apps | jq -r 'keys | join(" ")')
+
 all: build/terraform build/argocd .github/workflows
+
+$(APPS):
+	@cue export ./apps -e '$@.manifests' | jq '.[]'
 
 kubernetes:
 	cd kubernetes; $(MAKE)
