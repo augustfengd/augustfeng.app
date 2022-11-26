@@ -13,7 +13,7 @@ dagger.#Plan & {
 	client: network: "unix:///var/run/docker.sock": connect: dagger.#Socket
 	client: filesystem: "../apps/blog": read: {
 		contents: dagger.#FS
-		include: ["config.toml", "content"]
+		include: ["config.toml", "content", "themes"]
 	}
 	client: commands: {
 		gh_token: {
