@@ -12,6 +12,7 @@ blog: {
 
 	deployment: kubernetes.#deployment & {
 		image: name: "ghcr.io/augustfengd/augustfeng.app/blog"
+		args: ["server", "--baseUrl=https://blog.augustfeng.app/", "--appendPort=false"]
 		expose: ports: http: 1313
 	}
 	ingressroute: kubernetes.#ingressroute & {
