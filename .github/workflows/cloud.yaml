@@ -34,7 +34,7 @@ jobs:
           name: secrets.tar.gz.age
           path: secrets.tar.gz.age
     container:
-      image: ghcr.io/augustfengd/toolchain:latest
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
   configure:
     name: terraform cloud
     needs:
@@ -50,7 +50,7 @@ jobs:
       - name: Configure workspace
         run: cue configure ./cloud/augustfeng.app:terraform
     container:
-      image: ghcr.io/augustfengd/toolchain:latest
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
   terraform-plan:
     name: terraform (plan)
     needs:
@@ -74,7 +74,7 @@ jobs:
         run: terraform plan
         working-directory: build/terraform
     container:
-      image: ghcr.io/augustfengd/toolchain:latest
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
   terraform-apply:
     name: terraform (apply)
     needs:
@@ -98,7 +98,7 @@ jobs:
         run: terraform apply -auto-approve
         working-directory: build/terraform
     container:
-      image: ghcr.io/augustfengd/toolchain:latest
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
   cluster-services-apply:
     name: cluster services (apply)
     needs:
@@ -127,7 +127,7 @@ jobs:
       - run: timeout 1m sh -c 'until kubectl get crds certificates.cert-manager.io; do sleep 5; done'
       - run: kubectl -n argocd apply -f build/argocd/cert-manager.io
     container:
-      image: ghcr.io/augustfengd/toolchain:latest
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
   cluster-services-diff:
     name: cluster services (diff)
     needs:
@@ -152,4 +152,4 @@ jobs:
       - if: env.GOOGLE_CREDENTIALS != ''
         run: kubectl diff -f build/argocd
     container:
-      image: ghcr.io/augustfengd/toolchain:latest
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest

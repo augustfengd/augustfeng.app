@@ -41,7 +41,7 @@ jobs: github.#Workflow.#Jobs & {
 				}
 			},
 		]
-		container: image: "ghcr.io/augustfengd/toolchain:latest"
+		container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
 	}
 	"configure": {
 		name: "terraform cloud"
@@ -55,7 +55,7 @@ jobs: github.#Workflow.#Jobs & {
 				run:  "cue configure ./cloud/augustfeng.app:terraform"
 			},
 		]
-		container: image: "ghcr.io/augustfengd/toolchain:latest"
+		container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
 	}
 	"terraform-plan": {
 		name: "terraform (plan)"
@@ -68,7 +68,7 @@ jobs: github.#Workflow.#Jobs & {
 			#actions.terraform.init & {"working-directory": "build/terraform"},
 			#actions.terraform.plan & {"working-directory": "build/terraform"},
 		]
-		container: image: "ghcr.io/augustfengd/toolchain:latest"
+		container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
 	}
 	"terraform-apply": {
 		name: "terraform (apply)"
@@ -81,7 +81,7 @@ jobs: github.#Workflow.#Jobs & {
 			#actions.terraform.init & {"working-directory":  "build/terraform"},
 			#actions.terraform.apply & {"working-directory": "build/terraform"},
 		]
-		container: image: "ghcr.io/augustfengd/toolchain:latest"
+		container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
 	}
 	"cluster-services-apply": {
 		name: "cluster services (apply)"
@@ -127,7 +127,7 @@ jobs: github.#Workflow.#Jobs & {
 				run: "kubectl -n argocd apply -f build/argocd/cert-manager.io"
 			},
 		]
-		container: image: "ghcr.io/augustfengd/toolchain:latest"
+		container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
 	}
 	"cluster-services-diff": {
 		name: "cluster services (diff)"
@@ -150,7 +150,7 @@ jobs: github.#Workflow.#Jobs & {
 				run: "kubectl diff -f build/argocd" // TODO: fails on first run because we have custom resource definitions and custom resource objects.
 			},
 		]
-		container: image: "ghcr.io/augustfengd/toolchain:latest"
+		container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
 	}
 }
 
