@@ -4,6 +4,7 @@ name: containers
     branches: main
     paths:
       - containers/**
+      - apps/**
 jobs:
   build:
     runs-on: ubuntu-latest
