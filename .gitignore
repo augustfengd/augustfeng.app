@@ -13,3 +13,8 @@ cloud/secrets/*.txt
 kubernetes/secrets/*.json
 kubernetes/secrets/*.txt
 !kubernetes/secrets/*.enc.json
+
+# apps/blog
+apps/blog/themes/*
+apps/blog/public
+apps/blog/.hugo_build.lock

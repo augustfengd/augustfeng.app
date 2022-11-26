@@ -1,0 +1,11 @@
+baseURL = 'https://blog.augustfeng.app'
+theme = 'hugo-paper'
+title = 'August Feng'
+
+[params]
+  color = 'linen'
+  github = 'augustfengd'
+
+  avatar = 'https://avatars.githubusercontent.com/u/46177585?s=400&u=c1603a564723553c630007fda30078548d24bc78&v=4'
+  name = 'August Feng'
+  bio = 'Hey there! I manipulate text in such a fashion that they print on this platform for readers to consume.'
