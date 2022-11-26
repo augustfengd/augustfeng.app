@@ -16,5 +16,6 @@ kubernetes/secrets/*.txt
 
 # apps/blog
 apps/blog/themes/*
+!apps/blog/themes/augustfeng.app
 apps/blog/public
 apps/blog/.hugo_build.lock

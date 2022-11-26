@@ -1,0 +1,20 @@
+#+title: Rebasing After Squash And Merge on GitHub
+#+categories[]: development
+#+tags[]: git github
+#+date: 2022-11-26
+#+mermaid: true
+
+Leaving this online, but currently work in progress.
+
+{{<mermaid>}}
+    gitGraph
+       commit
+       commit
+       branch develop
+       commit
+       commit
+       commit
+       checkout main
+       commit
+       commit
+{{</mermaid>}}

@@ -1,5 +1,5 @@
 baseURL = 'https://blog.augustfeng.app'
-theme = 'hugo-paper'
+theme = ['hugo-paper', 'augustfeng.app']
 title = 'August Feng'
 
 [params]
