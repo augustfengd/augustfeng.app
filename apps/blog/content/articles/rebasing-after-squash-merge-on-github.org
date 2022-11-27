@@ -4,17 +4,141 @@
 #+date: 2022-11-26
 #+mermaid: true
 
-Leaving this online, but currently work in progress.
+* the situation
+
+When we use the ~Squash and merge~ on GitHub, the commits are squashed into a
+single commit and placed at the *HEAD* of the branch.
+
+In the diagram below, the feature branch's *{a,b,c}* changes has been squashed
+and merged into *main*.
 
 {{<mermaid>}}
-    gitGraph
-       commit
-       commit
-       branch develop
-       commit
-       commit
-       commit
-       checkout main
-       commit
-       commit
+gitGraph
+   commit id: "init"
+   branch feature
+   commit id: "a" type: HIGHLIGHT
+   commit id: "b" type: HIGHLIGHT
+   commit id: "c" type: HIGHLIGHT
+   checkout main
+   commit id: "abc" type: HIGHLIGHT
+   checkout feature
+   commit id: "d"
 {{</mermaid>}}
+
+/hint: use these commands to replicate the git history above./
+
+#+begin_src shell
+  rm -rf /tmp/example.0
+  cd /tmp; mkdir example.0 && cd "$_";
+
+  git init;
+  touch foobar; git add foobar; git commit -m "init";
+
+  git switch -c feature
+  echo a >> foobar; git commit -am "a";
+  echo b >> foobar; git commit -am "b";
+  echo c >> foobar; git commit -am "c";
+
+  git switch master # "main" in the diagram.
+  git merge --squash feature
+  git commit -m 'abcd'
+
+  git switch feature
+  sed -i '2c // b' foobar; git commit -am 'd';
+#+end_src
+
+If the feature branch is reused for future development, then we might encounter
+conflicts when we try to rebase our branch or merge these newer changes.
+
+* What happens when we rebase or merge?
+
+When we run the ~rebase~ or ~merge~ git command, git looks for the common
+ancestor between both branches, known as the *merge base*, and cherry picks
+commits from that point until the branch's *HEAD*.
+
+We can find this out ourselves with the ~merge-base~ git command:
+
+#+begin_src shell
+git merge-base master feature # prints commit id of "init".
+#+end_src
+
+We will encounter conflicts if we naively rebase:
+
+#+begin_src shell
+git switch feature; git -c merge.conflictstyle=diff3 rebase master
+#+end_src
+
+merge conflict:
+
+#+begin_src diff
+diff --cc foobar
+index de98044,7898192..0000000
+--- a/foobar
++++ b/foobar
+@@@ -1,3 -1,1 +1,8 @@@
+++<<<<<<< HEAD
+  a
+ +b
+ +c
+++||||||| parent of 94cb3aa (a)
+++=======
+++a
+++>>>>>>> 94cb3aa (a)
+#+end_src
+
+The plumbing events leading to this conflict:
+  - ~git~ switches into a copy of the *master* branch
+  - ~git~ begins cherry picking commits starting with commit *a*
+  - _conflict_: commit *a* is adding "a" to the /foobar/ file, commit *abc* is
+    adding "a\nb\nc" and the foobar is empty in the parent commit of *a*. Who
+    has priority?
+
+* rebase to the rescue
+
+Under ideal circumstances, we would ~git reset~ our *feature* branch to *main*
+as soon as the changes are merged.
+
+To my demise, I often forget to do this which leaves me to create a temporary
+new branch, cherry-pick the newer commits and switcheroo the temporary branch to
+the old one.
+
+Fortunately, this sequence of operations is nicely packed into single rebase
+command:
+
+#+begin_src shell
+git rebase --onto master c d
+#+end_src
+
+This command follows the first form of the ~git-rebase~ command:
+
+#+begin_quote
+git rebase [-i | --interactive] [<options>] [--exec <cmd>]
+[--onto <newbase> | --keep-base] [<upstream> [<branch>]]
+#+end_quote
+
+Destructuring our command's arguments, we get:
+  - /<newbase>/ : master
+  - /<upstream>/ : c
+  - /<branch>/ : d
+
+The ~git-rebase(1)~ manual explains the side-effects of this command, but it is
+a bit heavy to understand as it tries to explain all forms at the same time.
+
+In short, ~git~ will switch into a copy of revision *d*, and find all the
+commits until *d* and cherry-pick them into a copy of revision *master*, which
+will be your final working tree.
+
+* bringing the knowledge to the origin
+
+So far, we've only assumed local branches. Going back to the initial situation
+now: we've merged a pull request using the *Squash and merge* strategy, and we
+would like to continue using the branch for further pull requests.. what do?
+
+If we have newer changes that have not yet pushed to remote (GitHub), simply
+reference the outdated origin as the base for a ~git rebase~ operation:
+
+#+begin_src shell
+git fetch -a; git rebase --onto master origin/d d
+#+end_src
+
+If we're diligent, immediately run a ~git reset --{TBD} origin/main~.
