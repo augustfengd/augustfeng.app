@@ -1,9 +1,10 @@
-#+title: Transform helm charts into json files
+#+title: Vendoring helm charts for jsonnet usage
 #+categories[]: devops
 #+tags[]: helm json jsonnet
 #+date: 2021-12-18
-This post goes over the detail of a =Makefile= target which converts
-helm charts into a json file.
+
+This post goes over the detail of a =Makefile= target which converts helm charts
+into a yaml file, so that it can be used as input for ~jsonnet~.
 
 * Why ?
 
@@ -29,21 +30,20 @@ functional DSL.
       alpine/helm:${HELM_VERSION} \
       /bin/sh -c
 
-  .PHONY: prometheus.json
-  prometheus.json: yq
+  upstream/prometheus.yaml: yq
       ${HELM_C} "( helm repo add prometheus-community https://prometheus-community.github.io/helm-charts; \
       helm repo update; \
       ) 2>&1 >/dev/null; \
       helm template \
       --release-name prometheus \
       --version ${PROMETHEUS_VERSION} \
-      prometheus-community/prometheus" | yq -j ea '[.]' - > prometheus.json
+      prometheus-community/prometheus" > upstream/prometheus.yaml
 #+end_src
 
 * What ?
 
 Helm provides a docker image for the ease of running helm commands in a
-CICD Pipeline.
+CI/CD Pipeline.
 
 For us, using this image is a convenient way to capture a helm binary
 without building an image of our own from scratch. /However/, there are
@@ -137,32 +137,27 @@ altogether.
 Now that we've configured the environment in container, we can run a
 =helm template {...}= and produce a pure yaml stream from the container.
 
-Wait, yaml? Let's convert that to json now.
-
-See that the command =yq -j ea '[.]' -= will collect from /stdin/ a yaml
-document stream and convert it into an array.
-
-#+begin_src bash
-  yq -j ea '[.]' - << EOF
-  a
-  ---
-  b
-  EOF
-  # [
-  #  "a",
-  #  "b"
-  # ]
-#+end_src
-
 Add some good 'ol newline escaping to beautify that massive oneliner,
 and we've got ourselves the argument for =/bin/sh -c=.
 
-The =Makefile= includes some version pinning, because stability is
-better than latest && (greatest) for production deployments. /See what I
-did there ?/
-
 * Profit
 
-With the powerful =jsonnet= templating language, we can now manipulate the
-deployment data in ways that can surpass Helm's design and be limited only
-by our creativity.
+With the vendored helm chart as a json file, we use ~jsonnet~ to customize the
+helm chart without limitations.
+
+For example:
+
+#+begin_src jsonnet
+local upstream = std.parseYaml(importstr 'upstream/prometheus.yaml');
+
+{
+  manifests:
+  // add label {"foo": "bar"} to all objects!
+    std.map(function(m)
+      m {
+        metadata+: {
+          labels+: { foo: "bar" }
+        }
+      }, upstream)
+}
+#+end_src

@@ -1,0 +1,18 @@
+#+title: Change the Direction of Incremental Searching in a Shell
+#+categories[]: linux
+#+tags[]: shell
+#+date: 2021-11-22
+
+In November 2022, I wrote an article [[https://www.baeldung.com/linux/change-incremental-searching-direction-shell][Change the Direction of Incremental
+Searching in a Shell]] for [[https://www.baeldung.com/linux/alias-run-shadowed-command][Baeldung]].
+
+While researching content for this article, I enjoyed various tangents which
+included:
+- learning about the architecture of the terminal (tty core, tty line
+  discipline, tty drivers, ...)
+- understanding the implications of the keyword in "emulator" terminal emulator;
+  shells operate under the assumption that they were talking to a physical
+  terminal!
+
+Martin Balao has a very nice [[https://martin.uy/blog/how-terminal-emulators-work-on-linux/?fbclid=IwAR2Q_E_3j5EYGhL61GeZPQeJeCN-9roD-SiO_h0U4U2ILkBzzaR-ZsKu3Zg][article]] studying the plumbing of the terminal
+emulators.

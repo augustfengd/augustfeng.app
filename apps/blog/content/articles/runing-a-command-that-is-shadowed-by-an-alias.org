@@ -1,0 +1,17 @@
+#+title: Running a Command That Is Shadowed by an Alias
+#+categories[]: linux
+#+tags[]: shell
+#+date: 2022-05-10
+
+In May 2022, I wrote an article [[https://www.baeldung.com/linux/alias-run-shadowed-command][Running A Command That Is Shadowed by an Alias]]
+for [[https://www.baeldung.com/linux/alias-run-shadowed-command][Baeldung]].
+
+Here, I discovered in-depth the *[[https://www.gnu.org/software/bash/manual/html_node/Quoting.html][Quoting]]* feature of the bash shell, also known
+as escaping. Did you know that we can simply use quotes to remove escape an
+alias?
+
+#+begin_src shell
+alias echo='echo helloworld.'
+echo # helloworld
+"echo" hello, world. # hello, world.
+#+end_src
