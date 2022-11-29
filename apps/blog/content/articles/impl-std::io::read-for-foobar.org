@@ -1,0 +1,44 @@
+#+title: impl std::io::Read for Foobar
+#+categories[]: development
+#+tags[]: rust
+#+date: 2022-11-28
+
+I'm almost halfway through Ken Youens-Clark's *Command-Line Rust: A
+Project-Based Primer for Writing Rust CLIs* book, and I thought I'd take a
+moment to get a bit more intimidate with the [[https://doc.rust-lang.org/std/io/struct.BufReader.html#][BufReader]].
+
+Here's a "helloworld" which implements the *Read* trait, necessary for
+BufReader's [[https://doc.rust-lang.org/std/io/struct.BufReader.html#method.new][new]] method and [[https://doc.rust-lang.org/std/io/trait.BufRead.html#method.read_line][read_line]] (from [[https://doc.rust-lang.org/std/io/trait.BufRead.html#method.read_line][BufRead]] trait):
+
+#+begin_src rust
+  use std::io::{BufReader, BufRead};
+
+  struct Foobar;
+
+  impl std::io::Read for Foobar {
+      fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+          buf[0] = 'h' as u8;
+          buf[1] = 'e' as u8;
+          buf[2] = 'l' as u8;
+          buf[3] = 'l' as u8;
+          buf[4] = 'o' as u8;
+          buf[5] = 'w' as u8;
+          buf[6] = 'o' as u8;
+          buf[7] = 'r' as u8;
+          buf[8] = 'l' as u8;
+          buf[9] = 'd' as u8;
+          buf[10] = '\n' as u8;
+          Ok(11)
+      }
+  }
+
+  fn main() {
+      let mut br = BufReader::new(Foobar {});
+
+      let mut b = String::new();
+      match br.read_line(&mut b) {
+          Ok(_) => print!("{}", b.to_string()),
+          Err(e) => eprint!("{}", e)
+      }
+  }
+#+end_src

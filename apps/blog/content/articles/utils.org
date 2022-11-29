@@ -1,0 +1,52 @@
+#+title: Utils
+#+categories[]: emacs
+#+tags[]: emacs elisp org-mode
+#+date: 2022-11-28
+
+#+PROPERTY: header-args:elisp :results none
+
+* introduction
+
+#+begin_src elisp
+  (defun introduction ()
+    "these are some scripts for managing the content.")
+
+  (introduction)
+#+end_src
+
+* rename files according to post's title
+
+#+begin_src elisp
+  ;; list posts in current directory
+  (defun get-posts ()
+    (let ((files (file-expand-wildcards "*.org")))
+      (remove-if (lambda (s) (string-prefix-p ".#" s)) files)))
+
+  ;; convert title to filename
+  (defun title-to-filename (title)
+    ;; some ml fun.
+    (pcase title
+      ;; lowercase
+      ((pred (not (string-equal (downcase title))))
+       (title-to-filename (downcase title)))
+      ;; '-' instead of ' '
+      ((pred (string-match-p " "))
+       (title-to-filename (string-replace " " "-" title)))
+      ;; org file extension
+      ((pred (not (string-suffix-p ".org")))
+       (title-to-filename (concat title ".org")))
+      ;; ok
+      (t
+       title)))
+
+  ;; retrieve title from post
+  (defun get-title-from-post (filename)
+    (with-temp-buffer
+      (insert-file-contents filename)
+      (cadar (org-collect-keywords '("TITLE")))))
+
+  ;; run
+  (let ((files (get-posts)))
+    (mapc (lambda (file)
+            (rename-file file (title-to-filename (get-title-from-post file)))) files))
+#+end_src
