@@ -1,0 +1,9 @@
+#+title: Configure JetBrains
+#+categories[]: development
+#+tags[]: editor
+#+date: 2021-11-30
+
+* equalize proportions in nested splits
+
+We can now configure JetBrains' editors to [[https://youtrack.jetbrains.com/issue/IDEA-231376/Even-split-of-the-editor][equalize proportions in nested
+splits]].
