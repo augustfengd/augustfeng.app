@@ -1,9 +1,37 @@
 #+title: Configure JetBrains
 #+categories[]: development
 #+tags[]: editor
-#+date: 2021-11-30
+#+date: 2022-11-30
 
-* equalize proportions in nested splits
+* configure
+
+** equalize proportions in nested splits
 
 We can now configure JetBrains' editors to [[https://youtrack.jetbrains.com/issue/IDEA-231376/Even-split-of-the-editor][equalize proportions in nested
 splits]].
+
+* essential shortcuts
+** navigation
+
+*** solution explorer
+
+~command + -~: collapse all
+
+*** git diff
+
+~ctrl + command + left-arrow|right-arrow~: accept changes
+~command + shift + -~: collapse all
+
+*** splits
+
+~option + tab~: Goto Next Splitter
+
+*** find
+
+~command + 3~: find this thing.
+*** editor tabs
+~Command + Shift + [ | ]~: Select Previous | Next Tab.
+*** navigate
+~Option + F1~: open navigate menu
+
+
