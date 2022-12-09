@@ -1,4 +1,4 @@
-APPS := $(shell cue export ./apps | jq -r 'keys | join(" ")')
+APPS := $(shell cue export ./apps:kubernetes | jq -r 'keys | join(" ")')
 
 all: build/terraform build/argocd .github/workflows
 
@@ -13,10 +13,7 @@ build/terraform: cloud
 
 .PHONY: build/argocd
 build/argocd: cloud
-	docker run \
-		-v $(shell git rev-parse --show-toplevel):/augustfeng.app \
-		-w /augustfeng.app \
-		ghcr.io/augustfengd/augustfeng.app/toolchain jsonnet -m build/argocd -c cloud/argocd/argocd.jsonnet --tla-str fqdn=argocd.augustfeng.app --tla-code-file argocdCmpSecrets=cloud/secrets/sops-secrets.json
+	jsonnet -m build/argocd -c cloud/argocd/argocd.jsonnet --tla-str fqdn=argocd.augustfeng.app --tla-code-file argocdCmpSecrets=cloud/secrets/sops-secrets.json
 
 .PHONY: build/kubernetes
 build/kubernetes: cloud
@@ -24,7 +21,7 @@ build/kubernetes: cloud
 	cue export -f ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(manifests)' --out text --outfile build/kubernetes/cloud.yaml
 
 .PHONY: .github/workflows
-.github/workflows: cloud containers
+.github/workflows:
 	mkdir -p $@
 	cue export -f ./cloud/augustfeng.app:pipeline --outfile ./.github/workflows/cloud.yaml
 	cue export -f ./containers:pipeline --outfile ./.github/workflows/containers.yaml

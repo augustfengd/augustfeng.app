@@ -8,9 +8,10 @@ import (
 	traefik "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	certmanager "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 
+	"struct"
 	"strings"
+	"list"
 	"encoding/base64"
-	"encoding/yaml"
 )
 
 // NOTE: These definitions (#deployment, #secrets, #configmaps, ...) are
@@ -21,67 +22,132 @@ import (
 		name: string
 		tag:  string | *"latest"
 	}
-	args: [...string]
+	env: [string]: {// description: secret sources exclusively from secret or value.
+			secret: null
+			value:  string | *null
+	} | {
+		secret: struct.MaxFields(1) & struct.MinFields(1)
+		secret: {
+			// kubernetes object name
+			[string]: {
+				// secret key reference
+				string
+			}
+		}
+		value: null
+	}
+	args: [string]: null | string
 	X=expose: ports: [string]: number
 	expose: protocol: {for a, b in X.ports {(a): "UDP" | *"TCP"}} // NOTE: map each port to a protocol and provide an interface for override.
-
-	_name: { let s = strings.Split(image.name, "/"), s[len(s)-1]}
-	manifests: _manifests // TODO: wip: expose manifests as public field everywhere else too.
-	_manifests: [
-		apps.#Deployment & {
-			X=metadata: {
-				name: _name
-				labels: "app.kubernetes.io/name": _name
+	mount: {
+		secret: {}
+		configmap: {}
+		[=~"secret|configmap|emptydir|pvc"]: {
+			// kubernetes object name
+			[string]: {
+				// mount path
+				[string]: {
+					// subpath
+					string | *null
+				}
 			}
-			spec: template: spec: containers: [{
-				"image": image.name + ":" + image.tag
-				"name":  _name
-				"args":  args
-			}]
-			spec: selector: matchLabels: X.labels
-			spec: template: metadata: labels: X.labels
-		},
+		}
+	}
 
-		if len(expose.ports) > 0 {
-			core.#Service & {
+	let _name = { let s = strings.Split(image.name, "/"), s[len(s)-1]}
+	manifests: {
+		[
+			apps.#Deployment & {
 				X=metadata: {
 					name: _name
 					labels: "app.kubernetes.io/name": _name
 				}
-				spec: selector:                                X.labels
-				spec: ports: [ for n, p in expose.ports {name: n, port: p, targetPort: p, protocol: expose.protocol[n]}]
-			}
-		},
-	]
-	_manifest: _manifests[0]
+				spec: template: spec: containers: [{
+					"image": image.name + ":" + image.tag
+					"name":  _name
+					"env": [ for k, v in _env_ {name: k, v}]
+					_env_: {
+						for n, c in env {
+							if c.value != null {
+								(n): value: c.value
+							}
+							if c.secret != null {
+								(n): valueFrom: secretKeyRef: {
+									for n, c in c.secret {
+										name: n
+										key:  c
+									}
+								}
+							}
+						}
+					}
+					"args": [ for k, v in args if v == null {k}] + list.FlattenN([ for k, v in args if v != null {[k, v]}], -1)
+					"volumeMounts": [ for mp, c in _volumeMounts_ {mountPath: mp, c}]
+					_volumeMounts_: {
+						for s, c in {mount.secret, mount.configmap} {
+							for mp, sp in c {
+								(mp): {
+									name: (s)
+									if sp != null {
+										subPath: (sp)
+									}
+
+								}
+							}
+						}
+					}
+				}]
+				spec: template: spec: volumes:
+					[ for s, _ in mount.secret {name: s, secret: secretName: s}] +
+					[ for s, _ in mount.configmap {name: s, configMap: name: s}]
+				spec: selector: matchLabels: X.labels
+				spec: template: metadata: labels: X.labels
+			},
+
+			if len(expose.ports) > 0 {
+				core.#Service & {
+					metadata: {
+						name: _name
+						labels: "app.kubernetes.io/name": _name
+					}
+					spec: ports: [ for n, p in expose.ports {name: n, port: p, targetPort: p, protocol: expose.protocol[n]}]
+				}
+			},
+		]
+	}
 }
 
 #secrets: S={
-	[sec=string]: {
+	// kubernetes object name
+	[!="manifests"]: {
+		#type: core.#enumSecretType | *"Opaque"
+
+		// key
 		[k=string]: string
 	}
 
-	_manifests: [ for n, d in S {
+	manifests: [ for n, d in S if n != "manifests" {
 		core.#Secret & {
 			metadata: name: n
+			type: d.#type
 			data: {for k, v in d {(k): base64.Decode(null, base64.Encode(null, v))}} // NOTE: convert string to base64 and then into bytes.
 		}
-	}] | *[core.#Secret]
-	_manifest: _manifests[0]
+	}]
 }
 
 #configmaps: S={
-	[cm=string]: {
+	// kubernetes object name
+	[!="manifests"]: {
+		// key
 		[k=string]: string
 	}
 
-	_manifests: [ for n, d in S {
+	manifests: [ for n, d in S if n != "manifests" {
 		core.#ConfigMap & {
 			metadata: name: n
 			data: {for k, v in d {(k): v}}
 		}
-	}] | *[core.#ConfigMap]
-	_manifest: _manifests[0]
+	}]
 }
 
 #ingress: {
@@ -91,7 +157,7 @@ import (
 		port:    string
 	}
 
-	_manifests: [ {
+	manifests: [ {
 		networking.#Ingress & {
 			metadata: name: host
 			spec: rules: [{
@@ -104,29 +170,37 @@ import (
 			}]
 		}
 	}]
-	_manifest: _manifests[0]
+	manifest: manifests[0]
 }
 
 #ingressroute: {
 	fqdn: string
 	rules: [...{
-		match: string
+		match:       string
+		middlewares: [string] | *[] // NOTE: only support zero or one for now; abstract later.
 		services: [...{
 			name:  string
 			port?: number | string
 			kind:  *"Service" | "TraefikService"
 		}]
 	}]
+	middlewares: {
+		[string]: stripPrefix: string // NOTE: only support stripPrefix for now; abstract later
+	} | *null
 
-	manifests: _manifests // TODO: wip: expose manifests as public field everywhere else too.
-	_manifests: [traefik.#IngressRoute & {
-		metadata: name:                        fqdn
-		spec: routes: [ for r in rules {match: r.match, services: r.services}]
+	manifests: [traefik.#IngressRoute & {
+		metadata: name: fqdn
+		spec: routes: [ for r in rules {
+			match:    r.match
+			services: r.services
+			middlewares: [ for middleware in r.middlewares {name: middleware}]
+		}]
 		spec: {
 			entryPoints: ["websecure"]
 			routes: [...{
 				kind:  "Rule"
 				match: string
+				middlewares: [...{name: string}]
 				services: [...{
 					name:  string
 					port?: number | string
@@ -135,8 +209,16 @@ import (
 			}]
 			tls: {secretName: fqdn}
 		}
-	}]
-	_manifest: _manifests[0]
+	}, ...]
+	if middlewares != null {
+		manifests: [traefik.#IngressRoute] + [ for n, spec in middlewares {
+			apiVersion: "traefik.containo.us/v1alpha1"
+			kind:       "Middleware"
+			metadata: name: n
+			"spec": stripPrefix: prefixes: [spec.stripPrefix]},
+		]
+	}
+	manifest: manifests[0]
 }
 
 #certificate: {
@@ -153,180 +235,31 @@ import (
 			}
 		}
 	}]
-
 	manifest: manifests[0]
 }
 
-components: {
-	"appofapps": {
-		"traefik": argocd.#Application & {
-			metadata: name: "traefik"
-			spec: project:  "cloud"
-			spec: source: {
-				repoURL:        "https://github.com/augustfengd/augustfeng.app.git"
-				path:           "."
-				targetRevision: "main"
-				plugin: {
-					env: [
-						{
-							name:  "args"
-							value: "export ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(components.traefik.manifests)' --out text"
-						},
-					]
-					name: "cue"
-				}
-			}
-			spec: destination: namespace: "traefik"
-		}
+#application: {
+	name:      string
+	namespace: string
 
-		"cert-manager": argocd.#Application & {
-			metadata: name: "cert-manager"
-			spec: project:  "cloud"
-			spec: source: {
-				repoURL:        "https://github.com/augustfengd/augustfeng.app.git"
-				path:           "."
-				targetRevision: "main"
-				plugin: {
-					env: [
-						{
-							name:  "args"
-							value: "export ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(components.\"cert-manager\".manifests)' --out text"
-						},
-					]
-					name: "cue"
-				}
-			}
-			spec: destination: namespace: "cert-manager"
-		}
-
-		"external-dns": argocd.#Application & {
-			metadata: name: "external-dns"
-			spec: project:  "cloud"
-			spec: source: {
-				repoURL:        "https://github.com/augustfengd/augustfeng.app.git"
-				path:           "."
-				targetRevision: "main"
-				plugin: {
-					env: [
-						{
-							name:  "args"
-							value: "export ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(components.\"external-dns\".manifests)' --out text"
-						},
-					]
-					name: "cue"
-				}
-			}
-			spec: destination: namespace: "external-dns"
-		}
-
-		manifests: [components.appofapps."traefik", components.appofapps."cert-manager", components.appofapps."external-dns"]
-	}
-	"traefik": {
-		#fqdn: string
-
-		chartConfiguration: {
-			fullnameOverride: "traefik"
-			nodeSelector: "cloud.google.com/gke-nodepool": "default-pool"
-			{
-				ports: web: hostPort:       80
-				ports: websecure: hostPort: 443
-				service: enabled: false
-			}
-			logs: access: enabled: true
-			providers: kubernetesIngress: publishedService: enabled: true
-		}
-
-		_application: argocd.#Application & {
-			metadata: name: "traefik.chart"
-			spec: project:  "cloud"
-			spec: source: {
-				repoURL:        "https://helm.traefik.io/traefik"
-				targetRevision: "19.0.3"
-				helm: values: yaml.Marshal(chartConfiguration)
-				chart: "traefik"
-			}
-			spec: destination: namespace: "traefik"
-		}
-
-		_ingressroute: (#ingressroute & {
-			fqdn: #fqdn
-			rules: [{
-				match: "Host(`\(fqdn)`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))"
-				services: [{
-					name: "api@internal"
-					kind: "TraefikService"
-				}]}]
-		})._manifest
-
-		_certificate: (certmanager.#Certificate & {
-			metadata: name: #fqdn
-			spec: {
-				dnsNames: [#fqdn]
-				secretName: #fqdn
-				issuerRef: {
-					name: "letsencrypt"
-					kind: "ClusterIssuer"
-				}
-			}
-		})
-
-		manifests: [_application, _ingressroute, _certificate]
-	}
-	"cert-manager": {
-		chartConfiguration: {
-			serviceAccount: annotations: [string]: string
-			fullnameOverride: "cert-manager"
-			installCRDs:      true
-		}
-
-		_application: argocd.#Application & {
-			metadata: name: "cert-manager.chart"
-
-			spec: project: "cloud"
-			spec: source: {
-				repoURL:        "https://charts.jetstack.io"
-				targetRevision: "1.10.0"
-				helm: values: yaml.Marshal(chartConfiguration)
-				chart: "cert-manager"
-			}
-			spec: destination: namespace: "cert-manager"
-		}
-		_clusterissuer: certmanager.#ClusterIssuer & {
-			metadata: name: "letsencrypt"
-			spec: acme: {
-				email:  "augustfengd@gmail.com"
-				server: "https://acme-v02.api.letsencrypt.org/directory"
-				privateKeySecretRef: name: "letsencrypt-account-key"
-				solvers: [{
-					dns01: cloudDNS: project: "augustfengd"
-				}]
+	manifests: [argocd.#Application & {
+		metadata: "name": name
+		spec: source: {
+			repoURL:        string | *"https://github.com/augustfengd/augustfeng.app.git"
+			path:           "."
+			targetRevision: "main"
+			plugin: {
+				env: [
+					{
+						"name": "args"
+						value:  "export ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(\"cluster-services\".\"\(name)\".manifests)' --out text"
+					},
+				]
+				"name": "cue"
 			}
 		}
-
-		manifests: [_application, _clusterissuer]
-	}
-
-	"external-dns": {
-		chartConfiguration: {
-			serviceAccount: annotations: [string]: string
-			policy:           "sync"
-			fullnameOverride: "external-dns"
-			provider:         "google"
-		}
-
-		_application: argocd.#Application & {
-			metadata: name: "external-dns.chart"
-
-			spec: project: "cloud"
-			spec: source: {
-				repoURL:        "https://kubernetes-sigs.github.io/external-dns/"
-				targetRevision: "1.11.0"
-				helm: values: yaml.Marshal(chartConfiguration)
-				chart: "external-dns"
-			}
-			spec: destination: namespace: "external-dns"
-		}
-
-		manifests: [_application]
-	}
+		spec: project: "cloud"
+		spec: destination: "namespace": namespace
+	}]
+	manifest: manifests[0]
 }
