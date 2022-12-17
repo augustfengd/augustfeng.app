@@ -11,6 +11,7 @@ import (
 	"struct"
 	"strings"
 	"list"
+	"encoding/yaml"
 	"encoding/base64"
 )
 
@@ -170,7 +171,6 @@ import (
 			}]
 		}
 	}]
-	manifest: manifests[0]
 }
 
 #ingressroute: {
@@ -218,7 +218,6 @@ import (
 			"spec": stripPrefix: prefixes: [spec.stripPrefix]},
 		]
 	}
-	manifest: manifests[0]
 }
 
 #certificate: {
@@ -235,31 +234,47 @@ import (
 			}
 		}
 	}]
-	manifest: manifests[0]
 }
 
 #application: {
 	name:      string
 	namespace: string
+	helm:      {
+		url:      string
+		revision: string
+		values:   _
+		chart:    string
+	} | *null
+	plugin: {
+		name: "cue"
+		args: string
+	} | *null
 
 	manifests: [argocd.#Application & {
 		metadata: "name": name
 		spec: source: {
-			repoURL:        string | *"https://github.com/augustfengd/augustfeng.app.git"
-			path:           "."
-			targetRevision: "main"
-			plugin: {
-				env: [
-					{
-						"name": "args"
-						value:  "export ./cloud/augustfeng.app:kubernetes -e 'yaml.MarshalStream(\"cluster-services\".\"\(name)\".manifests)' --out text"
-					},
-				]
-				"name": "cue"
+			if helm != null {
+				repoURL:        helm.url
+				targetRevision: helm.revision
+				"helm": values: yaml.Marshal(helm.values)
+				chart: helm.chart
+			}
+
+			if plugin != null {
+				repoURL:        "https://github.com/augustfengd/augustfeng.app.git"
+				path:           "."
+				targetRevision: "main"
+
+				"plugin": {
+					name: plugin.name
+					env: [ for k, v in plugin if k != "name" {
+						name:  k
+						value: v
+					}]
+				}
 			}
 		}
 		spec: project: "cloud"
 		spec: destination: "namespace": namespace
 	}]
-	manifest: manifests[0]
 }

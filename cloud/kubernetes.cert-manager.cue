@@ -1,31 +1,31 @@
 package kubernetes
 
 import (
-	argocd "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	certmanager "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
-
-	"encoding/yaml"
 )
 
-"cloud-services": "cert-manager": {
+cluster_services: "cert-manager": {
 	chartConfiguration: {
 		serviceAccount: annotations: [string]: string
 		fullnameOverride: "cert-manager"
 		installCRDs:      true
 	}
 
-	application: argocd.#Application & {
-		metadata: name: "cert-manager.chart"
-
-		spec: project: "cloud"
-		spec: source: {
-			repoURL:        "https://charts.jetstack.io"
-			targetRevision: "1.10.0"
-			helm: values: yaml.Marshal(chartConfiguration)
+	chart: #application & {
+		name:      "cert-manager.chart"
+		namespace: "cert-manager"
+		helm: {
+			url:      "https://charts.jetstack.io"
+			revision: "1.10.0"
+			values: {
+				serviceAccount: annotations: [string]: string
+				fullnameOverride: "cert-manager"
+				installCRDs:      true
+			}
 			chart: "cert-manager"
 		}
-		spec: destination: namespace: "cert-manager"
 	}
+
 	clusterissuer: certmanager.#ClusterIssuer & {
 		metadata: name: "letsencrypt"
 		spec: acme: {
@@ -38,5 +38,7 @@ import (
 		}
 	}
 
-	manifests: [application, clusterissuer]
+	manifests:
+		chart.manifests +
+		[clusterissuer]
 }
