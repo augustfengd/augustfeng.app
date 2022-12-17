@@ -1,0 +1,12 @@
+#+title: Configure Emacs
+#+categories[]: development
+#+tags[]: editor
+#+draft: true
+#+date: 2022-11-30
+
+* configure
+** org mode
+
+#+begin_src elisp
+(setq org-src-tab-acts-natively nil)
+#+end_src

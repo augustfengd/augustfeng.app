@@ -1,0 +1,41 @@
+#+title: Configure Guile
+#+categories[]: development
+#+tags[]: editor
+#+draft: true
+#+date: 2022-11-30
+
+** guile
+*** install guile (macos)
+
+#+begin_src shell
+  brew install guile
+  brew install gnutls
+#+end_src
+
+*** configure spacemacs
+
+#+begin_src shell
+  echo "GUILE_LOAD_PATH=$(brew --prefix)/share/guile/site/3.0" >> ~/.spacemacs.env
+  echo "GUILE_LOAD_COMPILED_PATH=$(brew --prefix)/lib/guile/3.0/site-ccache" >> ~/.spacemacs.env
+  echo "GUILE_SYSTEM_EXTENSIONS_PATH=$(brew --prefix)/lib/guile/3.0/extensions" >> ~/.spacemacs.env
+
+  echo "GUILE_TLS_CERTIFICATE_DIRECTORY=$(brew --prefix)/etc/gnutls/" >> ~/.spacemacs.env
+#+end_src
+
+*** install packages
+
+According to [[https://www.gnu.org/software/guile/manual/html_node/Installing-Site-Packages.html][4.7 Installing Site Package]], we should install our packages in
+~%(site-dir)~.
+
+Luckily, Aleix Conchillo Flaqué manages a Homebrew Tap for Guile packages.
+
+#+begin_src shell
+  brew reinstall guile
+  brew tap aconchillo/guile
+#+end_src
+
+- guile-json
+
+#+begin_src
+  brew install guile-json
+#+end_src

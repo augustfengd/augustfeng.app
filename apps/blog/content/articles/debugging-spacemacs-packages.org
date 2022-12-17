@@ -1,0 +1,105 @@
+#+title: Debugging Spacemacs Packages
+#+categories[]: emacs
+#+tags[]: emacs elisp org-mode
+#+date: 2022-11-28
+
+* About
+
+Debugging a lsp client from emacs-lsp. The focus of this article will be about
+on the methodology and techniques rather than bug themselves.
+
+* Referencing a local copy of the package
+
+The Spacemacs' documentation includes an FAQ answer on [[https://develop.spacemacs.org/doc/FAQ.html#how-to-override-a-layer-package][How to override a layer
+package]].
+
+I have the ~emacs-lsp~ package cloned to
+~/Users/august.feng/repositories/gh/emacs-lsp/lsp-mode~, so I'll be creating a
+symbolic link to that, and respectively adding ~(lsp-mode :location local)~ to
+~dotspacemacs-additional-packages~.
+
+#+begin_src shell
+  mkdir -p ~/.emacs.d/layers/+tools/lsp/local
+  ln -s /Users/august.feng/repositories/gh/emacs-lsp/lsp-mode ~/.emacs.d/layers/+tools/lsp/local
+#+end_src
+
+* emacs-lsp
+** session file
+
+~lsp-mode~ uses ~lsp-session-file~ to track known workspaces. Since the bug
+happens when we add a new workspace, we need to remove our workspace from that
+file:
+
+#+begin_src elisp :results none
+  (require 'lsp-mode)
+ (call-interactively 'lsp-workspace-folders-remove)
+#+end_src
+
+** clients
+
+The list of lsp clients are held in the ~lsp-clients~ hash table. We can effect
+the changes by removing and re-registering the client.
+
+#+begin_src elisp :results none
+  (remhash 'fsac lsp-clients)
+#+end_src
+
+* breakpoints
+** instrumenting functions
+*** removing instrumentation
+
+Rather than re-evaluating without instrumentation, we can use
+~edebug-remove-instrumentation~ to prompt us for a list of functions to remove
+instrumentation from them.
+
+#+begin_src elisp :results none
+  (call-interactively 'edebug-remove-instrumentation)
+#+end_src
+
+** on events
+
+*** debugging on entry
+
+We can remove breakpoints caused by entry on functions.
+
+#+begin_src elisp :results none
+  (call-interactively 'cancel-debug-on-entry)
+#+end_src
+
+* removing noise
+** hooks
+
+We can reduce the noise by removing hooks.
+
+#+begin_src elisp :results none
+  (call-interactively 'remove-hook) ;; and search for fsharp-mode.
+#+end_src
+
+** cask
+
+We can use cask to spin up a minimal emacs instance.
+
+#+begin_src elisp
+  ;; Cask
+  (source gnu)
+  (source melpa)
+
+  (depends-on "lsp-mode")
+  (depends-on "fsharp-mode")
+
+  ;; init.el
+  (require 'lsp-mode)
+  (require 'fsharp-mode)
+  (add-hook 'fsharp-mode-hook #'lsp-deferred)
+
+  ;; cask emacs -l init.el
+#+end_src
+
+** package only
+
+We can omit the Spacemacs layer entirely and source the package locally through
+~dotspacemacs-additional-package~ with Quela semantics.
+
+#+begin_src elisp
+  (fsharp-mode :location (recipe :fetcher file :path "~/repositories/gh/fsharp/emacs-fsharp-mode"))
+#+end_src

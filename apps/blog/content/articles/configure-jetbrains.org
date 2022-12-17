@@ -1,6 +1,7 @@
 #+title: Configure JetBrains
 #+categories[]: development
 #+tags[]: editor
+#+draft: true
 #+date: 2022-11-30
 
 * configure
@@ -28,7 +29,10 @@ splits]].
 
 *** find
 
-~command + 3~: find this thing.
+~option + control + shift + e~: find
+~command + 3~: open find tool
+~command + shift + f~: find in files
+
 *** editor tabs
 ~Command + Shift + [ | ]~: Select Previous | Next Tab.
 *** navigate
