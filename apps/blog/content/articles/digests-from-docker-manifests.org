@@ -1,0 +1,70 @@
+#+TITLE: Digests from Docker Manifests
+#+categories[]: docker
+#+tags[]: container docker
+#+date: 2022-12-19
+
+* About
+
+This article documents a brief study I did on docker manifests.
+
+For a given container image, the /.layers[].digest/ (jq) field of the Docker
+[[https://docs.docker.com/registry/spec/manifest-v2-2/][Image Manifest V2]] is different from the /.[].RootFS.Layers/ (jq) of the ~docker
+image inspect~ command or when using Alex Goodman's [[https://github.com/wagoodman/dive][dive]] tool.
+
+* A Simple Container and Registry
+
+For this experiment, our specimen will be a simple alpine image with a
+*foobar.txt* file added:
+
+#+begin_src shell
+  docker build - -t foobar <<< "FROM alpine" <<< "RUN echo helloworld > foobar.txt"
+#+end_src
+
+We'll be hosting our own docker registry for this experiment and pushing our *foobar* there:
+
+#+begin_src shell
+  docker run -d -p 5000:5000 --restart=always --name registry registry:2
+
+  docker tag foobar localhost:5000/foobar
+  docker push localhost:5000/foobar
+#+end_src
+
+* The Difference in Digests
+
+Let's compare some digests between the local image and the image's manifest from
+the registry:
+
+#+begin_src shell
+  docker image inspect foobar | jq '.[].RootFS.Layers'
+  # [
+  #   "sha256:1b577a8fb8ce25023a0ec0a17a6dc3d6aa9cca989f75457800cb55179ee2e834",
+  #   "sha256:2f05031d8762a311cd7dfcca7ed8b4a5c154007c9e6afc637428c8f86719345b"
+  # ]
+  docker manifest inspect --insecure localhost:5000/foobar | jq '[ .layers[].digest ]'
+  # [
+  #   "sha256:261da4162673b93e5c0e7700a3718d40bcc086dbf24b1ec9b54bca0b82300626",
+  #   "sha256:b499dac608469b5f2da1fd48a1daa926f33bb5b0f2c53edcf8b65e25c22e9e3d"
+  # ]
+#+end_src
+
+* Hands On the Layers
+
+We can use the SHA from the manifest to locate the layer on the registry's file
+system.
+
+I've gone ahead and found that the blob stored on the registry is a *gzip
+compressed data*, and we can compute the same digest of the image once it's
+decompressed:
+
+#+begin_src shell
+  docker exec registry dd if=/var/lib/registry/docker/registry/v2/blobs/sha256/b4/b499dac608469b5f2da1fd48a1daa926f33bb5b0f2c53edcf8b65e25c22e9e3d/data status=none | file -
+  # /dev/stdin: gzip compressed data
+  docker exec registry dd if=/var/lib/registry/docker/registry/v2/blobs/sha256/b4/b499dac608469b5f2da1fd48a1daa926f33bb5b0f2c53edcf8b65e25c22e9e3d/data status=none | gzip -d -c | sha256sum
+  # 2f05031d8762a311cd7dfcca7ed8b4a5c154007c9e6afc637428c8f86719345b  -
+#+end_src
+
+* Conclusion
+
+The digest indicated on the image's manifest document is the sha256sum of the
+compressed archive filed and the digest indicated on the image is the
+non-compressed archive file.
