@@ -1,4 +1,4 @@
-#+title: impl std::io::Read for Foobar
+#+title: impl Read for Foobar
 #+categories[]: development
 #+tags[]: rust
 #+date: 2022-11-28

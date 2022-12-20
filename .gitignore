@@ -14,8 +14,5 @@ kubernetes/secrets/*.json
 kubernetes/secrets/*.txt
 !kubernetes/secrets/*.enc.json
 
-# apps/blog
-apps/blog/themes/*
-!apps/blog/themes/augustfeng.app
-apps/blog/public
-apps/blog/.hugo_build.lock
+# bazel-* symlinks
+bazel-*

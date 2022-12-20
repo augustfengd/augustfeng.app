@@ -1,0 +1,23 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "build_stack_rules_hugo",
+    url = "https://github.com/augustfengd/rules_hugo/archive/7a081385ce8145748ed186bfa8ff73cd54d68AA7.zip",
+    sha256 = "05fec9926477b529b11bf5b5f0b0407ee42d66157f45cd59f0b9e3b9bcc0a24c",
+    strip_prefix = "rules_hugo-7a081385ce8145748ed186bfa8ff73cd54d68aa7"
+)
+
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_repository", "github_hugo_theme")
+
+hugo_repository(
+    name = "hugo",
+    version = "0.108.0",
+    os_arch = "darwin-universal"
+)
+
+github_hugo_theme(
+    name = "com_github_nanxiaobei_hugo_paper",
+    owner = "nanxiaobei",
+    repo = "hugo-paper",
+    commit = "3ecf91dda9663c9be0adc2ec7cdb830bc3320e58",
+)
