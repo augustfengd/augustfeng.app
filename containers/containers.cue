@@ -77,7 +77,7 @@ dagger.#Plan & {
 				},
 			]
 		}
-		blog: {
+		_blog: {
 			docker.#Build & {
 				steps: [
 					docker.#Pull & {

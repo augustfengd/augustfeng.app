@@ -9,7 +9,7 @@ import (
 name: "containers"
 on: push: {
 	branches: #DefaultBranch
-	paths: ["containers/**", "apps/**"]
+	paths: ["containers/**"]
 }
 
 jobs: github.#Workflow.#Jobs & {
