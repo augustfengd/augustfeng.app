@@ -47,6 +47,19 @@ import (
 		}
 	}
 
+	install: {
+		sops: {
+			#version: string | *"v3.7.3"
+			name:     "Install SOPS"
+			run:      """
+mkdir -p bin/
+curl -L --output bin/sops https://github.com/mozilla/sops/releases/download/\(#version)/sops-\(#version).linux.amd64
+chmod +x bin/sops
+echo "${GITHUB_WORKSPACE}/bin" >> $GITHUB_PATH
+"""
+		}
+	}
+
 	with: {
 		decryptionKey: github.#Workflow.#Step & {
 			env: SOPS_AGE_KEY: "${{ secrets.SOPS_AGE_KEY }}"

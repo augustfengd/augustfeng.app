@@ -12,12 +12,7 @@ blog: {
 
 	deployment: kubernetes.#deployment & {
 		image: name: "ghcr.io/augustfengd/augustfeng.app/blog"
-		args: {
-			server:         null
-			"--baseUrl":    "https://blog.augustfeng.app/"
-			"--appendPort": "false"
-		}
-		expose: ports: http: 1313
+		expose: ports: http: 80
 	}
 	ingressroute: kubernetes.#ingressroute & {
 		fqdn: "blog.augustfeng.app"
@@ -25,7 +20,7 @@ blog: {
 			match: "Host(`\(fqdn)`)"
 			services: [{
 				name: "blog"
-				port: 1313
+				port: 80
 			}]}]
 	}
 	certificate: kubernetes.#certificate & {

@@ -1,4 +1,6 @@
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
+
+# hugo
 
 http_archive(
     name = "build_stack_rules_hugo",
@@ -11,8 +13,7 @@ load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_repository", "github_hugo_
 
 hugo_repository(
     name = "hugo",
-    version = "0.108.0",
-    os_arch = "darwin-universal"
+    version = "0.108.0"
 )
 
 github_hugo_theme(
@@ -20,4 +21,94 @@ github_hugo_theme(
     owner = "nanxiaobei",
     repo = "hugo-paper",
     commit = "3ecf91dda9663c9be0adc2ec7cdb830bc3320e58",
+    sha256 = "09d7e65a14f7b874c049fae8a5e4fc382380bbe736c197f3e3f072adf3561777"
 )
+
+# fix https://github.com/bazelbuild/bazel/issues/10134#issuecomment-1193395705
+# container
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "io_bazel_rules_go",
+    sha256 = "16e9fca53ed6bd4ff4ad76facc9b7b651a89db1689a2877d6fd7b82aa824e366",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.34.0/rules_go-v0.34.0.zip",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.34.0/rules_go-v0.34.0.zip",
+    ],
+)
+
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
+
+go_rules_dependencies()
+
+go_register_toolchains(version = "1.18.3")
+
+http_archive(
+    name = "io_bazel_rules_docker",
+    sha256 = "b1e80761a8a8243d03ebca8845e9cc1ba6c82ce7c5179ce2b295cd36f7e394bf",
+    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.25.0/rules_docker-v0.25.0.tar.gz"],
+)
+
+
+# fix https://github.com/bazelbuild/rules_docker/issues/2197
+# gazelle
+
+http_archive(
+    name = "bazel_gazelle",
+    sha256 = "448e37e0dbf61d6fa8f00aaa12d191745e14f07c31cabfa731f0c8e8a4f41b97",
+    urls = ["https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.28.0/bazel-gazelle-v0.28.0.tar.gz"],
+)
+
+# container
+
+load ("@io_bazel_rules_docker//repositories:repositories.bzl", container_repositories = "repositories")
+
+container_repositories()
+
+load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
+
+container_deps()
+
+load("@io_bazel_rules_docker//container:container.bzl", "container_pull")
+
+container_pull(
+    name = "nginx",
+    registry = "index.docker.io",
+    repository = "nginx",
+    digest = "sha256:d586384381a0e6834cef73d432b1486f0b86334cb92e54256def62dd403f82ab",
+)
+
+# docker toolchain
+
+load("@io_bazel_rules_docker//toolchains/docker:toolchain.bzl", docker_toolchain_configure="toolchain_configure")
+
+docker_toolchain_configure(
+    name = "docker_config",
+    client_config = "what's happening here.", # nothing i write seems to have any effects lol
+)
+
+# kubernetes
+
+http_file(
+    name="k8s_binary",
+    downloaded_file_path = "kubectl",
+    # sha256="66d394820e27cbf0b00e7f1bda50267f4a7f4ca01a4244bb227a5c98e50a14b7",
+    # urls=["https://storage.googleapis.com/kubernetes-release/release/v1.25.5/bin/darwin/arm64/kubectl"],
+    sha256="6a660cd44db3d4bfe1563f6689cbe2ffb28ee4baf3532e04fff2d7b909081c29",
+    urls=["https://storage.googleapis.com/kubernetes-release/release/v1.25.5/bin/linux/amd64/kubectl"],
+    executable=True,
+)
+
+http_archive(
+    name = "io_bazel_rules_k8s",
+    strip_prefix = "rules_k8s-0.7",
+    urls = ["https://github.com/bazelbuild/rules_k8s/archive/v0.7.tar.gz"],
+    sha256 = "ce5b9bc0926681e2e7f2147b49096f143e6cbc783e71bc1d4f36ca76b00e6f4a",
+)
+
+load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories", "k8s_defaults")
+load("@io_bazel_rules_k8s//toolchains/kubectl:kubectl_configure.bzl", "kubectl_configure")
+
+kubectl_configure(name="k8s_config", kubectl_path="@k8s_binary//file")
+k8s_repositories()
