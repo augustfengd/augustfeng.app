@@ -21,7 +21,11 @@ import (
 #deployment: {
 	image: {
 		name: string
-		tag:  string | *"latest"
+		{
+			digest: string
+		} | {
+			tag: string | *"latest"
+		}
 	}
 	env: [string]: {// description: secret sources exclusively from secret or value.
 			secret: null
@@ -56,66 +60,68 @@ import (
 	}
 
 	let _name = { let s = strings.Split(image.name, "/"), s[len(s)-1]}
-	manifests: {
-		[
-			apps.#Deployment & {
-				X=metadata: {
+	manifests: [
+		apps.#Deployment & {
+			X=metadata: {
+				name: _name
+				labels: "app.kubernetes.io/name": _name
+			}
+			spec: template: spec: containers: [{
+				"image": {
+					if image.tag != _|_ {strings.Join([image.name, image.tag], ":")}
+					if image.digest != _|_ {strings.Join([image.name, image.digest], "@")}
+				}
+				"name": _name
+				"env": [ for k, v in _env_ {name: k, v}]
+				_env_: {
+					for n, c in env {
+						if c.value != null {
+							(n): value: c.value
+						}
+						if c.secret != null {
+							(n): valueFrom: secretKeyRef: {
+								for n, c in c.secret {
+									name: n
+									key:  c
+								}
+							}
+						}
+					}
+				}
+				"args": [ for k, v in args if v == null {k}] + list.FlattenN([ for k, v in args if v != null {[k, v]}], -1)
+				"volumeMounts": [ for mp, c in _volumeMounts_ {mountPath: mp, c}]
+				_volumeMounts_: {
+					for s, c in {mount.secret, mount.configmap} {
+						for mp, sp in c {
+							(mp): {
+								name: (s)
+								if sp != null {
+									subPath: (sp)
+								}
+
+							}
+						}
+					}
+				}
+			}]
+			spec: template: spec: volumes:
+				[ for s, _ in mount.secret {name: s, secret: secretName: s}] +
+				[ for s, _ in mount.configmap {name: s, configMap: name: s}]
+			spec: selector: matchLabels: X.labels
+			spec: template: metadata: labels: X.labels
+		},
+
+		if len(expose.ports) > 0 {
+			core.#Service & {
+				metadata: {
 					name: _name
 					labels: "app.kubernetes.io/name": _name
 				}
-				spec: template: spec: containers: [{
-					"image": image.name + ":" + image.tag
-					"name":  _name
-					"env": [ for k, v in _env_ {name: k, v}]
-					_env_: {
-						for n, c in env {
-							if c.value != null {
-								(n): value: c.value
-							}
-							if c.secret != null {
-								(n): valueFrom: secretKeyRef: {
-									for n, c in c.secret {
-										name: n
-										key:  c
-									}
-								}
-							}
-						}
-					}
-					"args": [ for k, v in args if v == null {k}] + list.FlattenN([ for k, v in args if v != null {[k, v]}], -1)
-					"volumeMounts": [ for mp, c in _volumeMounts_ {mountPath: mp, c}]
-					_volumeMounts_: {
-						for s, c in {mount.secret, mount.configmap} {
-							for mp, sp in c {
-								(mp): {
-									name: (s)
-									if sp != null {
-										subPath: (sp)
-									}
-
-								}
-							}
-						}
-					}
-				}]
-				spec: template: spec: volumes:
-					[ for s, _ in mount.secret {name: s, secret: secretName: s}] +
-					[ for s, _ in mount.configmap {name: s, configMap: name: s}]
-				spec: selector: matchLabels: X.labels
-				spec: template: metadata: labels: X.labels
-			},
-
-			if len(expose.ports) > 0 {
-				core.#Service & {
-					metadata: {
-						name: _name
-						labels: "app.kubernetes.io/name": _name
-					}
-					spec: ports: [ for n, p in expose.ports {name: n, port: p, targetPort: p, protocol: expose.protocol[n]}]
-				}
-			},
-		]
-	}
+				spec: ports: [ for n, p in expose.ports {name: n, port: p, targetPort: p, protocol: expose.protocol[n]}]
+				spec: selector: manifests[0].metadata.labels
+			}
+		},
+	]
 }
 
 #secrets: S={

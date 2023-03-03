@@ -1,0 +1,27 @@
+name: blog
+"on":
+  push:
+    branches: main
+concurrency: blog
+jobs:
+  build-push-apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: configure google application credentials
+        run: printf '%s' "${GOOGLE_CREDENTIALS}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          GOOGLE_APPLICATION_CREDENTIALS: application_default_credentials.json
+      - name: docker login
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+      - name: make push
+        run: make push
+        working-directory: apps/blog
+      - name: make apply
+        run: make apply
+        working-directory: apps/blog
+        env:
+          KUBECONFIG: ../../kubeconfig.yaml
+          GOOGLE_APPLICATION_CREDENTIALS: ../../application_default_credentials.json

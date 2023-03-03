@@ -1,8 +1,5 @@
-package kubeconfig
-
 import (
 	"tool/exec"
-	// "tool/cli"
 	"tool/file"
 	"encoding/yaml"
 

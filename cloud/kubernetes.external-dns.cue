@@ -1,7 +1,6 @@
 package kubernetes
 
 cluster_services: "external-dns": {
-
 	chart: #application & {
 		name:      "external-dns.chart"
 		namespace: "external-dns"

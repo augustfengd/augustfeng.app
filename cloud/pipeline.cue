@@ -7,17 +7,17 @@ import (
 #actions: {
 	terraform: {
 		init: github.#Workflow.#Step & {
-			name: "Terraform Init"
+			name: "terraform init"
 			id:   "init"
 			run:  "terraform init"
 		}
 		plan: github.#Workflow.#Step & {
-			name: "Terraform Plan"
+			name: "terraform plan"
 			id:   "plan"
 			run:  "terraform plan"
 		}
 		apply: github.#Workflow.#Step & {
-			name: "Terraform Apply"
+			name: "terraform apply"
 			id:   "apply"
 			run:  "terraform apply -auto-approve"
 		}
@@ -28,10 +28,10 @@ import (
 	}
 
 	make: github.#Workflow.#Step & {
-		_target: string
+		#target: string // not a fan of this way of interfacing, but whatever.
 
-		name: "make \(_target)" | *"make"
-		run:  "make \(_target)" | *"make"
+		name: "make \(#target)" // | *"make" // defaults seem to be prioritized no matter what
+		run:  "make \(#target)" // | *"make" // defaults seem to be prioritized no matter what
 	}
 
 	checkoutCode: github.#Workflow.#Step & {
@@ -47,10 +47,24 @@ import (
 		}
 	}
 
+	gcp: login: github.#Workflow.#Step & {
+		name: "configure google application credentials"
+		env: {
+			GOOGLE_CREDENTIALS:             string
+			GOOGLE_APPLICATION_CREDENTIALS: string
+		}
+		run: "printf '%s' \"${GOOGLE_CREDENTIALS}\" > \"${GOOGLE_APPLICATION_CREDENTIALS}\""
+	}
+
+	docker: login: github.#Workflow.#Step & {
+		name: "docker login"
+		run:  "echo \"${{ secrets.GITHUB_TOKEN }}\" | docker login ghcr.io -u $ --password-stdin"
+	}
+
 	install: {
 		sops: {
 			#version: string | *"v3.7.3"
-			name:     "Install SOPS"
+			name:     "install SOPS"
 			run:      """
 mkdir -p bin/
 curl -L --output bin/sops https://github.com/mozilla/sops/releases/download/\(#version)/sops-\(#version).linux.amd64

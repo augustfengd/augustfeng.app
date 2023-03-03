@@ -6,6 +6,7 @@ import (
 )
 
 lib: digitalocean: {
+
 	_#k3s_node: {
 		name:   string
 		image:  "ubuntu-22-04-x64"

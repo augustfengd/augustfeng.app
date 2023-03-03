@@ -150,14 +150,14 @@ dagger.#Plan & {
 			}
 			_terraform: core.#Pull & {source: "hashicorp/terraform:1.3.0"}
 			_sops:      core.#Pull & {source: "mozilla/sops:v3.7.3-alpine"}
-			_kubectl:   core.#Pull & {source: "bitnami/kubectl"}
+			_kubectl:   core.#Pull & {source: "bitnami/kubectl:1.25"}
 			docker.#Build & {
 				steps: [
 					alpine.#Build,
 					docker.#Run & {
 						command: {
 							name: "apk"
-							args: ["add"] + ["make", "vim", "ripgrep", "zsh", "curl", "git", "gpg", "gpg-agent", "python3"]
+							args: ["add"] + ["make", "vim", "ripgrep", "zsh", "curl", "git", "gpg", "gpg-agent", "python3", "jq"]
 							flags: {
 								"-U":         true
 								"--no-cache": true
