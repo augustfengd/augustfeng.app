@@ -66,11 +66,11 @@ jobs:
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
       - id: init
-        name: Terraform Init
+        name: terraform init
         run: terraform init
         working-directory: build/terraform
       - id: plan
-        name: Terraform Plan
+        name: terraform plan
         run: terraform plan
         working-directory: build/terraform
     container:
@@ -90,11 +90,11 @@ jobs:
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
       - id: init
-        name: Terraform Init
+        name: terraform init
         run: terraform init
         working-directory: build/terraform
       - id: apply
-        name: Terraform Apply
+        name: terraform apply
         run: terraform apply -auto-approve
         working-directory: build/terraform
     container:

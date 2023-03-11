@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"github.com/SchemaStore/schemastore/src/schemas/json/github"
+	"strings"
 )
 
 #actions: {
@@ -28,10 +29,10 @@ import (
 	}
 
 	make: github.#Workflow.#Step & {
-		#target: string // not a fan of this way of interfacing, but whatever.
+		#target: string | *"" // not a fan of using definitiosn for interfacing,but whatever.
 
-		name: "make \(#target)" // | *"make" // defaults seem to be prioritized no matter what
-		run:  "make \(#target)" // | *"make" // defaults seem to be prioritized no matter what
+		name: run
+		run:  strings.Join( [ "make", if #target != "" {#target}], " ")
 	}
 
 	checkoutCode: github.#Workflow.#Step & {

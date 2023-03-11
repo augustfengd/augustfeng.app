@@ -42,3 +42,4 @@ apply: manifests
 clean:
 	rm -rf build
 	rm -rf themes/hugo-paper
+	rm -rf ../../.github/workflows/blog.yaml

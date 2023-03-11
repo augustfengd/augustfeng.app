@@ -1,9 +1,4 @@
-APPS := $(shell cue export ./apps:kubernetes | jq -r 'keys | join(" ")')
-
 all: build/terraform build/argocd .github/workflows
-
-$(APPS):
-	@cue export ./apps -e '$@.manifests' | jq '.[]'
 
 .PHONY: build/terraform
 build/terraform: cloud
@@ -25,7 +20,6 @@ build/kubernetes: cloud
 	mkdir -p $@
 	cue export -f ./cloud/augustfeng.app:pipeline --outfile ./.github/workflows/cloud.yaml
 	cue export -f ./containers:pipeline --outfile ./.github/workflows/containers.yaml
-	cue export -f ./apps:pipeline --outfile ./.github/workflows/apps.yaml
 
 kubeconfig.yaml: tools/kubeconfig_tool.cue
 	cue create $<
