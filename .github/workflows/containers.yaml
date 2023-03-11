@@ -5,7 +5,7 @@ name: containers
     paths:
       - containers/**
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -20,7 +20,7 @@ jobs:
       - name: Build and Publish Containers
         uses: dagger/dagger-for-github@v3
         env:
-          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           version: v0.2.36
           cmds: do -p containers.cue push

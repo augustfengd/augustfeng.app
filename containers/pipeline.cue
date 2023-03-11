@@ -13,7 +13,7 @@ on: push: {
 }
 
 jobs: github.#Workflow.#Jobs & {
-	"build": {
+	"build-and-push": {
 		"runs-on": "ubuntu-latest"
 		steps: [
 			{
@@ -36,7 +36,7 @@ jobs: github.#Workflow.#Jobs & {
 				name: "Build and Publish Containers"
 				uses: "dagger/dagger-for-github@v3"
 				env: {
-					SOPS_AGE_KEY: "${{ secrets.SOPS_AGE_KEY }}"
+					GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 				}
 				with: {
 					version: "v0.2.36"

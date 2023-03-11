@@ -15,19 +15,8 @@ dagger.#Plan & {
 		contents: dagger.#FS
 		include: ["config.toml", "content", "themes"]
 	}
-	client: commands: {
-		gh_token: {
-			name: "sops"
-			args: ["-d", "./secrets/gh.enc.json"]
-			stdout: dagger.#Secret
-		}
-	}
-
-	actions: secrets: {
-		gh_token: core.#DecodeSecret & {
-			input:  client.commands.gh_token.stdout
-			format: "json"
-		}
+	client: env: {
+		GITHUB_TOKEN: dagger.#Secret
 	}
 
 	actions: build: {
@@ -77,6 +66,7 @@ dagger.#Plan & {
 				},
 			]
 		}
+		// deprecated, but keep for snippet sake.
 		_blog: {
 			docker.#Build & {
 				steps: [
@@ -234,8 +224,8 @@ dagger.#Plan & {
 				image: actions.build[i].output
 				dest:  "ghcr.io/augustfengd/augustfeng.app/\(i)"
 				auth: {
-					username: "augustfengd" // NOTE: would like to reference secrets in ordinary fields that aren't `dagger.#Secret`.
-					secret:   actions.secrets.gh_token.output.token.contents
+					username: "augustfengd"
+					secret:   client.env.GITHUB_TOKEN
 				}
 			}
 		}
