@@ -150,6 +150,6 @@ jobs:
       - if: env.GOOGLE_CREDENTIALS != ''
         run: printf '%s' "${GOOGLE_CREDENTIALS}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
       - if: env.GOOGLE_CREDENTIALS != ''
-        run: kubectl diff -f build/argocd
+        run: kubectl diff -n argocd -f build/argocd
     container:
       image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest

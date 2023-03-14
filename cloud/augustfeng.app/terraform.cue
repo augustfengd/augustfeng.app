@@ -2,6 +2,10 @@ package terraform
 
 configuration: {
 	lib.gcp & {
+		_gcp: cluster: {
+			name:     "augustfeng-app"
+			location: "us-east1-b"
+		}
 		_gcp: iam: {
 			"ci-cd-pipeline": {
 				account_id:   "ci-cd-pipeline"
@@ -27,9 +31,27 @@ configuration: {
 					serviceaccount: "external-dns"
 				}
 			}
+			"dns-configurator": {
+				account_id:   "dns-configurator"
+				display_name: "dns-configurator"
+				roles: ["roles/dns.admin"]
+				workloadIdentity: {
+					namespace:      "apps-dns-configurator"
+					serviceaccount: "apps-dns-configurator"
+				}
+			}
 		}
 	}
 	lib.github & {
 		_github: secrets: GOOGLE_CREDENTIALS: "${base64decode(google_service_account_key.ci-cd-pipeline.private_key)}"
+	}
+	lib.kubernetes & {
+		_kubernetes: cluster: {
+			name:     "augustfeng-app"
+			location: "us-east1-b"
+		}
+		_kubernetes: namespaces: {
+			"dns-configurator": {}
+		}
 	}
 }
