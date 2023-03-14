@@ -3,6 +3,10 @@ package terraform
 lib: gcp: {
 
 	_gcp: {
+		cluster: {
+			name:     string
+			location: string
+		}
 		iam: [string]: {
 			account_id: string
 			roles: [...string]
@@ -38,8 +42,8 @@ lib: gcp: {
 		}
 
 		google_container_cluster: "cluster": {
-			name:     "augustfeng-app"
-			location: "us-east1-b"
+			name:     _gcp.cluster.name
+			location: _gcp.cluster.location
 
 			initial_node_count: 1
 
