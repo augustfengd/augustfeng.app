@@ -1,14 +1,22 @@
-#+title: Debugging Spacemacs Packages
+#+title: Debugging (Space)macs Packages
 #+categories[]: emacs
 #+tags[]: emacs elisp org-mode
 #+date: 2022-11-28
 
 * About
 
-Debugging a lsp client from emacs-lsp. The focus of this article will be about
-on the methodology and techniques rather than bug themselves.
+Debugging a lsp client from emacs-lsp. The focus of this article is just to
+continuously document some techniques and methodologies that I used to debug
+packages from spacemacs layers.
 
-* Referencing a local copy of the package
+* spacemacs recipes
+
+#+begin_src elisp
+  (oref (configuration-layer/get-package 'lsp-mode) :location)
+#+end_src
+
+* Referencing layer packages locally
+** using local
 
 The Spacemacs' documentation includes an FAQ answer on [[https://develop.spacemacs.org/doc/FAQ.html#how-to-override-a-layer-package][How to override a layer
 package]].
@@ -18,33 +26,41 @@ I have the ~emacs-lsp~ package cloned to
 symbolic link to that, and respectively adding ~(lsp-mode :location local)~ to
 ~dotspacemacs-additional-packages~.
 
-#+begin_src shell
+#+begin_src shell :results none
   mkdir -p ~/.emacs.d/layers/+tools/lsp/local
-  ln -s /Users/august.feng/repositories/gh/emacs-lsp/lsp-mode ~/.emacs.d/layers/+tools/lsp/local
+  ln -s ${HOME}/repositories/gh/emacs-lsp/lsp-mode ~/.emacs.d/layers/+tools/lsp/local/lsp-mode
 #+end_src
 
-* emacs-lsp
-** session file
-
-~lsp-mode~ uses ~lsp-session-file~ to track known workspaces. Since the bug
-happens when we add a new workspace, we need to remove our workspace from that
-file:
-
-#+begin_src elisp :results none
-  (require 'lsp-mode)
- (call-interactively 'lsp-workspace-folders-remove)
+#+begin_src emacs-lisp
+  (lsp-mode :location (recipe :fetcher local))
 #+end_src
 
-** clients
+** using location
 
-The list of lsp clients are held in the ~lsp-clients~ hash table. We can effect
-the changes by removing and re-registering the client.
+This is not a well supported method for packages that reorganize lisp files for
+distribution, and is unreliable because it just simply inserts the ~:location~
+path directly ~load-path~.
 
-#+begin_src elisp :results none
-  (remhash 'fsac lsp-clients)
+#+begin_src elisp
+  ;; examples
+  (forge-core :location "~/repositories/gh/magit/forge/lisp")
+
+  (lsp-mode :location "~/repositories/gh/emacs-lsp/lsp-mode") ;; lsp-mode clients are inside `clients` folder.
+  (lsp-fsharp :location "~/repositories/gh/emacs-lsp/lsp-mode/clients") ;; lsp-mode clients are inside `clients` folder.
 #+end_src
 
-* breakpoints
+** using quelpa recipes
+
+packages using quelpa recipes are the most properly installed. spacemacs will
+use quelpa to thoroughly rebuild the package at
+"~/.emacs.d/elpa/28.1/develop/lsp-mode-abc.edf/~.
+
+#+begin_src elisp
+  (lsp-mode (recipe :fetcher file :files (:defaults "clients/*.el") :path "~/repositories/gh/emacs-lsp/lsp-mode")) ;; see melpa/melpa's recipes folder for ~:files~ values.
+#+end_src
+
+
+* Breakpoints
 ** instrumenting functions
 *** removing instrumentation
 
@@ -66,8 +82,31 @@ We can remove breakpoints caused by entry on functions.
   (call-interactively 'cancel-debug-on-entry)
 #+end_src
 
-* removing noise
-** hooks
+* lsp-mode
+** session file
+
+~lsp-mode~ uses ~lsp-session-file~ to track known workspaces. Since the bug
+happens when we add a new workspace, we need to remove our workspace from that
+file:
+
+#+begin_src elisp :results none
+  (require 'lsp-mode)
+  (call-interactively 'lsp-workspace-folders-remove)
+#+end_src
+
+** clients
+
+The list of lsp clients are held in the ~lsp-clients~ hash table. We can effect
+the changes by removing and re-registering the client.
+
+#+begin_src elisp :results none
+  (remhash 'fsac lsp-clients)
+#+end_src
+
+** local lsp servers
+
+* Creating environments
+** removing hooks
 
 We can reduce the noise by removing hooks.
 
@@ -75,7 +114,7 @@ We can reduce the noise by removing hooks.
   (call-interactively 'remove-hook) ;; and search for fsharp-mode.
 #+end_src
 
-** cask
+** minimal emacs with cask
 
 We can use cask to spin up a minimal emacs instance.
 
@@ -95,11 +134,10 @@ We can use cask to spin up a minimal emacs instance.
   ;; cask emacs -l init.el
 #+end_src
 
-** package only
+** second emacs process
 
-We can omit the Spacemacs layer entirely and source the package locally through
-~dotspacemacs-additional-package~ with Quela semantics.
+It's been a nice experience to keep one emacs instance to iterate on the lisp
+code, and start and restart new instances of emacs that will source the new code.
 
-#+begin_src elisp
-  (fsharp-mode :location (recipe :fetcher file :path "~/repositories/gh/fsharp/emacs-fsharp-mode"))
-#+end_src
+We can use a helm command (~C-x c C-c C-x emacs~) to run an new emacs instance
+with our changes while use the current emacs to iterate on a code.

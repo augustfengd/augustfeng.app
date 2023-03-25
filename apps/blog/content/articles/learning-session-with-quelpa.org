@@ -1,0 +1,30 @@
+#+title: Learning melpa/quelpa
+#+categories[]: emacs
+#+tags[]: emacs elisp org-mode
+#+date: 2023-03-26
+
+* Setup
+
+#+begin_src elisp
+  ;; Cask file
+  (source gnu)
+  (source melpa)
+
+  (depends-on "quelpa")
+#+end_src
+
+* Code
+
+#+begin_src elisp
+  ;; this use melpa's recipe
+  (quelpa
+   'lsp-mode)
+
+  ;; this will not use melpa's recipe
+  (quelpa
+   '(lsp-mode :fetcher github :repo "emacs-lsp/lsp-mode"))
+
+  ;; ~:files~ is supported for file fetcher.
+  (quelpa
+   '(lsp-mode :fetcher file :files ("*.el" "clients/*.el") :path "~/repositories/gh/emacs-lsp/lsp-mode"))
+#+end_src
