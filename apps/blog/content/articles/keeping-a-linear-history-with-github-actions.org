@@ -1,0 +1,131 @@
+#+TITLE: Keeping a Linear History with GitHub Actions
+#+categories[]: devops
+#+tags[]: github git devops
+#+date: 2023-04-01
+#+mermaid: true
+
+* workflows triggered by the ~pull_request~ event uses merged code
+
+GitHub Actions surprised me with an unexpected behavior when it runs jobs
+triggered from a pull request.
+
+Let's assume the following git history:
+
+{{<mermaid>}}
+gitGraph
+   commit id: "foo"
+   branch feature
+   commit id: "baz" type: HIGHLIGHT
+   checkout main
+   commit id: "bar" type: HIGHLIGHT
+{{</mermaid>}}
+
+I originally assumed that a pull request would checkout the branch *feature* for
+the pipeline steps.
+
+However, what actually happens is that the workflow's [[https://docs.github.com/en/actions/learn-github-actions/contexts#github-context][github context]] uses a
+~ref~ which already has *feature* branch merged into *main*, and this is what
+will be checked used by the [[https://github.com/actions/checkout][checkout]] action by default:
+
+{{<mermaid>}}
+gitGraph
+   commit id: "foo"
+   branch feature
+   commit id: "baz"
+   checkout main
+   commit id: "bar"
+   branch pull/1/merge
+   merge feature id: "merge 'baz' into 'bar'" type: HIGHLIGHT
+{{</mermaid>}}
+
+Here are a few traces recovered from a job to show this:
+
+- dumping the ~${{ github.context }}~ confirms that ~ref~ is not the branch from
+  the pull request:
+ 
+  #+begin_src json
+    {
+        ...
+        "ref": "refs/pull/1/merge",
+        ...
+    }
+  #+end_src
+
+- a graph of the commit history (~git log --all --decorate --oneline --graph~)
+  confirms the diagram above:
+  
+#+begin_src
+*   55af0f6 (HEAD, pull/1/merge) Merge ecd17b69ece19b75fa1fbafe30add8e951ab2e2f into a96f9e46bb1f59db25c108ae20f7064dc4dca685
+|\  
+| * ecd17b6 (origin/feature) baz
+* | a96f9e4 (origin/main) bar
+|/  
+* 18a4b2e foo
+#+end_src
+
+* advantages with requiring linear history
+
+As we understand now, GitHub's workflows run the checks as if the code had been
+merged. This can get outdated fast if someone else's pull request is merged
+before ours, and potentially disastrous under certain circumstances.
+
+** disaster case study
+
+Let's imagine this scenario where a pull request for *feature-1* and *feature-2*
+have been opened, and *feature-2* is merged into upstream.
+
+The act of merging *feature-2* will invalidate the /pipeline run #1/, but the
+check remains green.
+
+{{<mermaid>}}
+gitGraph
+   commit id: "foo"
+   branch feature-1
+   commit id: "bar"
+   checkout main
+   branch pull/1/merge
+   merge feature-1 id: "pipeline run #1"
+   checkout main
+   branch feature-2
+   commit id: "baz"
+   checkout main
+   branch pull/2/merge
+   merge feature-2 id: "pipeline run #2"
+   checkout main
+   merge feature-2
+{{</mermaid>}}
+
+At revision *foo*, there is simple configuration file (~config.json~):
+#+begin_src json
+  {
+      "foobar": "helloworld"
+  }
+#+end_src
+
+Now assume branch *feature-1* introduces a script (tested in the pipeline) which
+reads this:
+#+begin_src shell
+  jq '.foobar' config.json
+#+end_src
+
+Finally, imagine that the code change introduced by *feature-2* renames the
+~foobar~ key to ~foobaz~.
+
+It would be foolish to continue trusting the green check mark from /pipeline run
+#1/!
+
+** requiring linear history
+
+GitHub is able to enforce a [[https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#require-linear-history][linear history]] during pull requests.
+
+Enabling this feature will surround the merge button with a red warning, hinting
+that the base branch needs to be updated, or simply greying out the merge button
+if bypassing is disabled.
+
+Note that this feature toggle requires at least one status check to be required,
+which sensibly should be the build step of the pipeline.
+
+* Conclusion
+
+So by leveraging GitHub Actions' prepared refs and requiring a linear history,
+we are sure to not be surprised as code lands in mainline!
