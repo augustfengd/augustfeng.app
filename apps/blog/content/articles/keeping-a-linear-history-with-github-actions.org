@@ -15,9 +15,9 @@ Let's assume the following git history:
 gitGraph
    commit id: "foo"
    branch feature
-   commit id: "baz" type: HIGHLIGHT
+   commit id: "baz"
    checkout main
-   commit id: "bar" type: HIGHLIGHT
+   commit id: "bar"
 {{</mermaid>}}
 
 I originally assumed that a pull request would checkout the branch *feature* for
@@ -54,16 +54,16 @@ Here are a few traces recovered from a job to show this:
 - a graph of the commit history (~git log --all --decorate --oneline --graph~)
   confirms the diagram above:
   
-#+begin_src
-*   55af0f6 (HEAD, pull/1/merge) Merge ecd17b69ece19b75fa1fbafe30add8e951ab2e2f into a96f9e46bb1f59db25c108ae20f7064dc4dca685
-|\  
-| * ecd17b6 (origin/feature) baz
-* | a96f9e4 (origin/main) bar
-|/  
-* 18a4b2e foo
-#+end_src
+  #+begin_src text
+    *   55af0f6 (HEAD, pull/1/merge) Merge ecd17b69ece19b75fa1fbafe30add8e951ab2e2f into a96f9e46bb1f59db25c108ae20f7064dc4dca685
+    |\  
+    | * ecd17b6 (origin/feature) baz
+    * | a96f9e4 (origin/main) bar
+    |/  
+    * 18a4b2e foo
+  #+end_src
 
-* advantages with requiring linear history
+* keeping pull requests up-to-date
 
 As we understand now, GitHub's workflows run the checks as if the code had been
 merged. This can get outdated fast if someone else's pull request is merged
@@ -74,7 +74,7 @@ before ours, and potentially disastrous under certain circumstances.
 Let's imagine this scenario where a pull request for *feature-1* and *feature-2*
 have been opened, and *feature-2* is merged into upstream.
 
-The act of merging *feature-2* will invalidate the /pipeline run #1/, but the
+The act of merging *feature-2* will invalidate the _pipeline run #1_, but the
 check remains green.
 
 {{<mermaid>}}
@@ -92,7 +92,7 @@ gitGraph
    branch pull/2/merge
    merge feature-2 id: "pipeline run #2"
    checkout main
-   merge feature-2
+   merge feature-2 id: "merge feature-2 into main"
 {{</mermaid>}}
 
 At revision *foo*, there is simple configuration file (~config.json~):
@@ -111,21 +111,87 @@ reads this:
 Finally, imagine that the code change introduced by *feature-2* renames the
 ~foobar~ key to ~foobaz~.
 
-It would be foolish to continue trusting the green check mark from /pipeline run
-#1/!
+It would be foolish to continue trusting the green check mark from _pipeline run
+#1_!
 
-** requiring linear history
+** requiring branches to be up-to-date before merging
 
-GitHub is able to enforce a [[https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#require-linear-history][linear history]] during pull requests.
+GitHub is able to [[https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#require-status-checks-before-merging][require that status checks]] (workflows) pass in order to merge
+a branch. While using this feature, we can also require that branches be
+up-to-date before merging.
 
-Enabling this feature will surround the merge button with a red warning, hinting
-that the base branch needs to be updated, or simply greying out the merge button
-if bypassing is disabled.
+Enabling this feature will surround the merge button with a red warning if a
+check fails and hinting that the base branch needs to be updated if it is
+outdated. If branch protection bypassing is disabled, then the button will
+simply be greyed out.
 
 Note that this feature toggle requires at least one status check to be required,
 which sensibly should be the build step of the pipeline.
 
+* Linear History
+
+Finally, if we only merge pull requests that have run tests with up-to-date
+branches, then we might as well require linear history in the commits!
+
+Otherwise we would have commits that are older than others, but could have been
+tested later. Let's use our previous example to show this.
+
+Although the commit ~bar~ from *feature-1* will show as older than ~baz~ from
+*feature-2*, it has actually been tested (_pipeline run #3_) against code which
+has already introduced ~baz~.
+
+{{<mermaid>}}
+gitGraph
+   commit id: "foo"
+   branch feature-1
+   commit id: "bar"
+   checkout main
+   branch pull/1/merge
+   merge feature-1 id: "pipeline run #1"
+   checkout main
+   branch feature-2
+   commit id: "baz"
+   checkout main
+   branch pull/2/merge
+   merge feature-2 id: "pipeline run #2"
+   checkout main
+   merge feature-2 id: "merge feature-2 into main"
+   checkout feature-1
+   merge main
+   checkout pull/1/merge
+   merge feature-1 id: "pipeline run #3"
+   checkout main
+   merge feature-1 id: "merge feature-1 into main"
+{{</mermaid>}}
+
+This would have been the git history had we updated our branch with a ~rebase~,
+and then merged with a ~rebase and merge~ strategy.
+
+{{<mermaid>}}
+gitGraph
+   commit id: "foo"
+   checkout main
+   branch feature-2
+   commit id: "baz"
+   checkout main
+   branch pull/2/merge
+   merge feature-2 id: "pipeline run #2"
+   checkout main
+   commit id: "baz'"
+   branch feature-1
+   commit id: "bar"
+   checkout main
+   branch pull/1/merge
+   merge feature-1 id: "pipeline run #3"
+   checkout main
+   commit id: "bar'"
+{{</mermaid>}}
+
+Much easier to follow!
+
 * Conclusion
 
 So by leveraging GitHub Actions' prepared refs and requiring a linear history,
-we are sure to not be surprised as code lands in mainline!
+we are sure to not be surprised as code lands in mainline all the while
+reflecting the testing into the commit history!
+
