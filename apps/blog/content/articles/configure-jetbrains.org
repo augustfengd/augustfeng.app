@@ -34,8 +34,11 @@ splits]].
 ~command + shift + f~: find in files
 
 *** editor tabs
+
 ~Command + Shift + [ | ]~: Select Previous | Next Tab.
+
 *** navigate
+
 ~Option + F1~: open navigate menu
 
 

@@ -7,6 +7,3 @@
 
 This keybinding is used by Rider's *Find Action* shortcut. I've disabled it
 manually following the first [[https://intellij-support.jetbrains.com/hc/en-us/articles/360005137400-Cmd-Shift-A-hotkey-opens-Terminal-with-apropos-search-instead-of-the-Find-Action-dialog][workaround]] suggested by JetBrains.
-
-Mark Crossfield writes an [[https://gist.github.com/mrmanc/72eb171247a2242e8962661f59ea60ca8][script]] for configuring programmatic-ally, which I will
-try to spend some time studying.

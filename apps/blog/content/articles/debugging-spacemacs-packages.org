@@ -1,13 +1,12 @@
-#+title: Debugging (Space)macs Packages
+#+title: Debugging Spacemacs Packages
 #+categories[]: emacs
 #+tags[]: emacs elisp org-mode
 #+date: 2022-11-28
 
 * About
 
-Debugging a lsp client from emacs-lsp. The focus of this article is just to
-continuously document some techniques and methodologies that I used to debug
-packages from spacemacs layers.
+An on-going documentation where I save knowledge gained from debugging emacs
+related things.
 
 * spacemacs recipes
 

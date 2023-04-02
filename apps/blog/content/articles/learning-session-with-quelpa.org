@@ -3,6 +3,10 @@
 #+tags[]: emacs elisp org-mode
 #+date: 2023-03-26
 
+* About
+
+These are some notes I kept when messing around with the melpa packaging system.
+
 * Setup
 
 #+begin_src elisp
