@@ -146,7 +146,7 @@ jobs: github.#Workflow.#Jobs & {
 				run: "printf '%s' \"${GOOGLE_CREDENTIALS}\" > \"${GOOGLE_APPLICATION_CREDENTIALS}\""
 			},
 			#actions.run & {
-				run: "kubectl diff -f build/argocd" // TODO: fails on first run because we have custom resource definitions and custom resource objects.
+				run: "kubectl diff -n argocd -f build/argocd" // TODO: fails on first run because we have custom resource definitions and custom resource objects.
 			},
 		]
 		container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"

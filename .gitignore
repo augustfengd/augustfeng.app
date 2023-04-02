@@ -16,3 +16,6 @@ kubernetes/secrets/*.txt
 
 # bazel-* symlinks
 bazel-*
+
+# local
+.local/

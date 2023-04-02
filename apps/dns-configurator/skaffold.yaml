@@ -1,0 +1,15 @@
+apiVersion: skaffold/v4beta3
+kind: Config
+metadata:
+  name: dns-configurator
+build:
+  artifacts:
+    - image: ghcr.io/augustfengd/augustfeng.app/dns-configurator
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  rawYaml:
+    - manifests.namespace.yaml
+    - manifests.traefik.yaml
+    - manifests.sa.yaml
+    - manifests.yaml
