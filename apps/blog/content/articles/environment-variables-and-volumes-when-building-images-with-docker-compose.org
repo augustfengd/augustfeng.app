@@ -1,0 +1,62 @@
+#+TITLE: Environment Variables and Volumes When Building Images with Docker Compose
+
+* About
+
+Just a short article documenting an investigation on images built from docker
+compose files.
+
+* Code
+
+- Dockerfile
+
+  #+begin_src dockerfile
+    FROM alpine
+
+    CMD ["printenv", "ls -l /foobar"]
+  #+end_src
+
+- docker-compose.yaml
+
+#+begin_src yaml
+    services:
+      foobar:
+        image: helloworld
+        build:
+          context: .
+        volumes:
+        - "./foobar:/foobar"
+        environment:
+        - foobar=helloworld
+#+end_src
+
+* Run
+
+This is the output when we run ~docker compose up --build~:
+
+#+begin_src text
+  docker-compose0-foobar-1  | foobar=helloworld
+  docker-compose0-foobar-1  | HOSTNAME=207ea31f2156
+  docker-compose0-foobar-1  | SHLVL=1
+  docker-compose0-foobar-1  | HOME=/root
+  docker-compose0-foobar-1  | PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  docker-compose0-foobar-1  | PWD=/
+  docker-compose0-foobar-1  | total 0
+  docker-compose0-foobar-1  | -rw-r--r--    1 root     root             0 Apr  3 16:53 helloworld.txt
+  docker-compose0-foobar-1 exited with code 0  
+#+end_src
+
+This is the output when we run ~docker run -it helloworld~:
+
+#+begin_src text
+  HOSTNAME=00e878cd8bfb
+  SHLVL=1
+  HOME=/root
+  TERM=xterm
+  PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  PWD=/
+  ls: /foobar: No such file or directory  
+#+end_src
+
+* Conclusion
+
+The environment variable and volume configuration are not relevant for the image building process.
