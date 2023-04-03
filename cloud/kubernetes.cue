@@ -18,6 +18,34 @@ import (
 // NOTE: These definitions (#deployment, #secrets, #configmaps, ...) are
 // abstracted interfaces that map to kubernetes object.
 
+#pod: {
+	image: {
+		name:         string
+		*{
+			#TagOrDigest: "tag"
+			tag:          string | *"latest"
+		} | {
+			#TagOrDigest: "digest"
+			digest:       string
+		}
+	}
+
+	let _name = { let s = strings.Split(image.name, "/"), s[len(s)-1]}
+	manifests: [core.#Pod & {
+		metadata: {
+			name: _name
+			labels: "app.kubernetes.io/name": _name
+		}
+		spec: containers: [{
+			name: _name
+			"image": {
+				if image.#TagOrDigest == "tag" {strings.Join([image.name, image.tag], ":")}
+				if image.#TagOrDigest == "digest" {strings.Join([image.name, image.digest], "@")}
+			}
+		}]
+	}]
+}
+
 #deployment: {
 	image: {
 		name: string

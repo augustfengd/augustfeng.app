@@ -1,0 +1,23 @@
+name: apps/sleep
+"on":
+  push:
+    paths:
+      - apps/sleep/**
+    branches: main
+concurrency: apps/sleep
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: install skaffold
+        run: |-
+          mkdir -p bin/
+          curl -Lo bin/skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
+          chmod +x bin/skaffold
+          echo "${GITHUB_WORKSPACE}/bin" >> $GITHUB_PATH
+      - name: docker login
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+      - run: skaffold build --push
+        working-directory: apps/sleep

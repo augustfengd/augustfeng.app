@@ -1,0 +1,16 @@
+apiVersion: skaffold/v4beta4
+kind: Config
+metadata:
+  name: sleep
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+    - image: ghcr.io/augustfengd/augustfeng.app/sleep
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  hooks:
+    before:
+    - host:
+        command: ["make", "k8s/manifests.yaml"]

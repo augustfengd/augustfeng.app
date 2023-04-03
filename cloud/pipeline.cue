@@ -67,11 +67,20 @@ import (
 			#version: string | *"v3.7.3"
 			name:     "install SOPS"
 			run:      """
-mkdir -p bin/
-curl -L --output bin/sops https://github.com/mozilla/sops/releases/download/\(#version)/sops-\(#version).linux.amd64
-chmod +x bin/sops
-echo "${GITHUB_WORKSPACE}/bin" >> $GITHUB_PATH
-"""
+				mkdir -p bin/
+				curl -Lo bin/sops https://github.com/mozilla/sops/releases/download/\(#version)/sops-\(#version).linux.amd64
+				chmod +x bin/sops
+				echo "${GITHUB_WORKSPACE}/bin" >> $GITHUB_PATH
+				"""
+		}
+		skaffold: {
+			name: "install skaffold"
+			run: """
+				mkdir -p bin/
+				curl -Lo bin/skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
+				chmod +x bin/skaffold
+				echo "${GITHUB_WORKSPACE}/bin" >> $GITHUB_PATH
+				"""
 		}
 	}
 

@@ -7,10 +7,10 @@ import (
 
 #DefaultBranch: "main"
 
-name: "blog"
+name: "apps/blog"
 on: push: branches: #DefaultBranch
 
-concurrency: "blog"
+concurrency: "apps/blog"
 
 jobs: github.#Workflow.#Jobs & {
 	let #actions = pipeline.#actions
