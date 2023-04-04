@@ -8,8 +8,11 @@ import (
 #DefaultBranch: "main"
 
 name: "apps/blog"
-on: push: branches: #DefaultBranch
 
+on: push: {
+	paths: ["apps/blog/**"]
+	branches: #DefaultBranch
+}
 concurrency: "apps/blog"
 
 jobs: github.#Workflow.#Jobs & {

@@ -20,7 +20,7 @@ import (
 
 #pod: {
 	image: {
-		name:         string
+		name: string
 		*{
 			#TagOrDigest: "tag"
 			tag:          string | *"latest"
@@ -49,10 +49,12 @@ import (
 #deployment: {
 	image: {
 		name: string
-		{
-			digest: string
+		*{
+			#TagOrDigest: "tag"
+			tag:          string | *"latest"
 		} | {
-			tag: string | *"latest"
+			#TagOrDigest: "digest"
+			digest:       string
 		}
 	}
 	env: [string]: {// description: secret sources exclusively from secret or value.
@@ -86,6 +88,7 @@ import (
 			}
 		}
 	}
+	sa: string | *null
 
 	let _name = { let s = strings.Split(image.name, "/"), s[len(s)-1]}
 	manifests: [
@@ -94,6 +97,7 @@ import (
 				name: _name
 				labels: "app.kubernetes.io/name": _name
 			}
+			spec: selector: matchLabels: X.labels
 			spec: template: spec: containers: [{
 				"image": {
 					if image.tag != _|_ {strings.Join([image.name, image.tag], ":")}
@@ -134,9 +138,9 @@ import (
 			}]
 			spec: template: spec: volumes:
 				[ for s, _ in mount.secret {name: s, secret: secretName: s}] +
-				[ for s, _ in mount.configmap {name: s, configMap: name: s}]
-			spec: selector: matchLabels: X.labels
+								[ for s, _ in mount.configmap {name: s, configMap: name: s}]
 			spec: template: metadata: labels: X.labels
+			spec: template: spec: {if sa != null {serviceAccountName: sa}}
 		},
 
 		if len(expose.ports) > 0 {

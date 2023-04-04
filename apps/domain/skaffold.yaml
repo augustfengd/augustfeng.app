@@ -8,8 +8,7 @@ build:
       docker:
         dockerfile: Dockerfile
 manifests:
-  rawYaml:
-    - manifests.namespace.yaml
-    - manifests.traefik.yaml
-    - manifests.sa.yaml
-    - manifests.yaml
+  hooks:
+    before:
+    - host:
+        command: ["make", "k8s/manifests.yaml"]
