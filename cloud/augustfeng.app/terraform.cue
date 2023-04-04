@@ -52,7 +52,11 @@ configuration: {
 			location: "us-east1-b"
 		}
 		_kubernetes: namespaces: {
+			"system-gitops": {}
 			"system-ingress": {}
+			"system-metrics": {}
+			"system-visualization": {}
+			"system-logging": {}
 		}
 	}
 }
