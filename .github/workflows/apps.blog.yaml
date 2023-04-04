@@ -1,8 +1,8 @@
-name: blog
+name: apps/blog
 "on":
   push:
     branches: main
-concurrency: blog
+concurrency: apps/blog
 jobs:
   build-push-apply:
     runs-on: ubuntu-latest

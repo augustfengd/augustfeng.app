@@ -1,8 +1,8 @@
-all := ../../.github/workflows/sleep.yaml k8s/manifests.yaml
+all := ../../.github/workflows/apps.sleep.yaml k8s/manifests.yaml
 
 all: $(all)
 
-../../.github/workflows/sleep.yaml: pipeline.cue
+../../.github/workflows/apps.sleep.yaml: pipeline.cue
 	cue export pipeline.cue --force --outfile $@
 
 k8s/manifests.yaml: manifests.cue ; mkdir -p k8s

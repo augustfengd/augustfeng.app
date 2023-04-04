@@ -5,9 +5,9 @@ THEME_FILES := \
 	$(shell find themes/augustfeng.app -type f)
 
 .PHONY: all
-all: ../../.github/workflows/blog.yaml build/public
+all: ../../.github/workflows/apps.blog.yaml build/public
 
-../../.github/workflows/blog.yaml: pipeline.cue ../../cloud/pipeline.cue
+../../.github/workflows/apps.blog.yaml: pipeline.cue ../../cloud/pipeline.cue
 	@cue export -f  pipeline.cue -o $@
 
 build/public: $(THEME_FILES) $(CONTENT_FILES) ; @mkdir -p build
@@ -42,4 +42,4 @@ apply: manifests
 clean:
 	rm -rf build
 	rm -rf themes/hugo-paper
-	rm -rf ../../.github/workflows/blog.yaml
+	rm -rf ../../.github/workflows/apps.blog.yaml
