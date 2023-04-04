@@ -1,0 +1,15 @@
+apiVersion: skaffold/v4beta4
+kind: Config
+metadata:
+  name: tsdb
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+    - image: ghcr.io/augustfengd/augustfeng.app/tsdb
+      ko: {}
+manifests:
+  hooks:
+    before:
+    - host:
+        command: ["make", "k8s/manifests.yaml"]

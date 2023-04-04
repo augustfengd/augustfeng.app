@@ -29,6 +29,7 @@ import (
 			digest:       string
 		}
 	}
+	args: [string]: null | string
 
 	let _name = { let s = strings.Split(image.name, "/"), s[len(s)-1]}
 	manifests: [core.#Pod & {
@@ -37,11 +38,12 @@ import (
 			labels: "app.kubernetes.io/name": _name
 		}
 		spec: containers: [{
-			name: _name
+			"name": _name
 			"image": {
 				if image.#TagOrDigest == "tag" {strings.Join([image.name, image.tag], ":")}
 				if image.#TagOrDigest == "digest" {strings.Join([image.name, image.digest], "@")}
 			}
+			"args": [ for k, v in args if v == null {k}] + list.FlattenN([ for k, v in args if v != null {[k, v]}], -1)
 		}]
 	}]
 }
@@ -136,9 +138,7 @@ import (
 					}
 				}
 			}]
-			spec: template: spec: volumes:
-				[ for s, _ in mount.secret {name: s, secret: secretName: s}] +
-								[ for s, _ in mount.configmap {name: s, configMap: name: s}]
+			spec: template: spec: volumes:    [ for s, _ in mount.secret {name: s, secret: secretName: s}] + [ for s, _ in mount.configmap {name: s, configMap: name: s}]
 			spec: template: metadata: labels: X.labels
 			spec: template: spec: {if sa != null {serviceAccountName: sa}}
 		},
