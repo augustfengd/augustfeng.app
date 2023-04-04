@@ -31,13 +31,14 @@ configuration: {
 					serviceaccount: "external-dns"
 				}
 			}
-			"dns-configurator": {
-				account_id:   "dns-configurator"
-				display_name: "dns-configurator"
+			// replace cert-manager, external-dns
+			"system-ingress": {
+				account_id:   "system-ingress"
+				display_name: "system-ingress"
 				roles: ["roles/dns.admin"]
 				workloadIdentity: {
-					namespace:      "apps-dns-configurator"
-					serviceaccount: "apps-dns-configurator"
+					namespace:      "system-ingress"
+					serviceaccount: "system-ingress"
 				}
 			}
 		}
@@ -51,7 +52,7 @@ configuration: {
 			location: "us-east1-b"
 		}
 		_kubernetes: namespaces: {
-			"dns-configurator": {}
+			"system-ingress": {}
 		}
 	}
 }
