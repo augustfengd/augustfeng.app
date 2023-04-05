@@ -9,6 +9,8 @@ _app: {
 		image: {
 			name: "ghcr.io/augustfengd/augustfeng.app/domain"
 		}
+		command: "sh"
+		args: "-c": "trap : TERM INT; sleep infinity & wait"
 		sa: "domain-controller"
 	}
 	// abstract me later
@@ -19,6 +21,7 @@ _app: {
 			metadata: {
 				name:      "domain-controller"
 				namespace: "system-ingress"
+				annotations: "iam.gke.io/gcp-service-account": "domain-controller@augustfengd.iam.gserviceaccount.com"
 			}
 		},
 		{

@@ -5,7 +5,8 @@ pub mod kubernetes;
 use kubernetes::{Deployment, Node, NodeAddress, ObjectList, Pod, ReplicaSet};
 
 struct Program {
-    client: reqwest::Client,
+    kubernetes: reqwest::Client,
+    gcp: reqwest::Client,
 }
 
 #[derive(Debug)]
@@ -16,6 +17,7 @@ enum Error {
     MissingServiceAccountFile(std::io::Error),
     ClientConstructionError(reqwest::Error),
     ClientCertificateError(reqwest::Error),
+    TokenSerializationError(reqwest::Error),
     ClientHeaderError(reqwest::header::InvalidHeaderValue),
     SerializationError(serde_json::Error),
     RequestError(reqwest::Error),
@@ -23,12 +25,16 @@ enum Error {
 
 impl Program {
     async fn new() -> Result<Program, Error> {
-        Self::create_client().map(|client| Program { client })
+        let kubernetes = Self::create_kubernetes_client()?;
+        let gcp = Self::create_gcp_client()?;
+
+        Ok(Program { kubernetes, gcp })
     }
 
-
     async fn run(self) -> Result<(), Error> {
-        let deployment = self.get_traefik_deployment("system-ingress", "traefik").await?;
+        let deployment = self
+            .get_traefik_deployment("system-ingress", "traefik")
+            .await?;
         let replicaset = self.get_traefik_replicaset(deployment).await?;
         let pod = self.get_traefik_pod(replicaset).await?;
         let node = self.get_traefik_node(pod).await?;
@@ -36,7 +42,7 @@ impl Program {
         self.configure_dns_record(ip).await
     }
 
-    fn create_client() -> Result<reqwest::Client, Error> {
+    fn create_kubernetes_client() -> Result<reqwest::Client, Error> {
         let cert = std::fs::read("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
             .map_err(Error::MissingServiceAccountFile)
             .and_then(|bytes| {
@@ -65,6 +71,29 @@ impl Program {
             .map_err(Error::ClientConstructionError)
     }
 
+    fn create_gcp_client() -> Result<reqwest::Client, Error> {
+        let token = reqwest::blocking::get(
+            "http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token",
+        )
+        .map_err(Error::RequestError)
+        .and_then(|response| response.text().map_err(Error::TokenSerializationError))?;
+
+        let headers = {
+            let mut headers = reqwest::header::HeaderMap::new();
+            headers.insert(
+                reqwest::header::AUTHORIZATION,
+                reqwest::header::HeaderValue::from_str(format!("Bearer {}", token).as_str())
+                    .map_err(Error::ClientHeaderError)?,
+            );
+            Ok(headers)
+        }?;
+
+        reqwest::Client::builder()
+            .default_headers(headers)
+            .build()
+            .map_err(Error::ClientConstructionError)
+    }
+
     async fn serialize_response<T: serde::de::DeserializeOwned>(
         response: reqwest::Response,
     ) -> Result<T, Error> {
@@ -86,7 +115,7 @@ impl Program {
         let url = format!(
         "https://kubernetes.default.svc/apis/apps/v1/namespaces/{namespace}/deployments/{deployment}"
     );
-        self.client
+        self.kubernetes
             .get(url)
             .send()
             .map_err(Error::RequestError)
@@ -109,7 +138,7 @@ impl Program {
         "https://kubernetes.default.svc/apis/apps/v1/namespaces/{}/replicasets?labelSelector={}",
         namespace, query
     );
-        self.client
+        self.kubernetes
             .get(url)
             .send()
             .map_err(Error::RequestError)
@@ -140,7 +169,7 @@ impl Program {
             namespace, query
         );
 
-        self.client
+        self.kubernetes
             .get(url)
             .send()
             .map_err(Error::RequestError)
@@ -160,7 +189,7 @@ impl Program {
             pod.spec.node_name
         );
 
-        self.client
+        self.kubernetes
             .get(url)
             .send()
             .map_err(Error::RequestError)
@@ -177,8 +206,8 @@ impl Program {
     }
 
     async fn configure_dns_record(&self, node_address: NodeAddress) -> Result<(), Error> {
-        let client = reqwest::Client::new();
-        client.patch("https://dns.googleapis.com/dns/v1beta2/projects/augustfengd/managedZones/augustfeng/rrsets/augustfeng.app./A").send().await;
+        let data = self.gcp.get("https://dns.googleapis.com/dns/v1beta2/projects/augustfengd/managedZones/augustfeng/rrsets/augustfeng.app./A").send().await.unwrap().text().await.unwrap();
+        println!("present dns record: {:?}", data);
 
         Ok(println!(
             "configuring dns record to : {}",
