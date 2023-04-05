@@ -31,14 +31,13 @@ configuration: {
 					serviceaccount: "external-dns"
 				}
 			}
-			// replace cert-manager, external-dns
-			"system-ingress": {
-				account_id:   "system-ingress"
-				display_name: "system-ingress"
+			"domain-controller": {
+				account_id:   "domain-controller"
+				display_name: "domain-controller"
 				roles: ["roles/dns.admin"]
 				workloadIdentity: {
 					namespace:      "system-ingress"
-					serviceaccount: "system-ingress"
+					serviceaccount: "domain-controller"
 				}
 			}
 		}

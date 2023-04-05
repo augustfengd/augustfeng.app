@@ -9,9 +9,7 @@ _app: {
 		image: {
 			name: "ghcr.io/augustfengd/augustfeng.app/domain"
 		}
-		// command: "bash"
-		// args: "-c": "trap : TERM INT; sleep infinity & wait"
-		sa: "system-ingress"
+		sa: "domain-controller"
 	}
 	// abstract me later
 	rbac: manifests: [
@@ -19,7 +17,7 @@ _app: {
 			apiVersion: "v1"
 			kind:       "ServiceAccount"
 			metadata: {
-				name:      "system-ingress"
+				name:      "domain-controller"
 				namespace: "system-ingress"
 			}
 		},
