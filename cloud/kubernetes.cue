@@ -29,6 +29,7 @@ import (
 			digest:       string
 		}
 	}
+	command: string | *null
 	args: [string]: null | string
 
 	let _name = { let s = strings.Split(image.name, "/"), s[len(s)-1]}
@@ -43,8 +44,12 @@ import (
 				if image.#TagOrDigest == "tag" {strings.Join([image.name, image.tag], ":")}
 				if image.#TagOrDigest == "digest" {strings.Join([image.name, image.digest], "@")}
 			}
-			"args": [ for k, v in args if v == null {k}] + list.FlattenN([ for k, v in args if v != null {[k, v]}], -1)
-		}]
+			if command != null {
+				"command": [command]
+			}
+			if args != null {
+				"args": [ for k, v in args if v == null {k}] + list.FlattenN([ for k, v in args if v != null {[k, v]}], -1)
+			}}]
 	}]
 }
 
@@ -73,7 +78,8 @@ import (
 		}
 		value: null
 	}
-	args: [string]: null | string
+	command: string | *null
+	args: [string]: string | *null
 	X=expose: ports: [string]: number
 	expose: protocol: {for a, b in X.ports {(a): "UDP" | *"TCP"}} // NOTE: map each port to a protocol and provide an interface for override.
 	mount: {
@@ -122,7 +128,12 @@ import (
 						}
 					}
 				}
-				"args": [ for k, v in args if v == null {k}] + list.FlattenN([ for k, v in args if v != null {[k, v]}], -1)
+				if command != null {
+					"command": [command]
+				}
+				if args != null {
+					"args": [ for k, v in args if v == null {k}] + list.FlattenN([ for k, v in args if v != null {[k, v]}], -1)
+				}
 				"volumeMounts": [ for mp, c in _volumeMounts_ {mountPath: mp, c}]
 				_volumeMounts_: {
 					for s, c in {mount.secret, mount.configmap} {

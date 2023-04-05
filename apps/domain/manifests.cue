@@ -7,13 +7,22 @@ import (
 _app: {
 	deployment: kubernetes.#deployment & {
 		image: {
-			name: "augustfengd/augustfeng.app/domain"
+			name: "ghcr.io/augustfengd/augustfeng.app/domain"
 		}
-		args: "-c": "trap : TERM INT; sleep infinity & wait"
+		// command: "bash"
+		// args: "-c": "trap : TERM INT; sleep infinity & wait"
 		sa: "system-ingress"
 	}
 	// abstract me later
 	rbac: manifests: [
+		{
+			apiVersion: "v1"
+			kind:       "ServiceAccount"
+			metadata: {
+				name:      "system-ingress"
+				namespace: "system-ingress"
+			}
+		},
 		{
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "Role"
@@ -66,7 +75,7 @@ _app: {
 		{
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRoleBinding"
-			metadata: name: "traefik-finder"
+			metadata: name: "domain-controller"
 			roleRef: {
 				apiGroup: "rbac.authorization.k8s.io"
 				kind:     "ClusterRole"

@@ -26,8 +26,9 @@ impl Program {
         Self::create_client().map(|client| Program { client })
     }
 
+
     async fn run(self) -> Result<(), Error> {
-        let deployment = self.get_traefik_deployment("traefik", "traefik").await?;
+        let deployment = self.get_traefik_deployment("system-ingress", "traefik").await?;
         let replicaset = self.get_traefik_replicaset(deployment).await?;
         let pod = self.get_traefik_pod(replicaset).await?;
         let node = self.get_traefik_node(pod).await?;

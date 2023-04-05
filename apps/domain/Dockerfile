@@ -4,5 +4,5 @@ COPY . .
 RUN cargo install --path .
 
 FROM debian:bullseye-slim
-COPY --from=builder /usr/local/cargo/bin/lambda /usr/local/bin/domain
+COPY --from=builder /usr/local/cargo/bin/domain /usr/local/bin/domain
 CMD ["domain"]
