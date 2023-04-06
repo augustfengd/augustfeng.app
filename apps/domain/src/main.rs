@@ -3,6 +3,8 @@
 use futures::TryFutureExt;
 pub mod kubernetes;
 use kubernetes::{Deployment, Node, NodeAddress, ObjectList, Pod, ReplicaSet};
+pub mod gcp;
+use crate::gcp::{ResourceRecordSets, ResourceRecordSetsUpdateMask};
 
 struct Program {
     kubernetes: reqwest::Client,
@@ -72,11 +74,15 @@ impl Program {
     }
 
     fn create_gcp_client() -> Result<reqwest::Client, Error> {
-        let token = reqwest::blocking::get(
-            "http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token",
-        )
-        .map_err(Error::RequestError)
-        .and_then(|response| response.text().map_err(Error::TokenSerializationError))?;
+        let token = reqwest::blocking::Client::new()
+            .get(
+                "http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token",
+            )
+            .header("Metadata-Flavor", "Google")
+            .send()
+            .and_then(|response| response.json::<gcp::Token>())
+            .map(|token| token.access_token)
+            .map_err(Error::RequestError)?;
 
         let headers = {
             let mut headers = reqwest::header::HeaderMap::new();
@@ -101,10 +107,7 @@ impl Program {
             .bytes()
             .await
             .map_err(Error::RequestError)
-            .and_then(|full| {
-                println!("{:?}", full);
-                serde_json::from_slice(&full).map_err(Error::SerializationError)
-            })
+            .and_then(|full| serde_json::from_slice(&full).map_err(Error::SerializationError))
     }
 
     async fn get_traefik_deployment(
@@ -137,7 +140,7 @@ impl Program {
         let url = format!(
         "https://kubernetes.default.svc/apis/apps/v1/namespaces/{}/replicasets?labelSelector={}",
         namespace, query
-    );
+        );
         self.kubernetes
             .get(url)
             .send()
@@ -206,20 +209,27 @@ impl Program {
     }
 
     async fn configure_dns_record(&self, node_address: NodeAddress) -> Result<(), Error> {
-        let data = self.gcp.get("https://dns.googleapis.com/dns/v1beta2/projects/augustfengd/managedZones/augustfeng/rrsets/augustfeng.app./A").send().await.unwrap().text().await.unwrap();
-        println!("present dns record: {:?}", data);
+        let rrs = ResourceRecordSets {
+            rrdatas: vec![node_address.address],
+            update_mask: ResourceRecordSetsUpdateMask {
+                paths: vec![String::from("rrset.rrdatas")],
+            },
+        };
 
-        Ok(println!(
-            "configuring dns record to : {}",
-            node_address.address
-        ))
+        self.gcp
+            .patch("https://dns.googleapis.com/dns/v1beta2/projects/augustfengd/managedZones/augustfeng/rrsets/augustfeng.app./A")
+            .json(&rrs)
+            .send()
+            .await
+            .map(|_| ())
+            .map_err(Error::RequestError)
     }
 }
 
 #[tokio::main]
 async fn main() {
     match Program::new().and_then(Program::run).await {
-        Ok(v) => println!("{:?}", v),
+        Ok(_) => (),
         Err(e) => eprintln!("{:?}", e),
     }
 }
