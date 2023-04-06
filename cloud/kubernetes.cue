@@ -54,6 +54,7 @@ import (
 }
 
 #deployment: {
+	name: string | *{ let s = strings.Split(image.name, "/"), s[len(s)-1]}
 	image: {
 		name: string
 		*{
@@ -85,6 +86,7 @@ import (
 	mount: {
 		secret: {}
 		configmap: {}
+		emptydir: {}
 		[=~"secret|configmap|emptydir|pvc"]: {
 			// kubernetes object name
 			[string]: {
@@ -98,12 +100,11 @@ import (
 	}
 	sa: string | *null
 
-	let _name = { let s = strings.Split(image.name, "/"), s[len(s)-1]}
 	manifests: [
 		apps.#Deployment & {
 			X=metadata: {
-				name: _name
-				labels: "app.kubernetes.io/name": _name
+				"name": name
+				labels: "app.kubernetes.io/name": name
 			}
 			spec: selector: matchLabels: X.labels
 			spec: template: spec: containers: [{
@@ -111,7 +112,7 @@ import (
 					if image.tag != _|_ {strings.Join([image.name, image.tag], ":")}
 					if image.digest != _|_ {strings.Join([image.name, image.digest], "@")}
 				}
-				"name": _name
+				"name": name
 				"env": [ for k, v in _env_ {name: k, v}]
 				_env_: {
 					for n, c in env {
@@ -136,7 +137,7 @@ import (
 				}
 				"volumeMounts": [ for mp, c in _volumeMounts_ {mountPath: mp, c}]
 				_volumeMounts_: {
-					for s, c in {mount.secret, mount.configmap} {
+					for s, c in {mount.secret, mount.configmap, mount.emptydir} {
 						for mp, sp in c {
 							(mp): {
 								name: (s)
@@ -149,7 +150,7 @@ import (
 					}
 				}
 			}]
-			spec: template: spec: volumes:    [ for s, _ in mount.secret {name: s, secret: secretName: s}] + [ for s, _ in mount.configmap {name: s, configMap: name: s}]
+			spec: template: spec: volumes:    [ for s, _ in mount.emptydir {name: s, emptyDir: {}}] + [ for s, _ in mount.secret {name: s, secret: secretName: s}] + [ for s, _ in mount.configmap {name: s, configMap: name: s}]
 			spec: template: metadata: labels: X.labels
 			spec: template: spec: {if sa != null {serviceAccountName: sa}}
 		},
@@ -157,8 +158,8 @@ import (
 		if len(expose.ports) > 0 {
 			core.#Service & {
 				metadata: {
-					name: _name
-					labels: "app.kubernetes.io/name": _name
+					"name": name
+					labels: "app.kubernetes.io/name": name
 				}
 				spec: ports: [ for n, p in expose.ports {name: n, port: p, targetPort: p, protocol: expose.protocol[n]}]
 				spec: selector: manifests[0].metadata.labels

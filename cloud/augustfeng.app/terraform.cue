@@ -56,6 +56,8 @@ configuration: {
 			"system-metrics": {}
 			"system-visualization": {}
 			"system-logging": {}
+			// applications
+			"tsdb": {}
 		}
 	}
 }

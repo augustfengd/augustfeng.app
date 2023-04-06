@@ -5,25 +5,22 @@ import (
 )
 
 _app: {
-	tsdb: {kubernetes.#pod & {image: name: "prom/prometheus"}}
-	tsdb: manifests: [{
-		spec: containers: [{
-			volumeMounts: [{
-				name: "tsdb", mountPath: "/tsdb"
+	tsdb: kubernetes.#deployment & {
+		image: name: "prom/prometheus"
+		expose: ports: http: 9090
+		mount: emptydir: tsdb: "/prometheus": null
+		manifests: [{
+			spec: template: spec: initContainers: [{
+				name:  "tsdb"
+				image: "ghcr.io/augustfengd/augustfeng.app/tsdb"
+				securityContext: runAsUser: 65534 // prometheus' uid
+				volumeMounts: [{
+					name: "tsdb", mountPath: "/tsdb"
+				}]
 			}]
-		}]
-		spec: initContainers: [{
-			name:  "tsdb"
-			image: "ghcr.io/augustfengd/augustfeng.app/tsdb"
-			volumeMounts: [{
-				name: "tsdb", mountPath: "/tsdb"
-			}]
-		}]
-		spec: volumes: [{
-			name: "tsdb"
-			emptyDir: {}
-		}]
-	}]
+		}, ...]
+		manifests: [...{metadata: namespace: "tsdb"}]
+	}
 }
 
 manifests: _app.tsdb.manifests
