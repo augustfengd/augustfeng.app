@@ -3,6 +3,8 @@ kind: Config
 metadata:
   name: domain
 build:
+  tagPolicy:
+    sha256: {}
   artifacts:
     - image: ghcr.io/augustfengd/augustfeng.app/domain
       docker:
