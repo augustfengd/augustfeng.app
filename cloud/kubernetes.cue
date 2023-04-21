@@ -3,6 +3,7 @@ package kubernetes
 import (
 	core "k8s.io/api/core/v1"
 	apps "k8s.io/api/apps/v1"
+	rbac "k8s.io/api/rbac/v1"
 	networking "k8s.io/api/networking/v1"
 	argocd "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	traefik "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
@@ -327,4 +328,70 @@ import (
 		spec: project: "cloud"
 		spec: destination: "namespace": namespace
 	}]
+}
+
+#clusterrole: {
+	_#apiGroups: "" | "extensions" | "networking.k8s.io" // exhaust this disjunction later.
+
+	_#resources: "services" | "endpoints" | "secrets" | "ingresses" | "ingressclasses" | "ingresses/status" // exhaust this disjunction later.
+
+	_#verbs: {
+		// exhaust this disjunction later
+		get:    bool | *false
+		list:   bool | *false
+		watch:  bool | *false
+		update: bool | *false
+	}
+
+	#get:    _#verbs & {get:    true}
+	#list:   _#verbs & {list:   true}
+	#watch:  _#verbs & {watch:  true}
+	#update: _#verbs & {update: true}
+
+	name: string
+	rules: [_#apiGroups]: [_#resources]: _#verbs
+
+	manifests: [rbac.#ClusterRole & {
+		metadata: "name": name
+
+		_rules: [ for apiGroup, resources in rules {
+			[ for resource, verbs in resources {
+				"apiGroups": [apiGroup]
+				"resources": [resource]
+				"verbs": {
+					let filter = {for verb, it in verbs if it == true {(verb): it}}
+					[ for verb, _ in filter {verb}]
+				}
+			}]
+		}]
+		"rules": list.FlattenN(_rules, 1)
+	}]
+}
+
+#clusterrolebindings: {
+	binding: [string]: [{
+		name:      string
+		namespace: string
+	}]
+
+	manifests: [ for role, subjects in binding {
+		rbac.#ClusterRoleBinding & {
+			metadata: name: role
+			roleRef: {
+				apiGroup: "rbac.authorization.k8s.io"
+				kind:     "ClusterRole"
+				name:     role
+			}
+			"subjects": [ for subject in subjects {
+				kind:      "ServiceAccount"
+				name:      subject.name
+				namespace: subject.namespace
+			}]
+		}
+	}]
+}
+
+#serviceaccount: {
+	name: string
+	manifests: [core.#ServiceAccount & {metadata: "name": name}]
 }
