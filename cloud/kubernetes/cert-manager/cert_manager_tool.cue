@@ -27,25 +27,25 @@ k: kubectl & {
 }
 
 command: template: {
-	"helm":      h.command.template & {stdout: string}
-	"kubectl":   k.command.template & {stdout: string}
+	a:           h.command.template & {stdout: string}
+	b:           k.command.template & {stdout: string}
 	concatenate: exec.Run & {
 		cmd:   "cat"
 		stdin: yaml.MarshalStream(
-			yaml.UnmarshalStream(template."helm".stdout) +
-			yaml.UnmarshalStream(template."kubectl".stdout),
+			yaml.UnmarshalStream(a.stdout) +
+			yaml.UnmarshalStream(b.stdout),
 			)
 	}
 }
 
 command: diff: {
-	"helm":      h.command.template & {stdout: string}
-	"kubectl":   k.command.template & {stdout: string}
+	a:           h.command.template & {stdout: string}
+	b:           k.command.template & {stdout: string}
 	concatenate: exec.Run & {
 		cmd:   "kubectl diff -f -"
 		stdin: yaml.MarshalStream(
-			yaml.UnmarshalStream(diff."helm".stdout) +
-			yaml.UnmarshalStream(diff."kubectl".stdout),
+			yaml.UnmarshalStream(a.stdout) +
+			yaml.UnmarshalStream(b.stdout),
 			)
 	}
 }
