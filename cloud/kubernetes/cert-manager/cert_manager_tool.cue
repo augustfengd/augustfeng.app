@@ -16,8 +16,9 @@ manifests: [
 
 h: helm & {
 	#namespace: "system-ingress"
-	#name:      "foobar"
+	#name:      "cert-manager"
 	#chart:     "jetstack/cert-manager"
+	#version:   "v1.11.0"
 	#values:    values
 }
 
