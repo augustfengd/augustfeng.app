@@ -7,7 +7,7 @@ import (
 )
 
 clusterissuer:
-	certmanager.#ClusterIssuer & {
+	manifests: [certmanager.#ClusterIssuer & {
 		metadata: name: "letsencrypt"
 		spec: acme: {
 			email:  "augustfengd@gmail.com"
@@ -17,7 +17,7 @@ clusterissuer:
 				dns01: cloudDNS: project: "augustfengd"
 			}]
 		}
-	}
+	}]
 
 secrets:
 	kubernetes.#secrets & {
