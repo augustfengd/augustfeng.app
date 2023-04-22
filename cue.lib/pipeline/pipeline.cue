@@ -84,6 +84,17 @@ import (
 		}
 	}
 
+	secrets: {
+		decrypt: github.#Workflow.#Step & {
+			name: "decrypt secrets"
+			run:  "cue decrypt github.com/augustfengd/augustfeng.app/secrets"
+		}
+		import: github.#Workflow.#Step & {
+			name: "import secrets"
+			run:  "cue convert github.com/augustfengd/augustfeng.app/secrets"
+		}
+	}
+
 	with: {
 		decryptionKey: github.#Workflow.#Step & {
 			env: SOPS_AGE_KEY: "${{ secrets.SOPS_AGE_KEY }}"
