@@ -143,7 +143,9 @@ dagger.#Plan & {
 			_kubectl:   core.#Pull & {source: "bitnami/kubectl:1.25"}
 			docker.#Build & {
 				steps: [
-					alpine.#Build,
+					alpine.#Build & {
+						version: "3.17.3"
+					},
 					docker.#Run & {
 						command: {
 							name: "apk"
