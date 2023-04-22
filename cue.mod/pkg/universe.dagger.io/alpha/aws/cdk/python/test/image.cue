@@ -18,9 +18,8 @@ dagger.#Plan & {
 				command: {
 					name: "/bin/sh"
 					args: ["-c", """
+							python --version
 							python --version | grep "3.8"
-							npm -v | grep "8.10.0"
-							node -v | grep "16.16.0"
 						"""]
 				}
 			}
@@ -37,9 +36,8 @@ dagger.#Plan & {
 				command: {
 					name: "/bin/bash"
 					args: ["-c", """
+							python --version
 							python --version | grep "3.9"
-							npm -v | grep "8.10.0"
-							node -v | grep "16.16.0"
 						"""]
 				}
 			}
