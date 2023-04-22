@@ -58,7 +58,6 @@ use quelpa to thoroughly rebuild the package at
   (lsp-mode (recipe :fetcher file :files (:defaults "clients/*.el") :path "~/repositories/gh/emacs-lsp/lsp-mode")) ;; see melpa/melpa's recipes folder for ~:files~ values.
 #+end_src
 
-
 * Breakpoints
 ** instrumenting functions
 *** removing instrumentation
