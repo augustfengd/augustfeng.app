@@ -395,3 +395,17 @@ import (
 	name: string
 	manifests: [core.#ServiceAccount & {metadata: "name": name}]
 }
+
+#clusterissuer: {
+	manifests: [certmanager.#ClusterIssuer & {
+		metadata: name: "letsencrypt"
+		spec: acme: {
+			email:  "augustfengd@gmail.com"
+			server: "https://acme-v02.api.letsencrypt.org/directory"
+			privateKeySecretRef: name: "letsencrypt-account-key"
+			solvers: [{
+				dns01: cloudDNS: project: "augustfengd"
+			}]
+		}
+	}]
+}
