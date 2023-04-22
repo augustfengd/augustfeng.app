@@ -18,10 +18,9 @@ jobs:
           chmod +x bin/sops
           echo "${GITHUB_WORKSPACE}/bin" >> $GITHUB_PATH
       - name: Build and Publish Containers
-        uses: dagger/dagger-for-github@v3
+        uses: dagger/dagger-for-github@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          version: v0.2.36
           cmds: do -p containers.cue push
           workdir: containers

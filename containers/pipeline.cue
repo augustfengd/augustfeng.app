@@ -34,12 +34,11 @@ jobs: github.#Workflow.#Jobs & {
 			},
 			{
 				name: "Build and Publish Containers"
-				uses: "dagger/dagger-for-github@v3"
+				uses: "dagger/dagger-for-github@v4"
 				env: {
 					GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 				}
 				with: {
-					version: "v0.2.36"
 					cmds: """
 						do -p containers.cue push
 						"""
