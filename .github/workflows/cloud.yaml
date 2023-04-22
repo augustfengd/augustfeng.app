@@ -10,7 +10,7 @@ name: cloud
     paths:
       - cloud/**
       - cue.mod/**
-concurrency: augustfeng.app
+concurrency: augustfeng.app.old
 jobs:
   build:
     runs-on: ubuntu-latest

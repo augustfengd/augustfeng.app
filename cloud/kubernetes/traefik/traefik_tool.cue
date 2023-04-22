@@ -12,6 +12,6 @@ manifests: [
 ]
 
 kubectl & {
-	#manifests: manifests
 	#namespace: "system-ingress"
+	#manifests: manifests
 }

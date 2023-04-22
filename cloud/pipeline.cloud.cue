@@ -1,4 +1,4 @@
-package pipeline
+package pipeline_old
 
 import (
 	"github.com/SchemaStore/schemastore/src/schemas/json/github"
@@ -11,7 +11,7 @@ on: push: branches:         #DefaultBranch
 on: pull_request: branches: #DefaultBranch
 on: [string]: paths: ["cloud/**", "cue.mod/**"]
 
-concurrency: "augustfeng.app"
+concurrency: "augustfeng.app.old"
 
 jobs: github.#Workflow.#Jobs & {
 	"build": {
