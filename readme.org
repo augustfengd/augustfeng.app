@@ -1,22 +1,3 @@
 * About
 
-Hello! This is a project for my cloud infrastructure, mostly driven
-with [[https://cuelang.org/][CUE]].
-
-* Overview
-
-** Cloud
-
-The [[file:cloud/][cloud]] directory contains self-bootstrapping and reusable infrastructure code.
-
-A GitHub pipeline is generated which will provision a GKE cluster and
-subsequently deploy cluster services. ArgoCD is deployed first and will pull in
-the remaining cluster services such as the ingress controller.
-
-See any of the recent pipelines [[https://github.com/augustfengd/augustfeng.app/actions/workflows/cloud.yaml][runs]] for a visual explanation.
-
-** Apps
-
-The [[file:apps/][apps]] directory contains code for my applications. The images for these
-containers are built and published from the pipelines using dagger.io, see the
-plan configuration [[file:containers/containers.cue][here]].
+Hello! This is a project for my cloud infrastructure and some personal projects.

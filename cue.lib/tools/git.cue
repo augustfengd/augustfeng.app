@@ -2,7 +2,6 @@ package git
 
 import (
 	"strings"
-
 	"tool/exec"
 )
 
