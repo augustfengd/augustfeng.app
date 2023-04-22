@@ -69,10 +69,14 @@ workflows: "cloud.new.yaml": {
 				#actions.addGitSafeDirectory & {#directory: "${{ github.workspace }}"},
 				#actions.with.decryptionKey & #actions.secrets.decrypt,
 				#actions.with.decryptionKey & #actions.secrets.import,
-				#actions.run & {
-					run: "printf '%s' \"${GOOGLE_CREDENTIALS}\" > \"${GOOGLE_APPLICATION_CREDENTIALS}\""
+				#actions.gcp.login & {
+					env: {
+						GOOGLE_CREDENTIALS:             "${{ secrets.GOOGLE_CREDENTIALS }}"
+						GOOGLE_APPLICATION_CREDENTIALS: "application_default_credentials.json"
+					}
 				},
 				#actions.run & {
+					env: KUBECONFIG: "kubeconfig.yaml"
 					run: "cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik"
 				},
 			]
@@ -82,22 +86,20 @@ workflows: "cloud.new.yaml": {
 			name: "cluster services (diff)"
 			needs: ["build"]
 			"runs-on": "ubuntu-latest"
-			env: {
-				GOOGLE_CREDENTIALS:             "${{ secrets.GOOGLE_CREDENTIALS }}"
-				GOOGLE_APPLICATION_CREDENTIALS: "application_default_credentials.json"
-				KUBECONFIG:                     "kubeconfig.yaml"
-			}
-			if: "github.event_name == 'pull_request'"
-			steps: [...{if: "env.GOOGLE_CREDENTIALS != ''"}]
+			if:        "github.event_name == 'pull_request'"
 			steps: [
 				#actions.checkoutCode,
 				#actions.addGitSafeDirectory & {#directory: "${{ github.workspace }}"},
 				#actions.with.decryptionKey & #actions.secrets.decrypt,
 				#actions.with.decryptionKey & #actions.secrets.import,
-				#actions.run & {
-					run: "printf '%s' \"${GOOGLE_CREDENTIALS}\" > \"${GOOGLE_APPLICATION_CREDENTIALS}\""
+				#actions.gcp.login & {
+					env: {
+						GOOGLE_CREDENTIALS:             "${{ secrets.GOOGLE_CREDENTIALS }}"
+						GOOGLE_APPLICATION_CREDENTIALS: "application_default_credentials.json"
+					}
 				},
 				#actions.run & {
+					env: KUBECONFIG: "kubeconfig.yaml"
 					run: "cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik"
 				},
 			]
