@@ -6,7 +6,7 @@ import (
 )
 
 #root: exec.Run & {
-	cmd:    "git rev-parse --show-toplevel"
+	cmd:    "git -c safe.directory='*' rev-parse --show-toplevel"
 	stdout: string
 	dir:    strings.TrimSpace(stdout)
 }

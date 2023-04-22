@@ -69,8 +69,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: add safe directory
-        run: git config --global --add safe.directory /__w/augustfeng.app/augustfeng.app
       - name: decrypt secrets
         run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
         env:
@@ -99,8 +97,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: add safe directory
-        run: git config --global --add safe.directory /__w/augustfeng.app/augustfeng.app
       - name: decrypt secrets
         run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
         env:
