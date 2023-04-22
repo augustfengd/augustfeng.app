@@ -15,6 +15,8 @@ manifests: [
 	clusterroles.manifests,
 	clusterrolebinding.manifests,
 	deployment.manifests,
+	ingressroute.manifests,
+	certificate.manifests,
 ]
 
 kubectl & {
