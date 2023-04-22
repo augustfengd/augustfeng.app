@@ -15,6 +15,7 @@ ingressroute:
 			}]}]
 	}
 
-certificate: kubernetes.#certificate & {
-	fqdn: "traefik.augustfeng.app"
-}
+certificate:
+	kubernetes.#certificate & {
+		fqdn: "traefik.augustfeng.app"
+	}

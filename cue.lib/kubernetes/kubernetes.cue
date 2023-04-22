@@ -260,14 +260,17 @@ import (
 			}]
 			tls: {secretName: fqdn}
 		}
-	}, ...]
-	if middlewares != null {
-		manifests: [traefik.#IngressRoute] + [ for n, spec in middlewares {
-			apiVersion: "traefik.containo.us/v1alpha1"
-			kind:       "Middleware"
-			metadata: name: n
-			"spec": stripPrefix: prefixes: [spec.stripPrefix]},
-		]
+	}]
+	// fix me when I'm less lazy
+	fixme: {
+		if middlewares != null {
+			[ for n, spec in middlewares {
+				apiVersion: "traefik.containo.us/v1alpha1"
+				kind:       "Middleware"
+				metadata: name: n
+				"spec": stripPrefix: prefixes: [spec.stripPrefix]},
+			]
+		}
 	}
 }
 
