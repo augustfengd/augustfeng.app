@@ -40,6 +40,13 @@ import (
 		uses: "actions/checkout@v3"
 	}
 
+	addGitSafeDirectory: github.#Workflow.#Step & {
+		#directory: string
+
+		name: "add safe directory"
+		run:  "git config --global --add safe.directory \(#directory)"
+	}
+
 	uploadArtifact: github.#Workflow.#Step & {
 		uses: "actions/upload-artifact@v3"
 		with: {

@@ -69,6 +69,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: add safe directory
+        run: git config --global --add safe.directory ${{ github.workspace }}
       - name: decrypt secrets
         run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
         env:
@@ -97,6 +99,8 @@ jobs:
         uses: actions/checkout@v3
       - if: env.GOOGLE_CREDENTIALS != ''
         name: decrypt secrets
+      - name: add safe directory
+        run: git config --global --add safe.directory ${{ github.workspace }}
         run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}

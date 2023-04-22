@@ -66,6 +66,7 @@ workflows: "cloud.new.yaml": {
 			if: "github.event_name =='push'"
 			steps: [
 				#actions.checkoutCode,
+				#actions.addGitSafeDirectory & {#directory: "${{ github.workspace }}"},
 				#actions.with.decryptionKey & #actions.secrets.decrypt,
 				#actions.with.decryptionKey & #actions.secrets.import,
 				#actions.run & {
@@ -90,6 +91,7 @@ workflows: "cloud.new.yaml": {
 			steps: [...{if: "env.GOOGLE_CREDENTIALS != ''"}]
 			steps: [
 				#actions.checkoutCode,
+				#actions.addGitSafeDirectory & {#directory: "${{ github.workspace }}"},
 				#actions.with.decryptionKey & #actions.secrets.decrypt,
 				#actions.with.decryptionKey & #actions.secrets.import,
 				#actions.run & {
