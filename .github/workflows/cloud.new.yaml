@@ -1,156 +1,113 @@
-{
-    "name": "cloud'",
-    "on": {
-        "push": {
-            "branches": "main",
-            "paths": [
-                "cloud/**",
-                "cue.mod/**",
-                "cue.lib/**"
-            ]
-        },
-        "pull_request": {
-            "branches": "main",
-            "paths": [
-                "cloud/**",
-                "cue.mod/**",
-                "cue.lib/**"
-            ]
-        }
-    },
-    "concurrency": "augustfeng.app",
-    "jobs": {
-        "build": {
-            "runs-on": "ubuntu-latest",
-            "steps": [
-                {
-                    "name": "Checkout code",
-                    "uses": "actions/checkout@v3"
-                }
-            ],
-            "container": {
-                "image": "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
-            }
-        },
-        "configure": {
-            "name": "terraform cloud",
-            "needs": [
-                "build"
-            ],
-            "runs-on": "ubuntu-latest",
-            "steps": [
-                {
-                    "name": "Checkout code",
-                    "uses": "actions/checkout@v3"
-                }
-            ],
-            "container": {
-                "image": "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
-            }
-        },
-        "terraform-plan": {
-            "name": "terraform (plan)",
-            "needs": [
-                "build",
-                "configure"
-            ],
-            "runs-on": "ubuntu-latest",
-            "if": "github.event_name == 'pull_request'",
-            "steps": [
-                {
-                    "name": "Checkout code",
-                    "uses": "actions/checkout@v3"
-                }
-            ],
-            "container": {
-                "image": "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
-            }
-        },
-        "terraform-apply": {
-            "name": "terraform (apply)",
-            "needs": [
-                "build",
-                "configure"
-            ],
-            "runs-on": "ubuntu-latest",
-            "if": "github.event_name =='push'",
-            "steps": [
-                {
-                    "name": "Checkout code",
-                    "uses": "actions/checkout@v3"
-                }
-            ],
-            "container": {
-                "image": "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
-            }
-        },
-        "cluster-services-apply": {
-            "name": "cluster services (apply)",
-            "needs": [
-                "terraform-apply",
-                "build"
-            ],
-            "runs-on": "ubuntu-latest",
-            "env": {
-                "GOOGLE_CREDENTIALS": "${{ secrets.GOOGLE_CREDENTIALS }}",
-                "GOOGLE_APPLICATION_CREDENTIALS": "application_default_credentials.json",
-                "KUBECONFIG": "kubeconfig.yaml"
-            },
-            "if": "github.event_name =='push'",
-            "steps": [
-                {
-                    "name": "Checkout code",
-                    "uses": "actions/checkout@v3"
-                },
-                {
-                    "run": "printf '%s' \"${GOOGLE_CREDENTIALS}\" \u003e \"${GOOGLE_APPLICATION_CREDENTIALS}\""
-                },
-                {
-                    "run": "cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik"
-                }
-            ],
-            "container": {
-                "image": "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
-            }
-        },
-        "cluster-services-diff": {
-            "name": "cluster services (diff)",
-            "needs": [
-                "build"
-            ],
-            "runs-on": "ubuntu-latest",
-            "env": {
-                "GOOGLE_CREDENTIALS": "${{ secrets.GOOGLE_CREDENTIALS }}",
-                "GOOGLE_APPLICATION_CREDENTIALS": "application_default_credentials.json",
-                "KUBECONFIG": "kubeconfig.yaml"
-            },
-            "if": "github.event_name == 'pull_request'",
-            "steps": [
-                {
-                    "if": "env.GOOGLE_CREDENTIALS != ''",
-                    "name": "Checkout code",
-                    "uses": "actions/checkout@v3"
-                },
-                {
-                    "if": "env.GOOGLE_CREDENTIALS != ''",
-                    "name": "make",
-                    "run": "make",
-                    "env": {
-                        "SOPS_AGE_KEY": "${{ secrets.SOPS_AGE_KEY }}"
-                    }
-                },
-                {
-                    "if": "env.GOOGLE_CREDENTIALS != ''",
-                    "run": "printf '%s' \"${GOOGLE_CREDENTIALS}\" \u003e \"${GOOGLE_APPLICATION_CREDENTIALS}\""
-                },
-                {
-                    "if": "env.GOOGLE_CREDENTIALS != ''",
-                    "run": "cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik"
-                }
-            ],
-            "container": {
-                "image": "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
-            }
-        }
-    }
-}
+name: cloud'
+"on":
+  push:
+    branches: main
+    paths:
+      - cloud/**
+      - cue.mod/**
+      - cue.lib/**
+  pull_request:
+    branches: main
+    paths:
+      - cloud/**
+      - cue.mod/**
+      - cue.lib/**
+concurrency: augustfeng.app
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+    container:
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
+  configure:
+    name: terraform cloud
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+    container:
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
+  terraform-plan:
+    name: terraform (plan)
+    needs:
+      - build
+      - configure
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+    container:
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
+  terraform-apply:
+    name: terraform (apply)
+    needs:
+      - build
+      - configure
+    runs-on: ubuntu-latest
+    if: github.event_name =='push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+    container:
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
+  cluster-services-apply:
+    name: cluster services (apply)
+    needs:
+      - terraform-apply
+      - build
+    runs-on: ubuntu-latest
+    env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      GOOGLE_APPLICATION_CREDENTIALS: application_default_credentials.json
+      KUBECONFIG: kubeconfig.yaml
+    if: github.event_name =='push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: decrypt secrets
+        run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+      - name: import secrets
+        run: cue convert github.com/augustfengd/augustfeng.app/secrets
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+      - run: printf '%s' "${GOOGLE_CREDENTIALS}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
+      - run: cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+    container:
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
+  cluster-services-diff:
+    name: cluster services (diff)
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      GOOGLE_APPLICATION_CREDENTIALS: application_default_credentials.json
+      KUBECONFIG: kubeconfig.yaml
+    if: github.event_name == 'pull_request'
+    steps:
+      - if: env.GOOGLE_CREDENTIALS != ''
+        name: Checkout code
+        uses: actions/checkout@v3
+      - if: env.GOOGLE_CREDENTIALS != ''
+        name: decrypt secrets
+        run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+      - if: env.GOOGLE_CREDENTIALS != ''
+        name: import secrets
+        run: cue convert github.com/augustfengd/augustfeng.app/secrets
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+      - if: env.GOOGLE_CREDENTIALS != ''
+        run: printf '%s' "${GOOGLE_CREDENTIALS}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
+      - if: env.GOOGLE_CREDENTIALS != ''
+        run: cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+    container:
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
