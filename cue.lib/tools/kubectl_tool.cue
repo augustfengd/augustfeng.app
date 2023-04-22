@@ -3,15 +3,15 @@ package kubectl
 import (
 	"list"
 	"tool/exec"
-	"tool/cli"
 	"encoding/yaml"
 )
 
 #namespace: string
 #manifests: [...[...]] & [...[...{metadata: namespace: #namespace}]]
 
-command: template: cli.Print & {
-	text: yaml.MarshalStream(list.FlattenN(#manifests, 1))
+command: template: exec.Run & {
+	cmd:   "cat"
+	stdin: yaml.MarshalStream(list.FlattenN(#manifests, 1))
 }
 
 command: diff: exec.Run & {
