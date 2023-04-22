@@ -107,4 +107,14 @@ import (
 			env: SOPS_AGE_KEY: "${{ secrets.SOPS_AGE_KEY }}"
 		}
 	}
+
+	cue: {
+		command: github.#Workflow.#Step & {
+			#command: string
+			#package: string
+
+			name: "cue \(#command) \(#package)"
+			run:  "cue \(#command) \(#package)"
+		}
+	}
 }

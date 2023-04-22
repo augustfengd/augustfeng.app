@@ -84,7 +84,8 @@ jobs:
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
           GOOGLE_APPLICATION_CREDENTIALS: application_default_credentials.json
-      - run: cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+      - name: cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+        run: cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
         env:
           KUBECONFIG: kubeconfig.yaml
     container:
@@ -113,7 +114,8 @@ jobs:
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
           GOOGLE_APPLICATION_CREDENTIALS: application_default_credentials.json
-      - run: cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+      - name: cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+        run: cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
         env:
           KUBECONFIG: kubeconfig.yaml
     container:

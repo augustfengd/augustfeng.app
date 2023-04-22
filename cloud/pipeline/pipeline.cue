@@ -75,9 +75,11 @@ workflows: "cloud.new.yaml": {
 						GOOGLE_APPLICATION_CREDENTIALS: "application_default_credentials.json"
 					}
 				},
-				#actions.run & {
+				#actions.cue.command & {
+					#command: "apply"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik"
+
 					env: KUBECONFIG: "kubeconfig.yaml"
-					run: "cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik"
 				},
 			]
 			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
@@ -98,9 +100,11 @@ workflows: "cloud.new.yaml": {
 						GOOGLE_APPLICATION_CREDENTIALS: "application_default_credentials.json"
 					}
 				},
-				#actions.run & {
+				#actions.cue.command & {
+					#command: "diff"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik"
+
 					env: KUBECONFIG: "kubeconfig.yaml"
-					run: "cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik"
 				},
 			]
 			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
