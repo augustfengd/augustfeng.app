@@ -5,8 +5,8 @@ import (
 	"tool/http"
 	"tool/exec"
 
-	"github.com/augustfengd/augustfeng.app/tools:git"
-	"github.com/augustfengd/augustfeng.app/tools:kubectl"
+	"github.com/augustfengd/augustfeng.app/cue.lib/tools:git"
+	"github.com/augustfengd/augustfeng.app/cue.lib/tools:kubectl"
 )
 
 manifests: [

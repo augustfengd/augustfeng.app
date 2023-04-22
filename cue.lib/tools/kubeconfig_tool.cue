@@ -3,7 +3,7 @@ import (
 	"tool/file"
 	"encoding/yaml"
 
-	"github.com/augustfengd/augustfeng.app/tools:git"
+	"github.com/augustfengd/augustfeng.app/cue.lib/tools:git"
 )
 
 #kubeconfig: {

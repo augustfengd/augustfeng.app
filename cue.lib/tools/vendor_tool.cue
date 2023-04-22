@@ -7,7 +7,7 @@ import (
 	"tool/http"
 	"tool/file"
 
-	"github.com/augustfengd/augustfeng.app/tools:git"
+	"github.com/augustfengd/augustfeng.app/cue.lib/tools:git"
 )
 
 command: importdefinitions: {
