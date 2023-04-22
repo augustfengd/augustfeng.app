@@ -162,6 +162,12 @@ dagger.#Plan & {
 					},
 					docker.#Run & {
 						command: {
+							name: "git"
+							args: ["config", "--global", "--add", "safe.directory", "/__w/augustfeng.app/augustfeng.app"]
+						}
+					},
+					docker.#Run & {
+						command: {
 							let #plugins = strings.Join(["git", "z", "terraform"], " ")
 							name: "sed"
 							args: ["-i", "s/^plugins=(.*)/plugins=(\(#plugins))/", "/root/.zshrc"]
