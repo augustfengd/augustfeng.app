@@ -66,7 +66,7 @@ workflows: "cloud.new.yaml": {
 			if: "github.event_name =='push'"
 			steps: [
 				#actions.checkoutCode,
-				#actions.addGitSafeDirectory & {#directory: "${{ github.workspace }}"},
+				#actions.addGitSafeDirectory & {#directory: "/__w/augustfeng.app/augustfeng.app"},
 				#actions.with.decryptionKey & #actions.secrets.decrypt,
 				#actions.with.decryptionKey & #actions.secrets.import,
 				#actions.gcp.login & {
@@ -89,7 +89,7 @@ workflows: "cloud.new.yaml": {
 			if:        "github.event_name == 'pull_request'"
 			steps: [
 				#actions.checkoutCode,
-				#actions.addGitSafeDirectory & {#directory: "${{ github.workspace }}"},
+				#actions.addGitSafeDirectory & {#directory: "/__w/augustfeng.app/augustfeng.app"},
 				#actions.with.decryptionKey & #actions.secrets.decrypt,
 				#actions.with.decryptionKey & #actions.secrets.import,
 				#actions.gcp.login & {
