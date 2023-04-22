@@ -4,14 +4,20 @@ import (
 	"strings"
 	"tool/exec"
 	"tool/file"
+
+	"github.com/augustfengd/augustfeng.app/cue.lib/tools:git"
 )
 
-#secrets: file.Glob & {
-	glob: "*"
-	files: [...string]
-	encrypted: [ for _, f in files if strings.HasSuffix(f, ".enc.json") {f}]
-	decrypted: [ for _, f in files if !strings.HasSuffix(f, ".enc.json") {f}]
-	converted: [ for _, f in files if !strings.HasSuffix(f, ".enc.json") {strings.Replace(f, ".json", ".cue", -1)}]
+#secrets: {
+	root:   git.#root
+	path:   string
+	secret: file.Glob & {
+		glob: root.dir + "/" + path + "/*"
+		files: [...string]
+	}
+	encrypted: [ for _, f in secret.files if strings.HasSuffix(f, ".enc.json") {f}]
+	decrypted: [ for _, f in secret.files if !strings.HasSuffix(f, ".enc.json") && !strings.HasSuffix(f, "_tool.cue") {f}]
+	converted: [ for _, f in secret.files if !strings.HasSuffix(f, ".enc.json") && !strings.HasSuffix(f, "_tool.cue") {strings.Replace(f, ".json", ".cue", -1)}]
 }
 
 command: encrypt: {

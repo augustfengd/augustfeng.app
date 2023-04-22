@@ -9,6 +9,11 @@ cloud/secrets/*.txt
 !cloud/secrets/secrets.cue
 !cloud/secrets/secrets_tool.cue
 
+# new secrets folder
+secrets/*.json
+secrets/*.cue
+secrets/*.txt
+
 # decrypted secrets and encryption keys (kubernetes)
 kubernetes/secrets/*.json
 kubernetes/secrets/*.txt
