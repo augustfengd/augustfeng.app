@@ -182,7 +182,7 @@ import (
 		core.#Secret & {
 			metadata: name: n
 			type: d.#type
-			data: {for k, v in d {(k): base64.Decode(null, base64.Encode(null, v))}} // NOTE: convert string to base64 and then into bytes.
+			stringData: {for k, v in d {(k): base64.Encode(null, v)}}
 		}
 	}]
 }
