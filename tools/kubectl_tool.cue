@@ -1,0 +1,33 @@
+package kubectl
+
+import (
+	"list"
+	"tool/exec"
+	"tool/cli"
+	"encoding/yaml"
+)
+
+#namespace: string
+#manifests: [...[...]] & [...[...{metadata: namespace: #namespace}]]
+
+command: template: cli.Print & {
+	text: yaml.MarshalStream(list.FlattenN(#manifests, 1))
+}
+
+command: diff: exec.Run & {
+	cmd:   "kubectl diff -f -"
+	stdin: yaml.MarshalStream(list.FlattenN(#manifests, 1))
+}
+
+command: apply: {
+	for i, manifest in #manifests {
+		"\(i)": exec.Run & {
+			if i > 0 {
+				$dep: command.apply["\(i-1)"].$done
+			}
+
+			cmd:   "kubectl apply -f -"
+			stdin: yaml.MarshalStream(manifest)
+		}
+	}
+}
