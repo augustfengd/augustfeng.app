@@ -1,0 +1,3 @@
+configuration.tf.json
+.terraform/
+.terraform.lock.hcl

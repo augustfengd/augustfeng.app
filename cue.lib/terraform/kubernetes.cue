@@ -1,7 +1,8 @@
 package terraform
 
 lib: kubernetes: {
-	_kubernetes: {
+
+	#kubernetes: {
 		cluster: {
 			name:     string
 			location: string
@@ -11,15 +12,18 @@ lib: kubernetes: {
 			labels: [string]:      string
 		}
 	}
+
 	data: google_client_config: provider: {}
 
-	data: google_container_cluster: cluster: {
-		name:     _kubernetes.cluster.name
-		location: _kubernetes.cluster.location
+	// neat trick: this is already declared in gcp.cue and will unify under
+	// correct circumstances.
+	resource: google_container_cluster: kubernetes: {
+		name:     #kubernetes.cluster.name
+		location: #kubernetes.cluster.location
 	}
 
 	resource: {
-		for namespace, configuration in _kubernetes.namespaces {
+		for namespace, configuration in #kubernetes.namespaces {
 			kubernetes_namespace: (namespace): {
 				metadata: {
 					name: (namespace)
@@ -35,9 +39,9 @@ lib: kubernetes: {
 	}
 
 	provider: kubernetes: {
-		host:                   "https://${data.google_container_cluster.cluster.endpoint}"
+		host:                   "https://${google_container_cluster.kubernetes.endpoint}"
 		token:                  "${data.google_client_config.provider.access_token}"
-		cluster_ca_certificate: "${base64decode(data.google_container_cluster.cluster.master_auth[0].cluster_ca_certificate)}"
+		cluster_ca_certificate: "${base64decode(google_container_cluster.kubernetes.master_auth[0].cluster_ca_certificate)}"
 	}
 
 	provider: google: {

@@ -2,7 +2,7 @@ package terraform
 
 lib: gcp: {
 
-	_gcp: {
+	#gcp: {
 		cluster: {
 			name:     string
 			location: string
@@ -15,9 +15,7 @@ lib: gcp: {
 				namespace:      string
 				serviceaccount: string
 			} | *null
-			key: {
-				rotation_days: number
-			} | *null
+			key: bool | *false
 		}
 	}
 
@@ -36,14 +34,14 @@ lib: gcp: {
 
 	// Google Kubernetes Engine
 	resource: {
-		google_service_account: "cluster": {
+		google_service_account: "kubernetes": {
 			account_id:   "augustfeng-app-cluster"
 			display_name: "augustfeng-app-cluster"
 		}
 
-		google_container_cluster: "cluster": {
-			name:     _gcp.cluster.name
-			location: _gcp.cluster.location
+		google_container_cluster: "kubernetes": {
+			name:     #gcp.cluster.name
+			location: #gcp.cluster.location
 
 			initial_node_count: 1
 
@@ -51,7 +49,7 @@ lib: gcp: {
 				machine_type: "e2-micro"
 				disk_size_gb: "10"
 
-				service_account: "${google_service_account.cluster.email}"
+				service_account: "${google_service_account.kubernetes.email}"
 				oauth_scopes: [
 					"https://www.googleapis.com/auth/cloud-platform",
 				]
@@ -63,7 +61,7 @@ lib: gcp: {
 
 		google_container_node_pool: "e2-small": {
 			name:       "e2-small-pool"
-			cluster:    "${google_container_cluster.cluster.id}"
+			cluster:    "${google_container_cluster.kubernetes.id}"
 			node_count: 1
 
 			node_config: {
@@ -72,16 +70,29 @@ lib: gcp: {
 				disk_size_gb: "10"
 
 				// Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
-				service_account: "${google_service_account.cluster.email}"
+				service_account: "${google_service_account.kubernetes.email}"
 				oauth_scopes: [
 					"https://www.googleapis.com/auth/cloud-platform",
 				]
 			}
 		}
+
+		google_compute_firewall: "ingress": {
+			name:    "augustfeng-app-https"
+			network: "default"
+
+			source_ranges: ["0.0.0.0/0"]
+
+			target_service_accounts: ["${google_service_account.kubernetes.email}"]
+			allow: {
+				protocol: "tcp"
+				ports: ["443"]
+			}
+		}
 	}
 
 	resource: {
-		for sa, c in _gcp.iam {
+		for sa, c in #gcp.iam {
 			google_service_account: (sa): {
 				account_id:   c.account_id
 				display_name: c.display_name
@@ -101,16 +112,8 @@ lib: gcp: {
 				}
 			}
 
-			if c.key != null {
-				google_service_account_key: (sa): {
-					service_account_id: "${google_service_account.\(sa).name}"
-					keepers: {
-						rotation_time: "${time_rotating.\(sa)-rotation.rotation_rfc3339}"
-					}
-				}
-				time_rotating: "\(sa)-rotation": {
-					rotation_days: c.key.rotation_days
-				}
+			if c.key {
+				google_service_account_key: (sa): service_account_id: "${google_service_account.\(sa).name}"
 			}
 		}
 	}

@@ -5,10 +5,10 @@ import (
 	"github.com/augustfengd/augustfeng.app/cue.lib/pipeline"
 )
 
-workflows: "cloud.new.yaml": {
+workflows: "cloud.yaml": {
 	#DefaultBranch: "main"
 
-	name: "cloud'"
+	name: "cloud"
 	on: push: branches:         #DefaultBranch
 	on: pull_request: branches: #DefaultBranch
 	on: [string]: paths: ["cloud/**", "cue.mod/**", "cue.lib/**"]
@@ -31,6 +31,12 @@ workflows: "cloud.new.yaml": {
 			"runs-on": "ubuntu-latest"
 			steps: [
 				#actions.checkoutCode,
+				#actions.with.decryptionKey & #actions.secrets.decrypt,
+				#actions.secrets.import,
+				#actions.cue.command & {
+					#command: "configure"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app"
+				},
 			]
 			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
 		}
@@ -41,6 +47,20 @@ workflows: "cloud.new.yaml": {
 			if:        "github.event_name == 'pull_request'"
 			steps: [
 				#actions.checkoutCode,
+				#actions.with.decryptionKey & #actions.secrets.decrypt,
+				#actions.secrets.import,
+				#actions.cue.command & {
+					#command: "build"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app"
+				},
+				#actions.cue.command & {
+					#command: "init"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app"
+				},
+				#actions.cue.command & {
+					#command: "plan"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app"
+				},
 			]
 			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
 		}
@@ -51,6 +71,20 @@ workflows: "cloud.new.yaml": {
 			if:        "github.event_name =='push'"
 			steps: [
 				#actions.checkoutCode,
+				#actions.with.decryptionKey & #actions.secrets.decrypt,
+				#actions.secrets.import,
+				#actions.cue.command & {
+					#command: "build"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app"
+				},
+				#actions.cue.command & {
+					#command: "init"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app"
+				},
+				#actions.cue.command & {
+					#command: "apply"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app"
+				},
 			]
 			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
 		}
@@ -67,7 +101,7 @@ workflows: "cloud.new.yaml": {
 			steps: [
 				#actions.checkoutCode,
 				#actions.with.decryptionKey & #actions.secrets.decrypt,
-				#actions.with.decryptionKey & #actions.secrets.import,
+				#actions.secrets.import,
 				#actions.gcp.login & {
 					env: {
 						GOOGLE_CREDENTIALS:             "${{ secrets.GOOGLE_CREDENTIALS }}"
@@ -91,7 +125,7 @@ workflows: "cloud.new.yaml": {
 			steps: [
 				#actions.checkoutCode,
 				#actions.with.decryptionKey & #actions.secrets.decrypt,
-				#actions.with.decryptionKey & #actions.secrets.import,
+				#actions.secrets.import,
 				#actions.gcp.login & {
 					env: {
 						GOOGLE_CREDENTIALS:             "${{ secrets.GOOGLE_CREDENTIALS }}"

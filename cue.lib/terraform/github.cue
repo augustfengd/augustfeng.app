@@ -2,12 +2,12 @@ package terraform
 
 lib: github: {
 
-	_github: {
+	#github: {
 		secrets: [string]: string
 	}
 
 	resource: {
-		for secret, value in _github.secrets {
+		for secret, value in #github.secrets {
 			"github_actions_secret": (secret): {
 				repository:      "augustfeng.app"
 				secret_name:     (secret)

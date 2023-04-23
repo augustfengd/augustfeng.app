@@ -1,9 +1,23 @@
 package terraform
 
 import (
+	"tool/file"
+	"tool/exec"
 	"tool/http"
 	"encoding/json"
+
+	"github.com/augustfengd/augustfeng.app/cue.lib/tools:git"
 )
+
+configuration: {}
+
+command: build: {
+	root:  git.#root
+	touch: file.Create & {
+		filename: root.dir + "/cloud/terraform/configuration.tf.json"
+		contents: json.Indent(json.Marshal(configuration), "", "  ")
+	}
+}
 
 command: configure: {
 	workspace: http.Do & {
@@ -59,5 +73,29 @@ command: configure: {
 				statusCode: 200 | 201
 			}
 		}
+	}
+}
+
+command: init: {
+	root: git.#root
+	run:  exec.Run & {
+		cmd: "terraform init"
+		dir: root.dir + "/cloud/terraform"
+	}
+}
+
+command: plan: {
+	root: git.#root
+	run:  exec.Run & {
+		cmd: "terraform plan"
+		dir: root.dir + "/cloud/terraform"
+	}
+}
+
+command: apply: {
+	root: git.#root
+	run:  exec.Run & {
+		cmd: "terraform apply --auto-approve"
+		dir: root.dir + "/cloud/terraform"
 	}
 }
