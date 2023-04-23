@@ -107,6 +107,14 @@ workflows: "cloud.yaml": {
 					#flags: "--zone": "us-east1-b"
 				},
 				#actions.cue.command & {
+					#command: "repo.add"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager"
+				},
+				#actions.cue.command & {
+					#command: "apply"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager"
+				},
+				#actions.cue.command & {
 					#command: "apply"
 					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik"
 				},
@@ -130,6 +138,14 @@ workflows: "cloud.yaml": {
 				#actions.gcloud.command & {
 					#command: "container clusters get-credentials augustfeng-app"
 					#flags: "--zone": "us-east1-b"
+				},
+				#actions.cue.command & {
+					#command: "repo.add"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager"
+				},
+				#actions.cue.command & {
+					#command: "diff"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager"
 				},
 				#actions.cue.command & {
 					#command: "diff"

@@ -20,12 +20,19 @@ h: helm & {
 	#chart:     "jetstack/cert-manager"
 	#version:   "v1.11.0"
 	#values:    values
+
+	#repo: {
+		name: "jetstack"
+		url:  "https://charts.jetstack.io"
+	}
 }
 
 k: kubectl & {
 	#namespace: "system-ingress"
 	#manifests: manifests
 }
+
+command: "repo.add": h.command."repo.add"
 
 command: template: {
 	a:           h.command.template & {stdout: string}

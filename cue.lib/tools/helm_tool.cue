@@ -11,6 +11,15 @@ import (
 #version:   string
 #values: {}
 
+#repo: {
+	name: string
+	url:  string
+}
+
+command: "repo.add": exec.Run & {
+	cmd: "helm repo add \(#repo.name) \(#repo.url)"
+}
+
 command: template: exec.Run & {
 	cmd:   "helm template --namespace \(#namespace) \(#name) \(#chart) --version \(#version) -f -"
 	stdin: yaml.Marshal(#values)
