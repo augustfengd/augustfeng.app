@@ -19,15 +19,16 @@ command: diff: exec.Run & {
 	stdin: yaml.MarshalStream(list.FlattenN(#manifests, 1))
 }
 
-command: apply: {
+command: apply: steps: {
 	for i, manifest in #manifests {
 		"\(i)": exec.Run & {
 			if i > 0 {
-				$dep: command.apply["\(i-1)"].$done
+				$dep: steps["\(i-1)"].$done
 			}
 
 			cmd:   "kubectl apply -f -"
 			stdin: yaml.MarshalStream(manifest)
 		}
 	}
+
 }

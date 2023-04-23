@@ -60,5 +60,5 @@ command: diff: {
 
 command: install: {
 	"helm":    h.command.install
-	"kubectl": k.command.apply & {"0": $dep: command.install."helm".$done}
+	"kubectl": k.command.apply & {steps: "0": $dep: command.install."helm".$done}
 }
