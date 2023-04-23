@@ -111,7 +111,7 @@ workflows: "cloud.yaml": {
 					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager"
 				},
 				#actions.cue.command & {
-					#command: "apply"
+					#command: "install"
 					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager"
 				},
 				#actions.cue.command & {

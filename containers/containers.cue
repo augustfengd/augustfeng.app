@@ -139,8 +139,9 @@ dagger.#Plan & {
 				output: files.output
 			}
 			_terraform: core.#Pull & {source: "hashicorp/terraform:1.3.0"}
+			_helm:      core.#Pull & {source: "alpine/helm:3.11.3"}
 			_sops:      core.#Pull & {source: "mozilla/sops:v3.7.3-alpine"}
-			_kubectl:   core.#Pull & {source: "bitnami/kubectl:1.25"}
+			_kubectl:   core.#Pull & {source: "bitnami/kubectl:1.26"}
 			docker.#Build & {
 				steps: [
 					alpine.#Build & {
@@ -198,6 +199,11 @@ dagger.#Plan & {
 						contents: _kubectl.output
 						source:   "/opt/bitnami/kubectl/bin/kubectl"
 						dest:     "/usr/local/bin/kubectl"
+					},
+					docker.#Copy & {
+						contents: _helm.output
+						source:   "/usr/bin/helm"
+						dest:     "/usr/local/bin/helm"
 					},
 					docker.#Set & {
 						config: {
