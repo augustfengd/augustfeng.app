@@ -1,3 +1,72 @@
 * About
 
 Hello! This is a project for my cloud infrastructure and some personal projects.
+
+* Usage
+
+** Secrets
+
+The credentials are statically encrypted in the repository using sops and can be
+easily decrypted/imported:
+
+#+begin_src shell :results none
+  cue decrypt github.com/augustfengd/augustfeng.app/secrets
+  cue convert github.com/augustfengd/augustfeng.app/secrets
+#+end_src
+
+** Building the pipelines
+
+This project relies heavily on pipelines for execution.
+
+- cloud pipeline:
+
+  #+begin_src shell :results none
+    cue build github.com/augustfengd/augustfeng.app/cloud/pipeline
+  #+end_src
+
+- blog pipeline:
+
+  #+begin_src shell :results none
+    cue pipeline github.com/augustfengd/augustfeng.app/apps/blog
+  #+end_src
+
+** Terraform
+
+The entire terraform (cloud) setup and operations is automated:
+
+- configure the workspace variables:
+
+  #+begin_src shell
+    # if working from root directory.
+    cue configure github.com/augustfengd/augustfeng.app/cloud/terraform
+
+    # if working from cloud/terraform directory.
+    cue configure
+  #+end_src
+
+- build, plan and apply:
+
+  #+begin_src shell
+    cue build
+    cue init
+    cue plan
+    cue apply
+  #+end_src
+
+** Kubernetes
+
+I have written abstractions in CUE to easily author kubernetes configuration.
+Additionally, there is a thin scripting layer which integrates this and helm
+charts:
+
+#+begin_src shell
+  # kubectl backend
+  cue template github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+  cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+  cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+
+  # kubectl/helm backend
+  cue template github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert-manager
+  cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert-manager
+  cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert-manager
+#+end_src
