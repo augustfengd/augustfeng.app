@@ -21,9 +21,8 @@ jobs:
       - name: make push
         run: make push
         working-directory: apps/blog
-      - name: make apply
-        run: make apply
-        working-directory: apps/blog
+      - name: cue apply github.com/augustfengd/augustfeng.app/apps/blog
+        run: cue apply github.com/augustfengd/augustfeng.app/apps/blog
         env:
           KUBECONFIG: ../../kubeconfig.yaml
           GOOGLE_APPLICATION_CREDENTIALS: ../../application_default_credentials.json
