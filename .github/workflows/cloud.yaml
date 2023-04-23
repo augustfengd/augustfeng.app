@@ -93,10 +93,6 @@ jobs:
       - terraform-apply
       - build
     runs-on: ubuntu-latest
-    env:
-      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-      GOOGLE_APPLICATION_CREDENTIALS: application_default_credentials.json
-      KUBECONFIG: kubeconfig.yaml
     if: github.event_name =='push'
     steps:
       - name: Checkout code
@@ -108,14 +104,17 @@ jobs:
       - name: import secrets
         run: cue convert github.com/augustfengd/augustfeng.app/secrets
       - name: configure google application credentials
-        run: printf '%s' "${GOOGLE_CREDENTIALS}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
-        env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-          GOOGLE_APPLICATION_CREDENTIALS: application_default_credentials.json
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+      - name: install gcloud
+        uses: google-github-actions/setup-gcloud@v1
+      - name: gcloud components install gke-gcloud-auth-plugin
+        run: 'gcloud components install gke-gcloud-auth-plugin '
+      - name: gcloud container clusters get-credentials augustfeng-app
+        run: gcloud container clusters get-credentials augustfeng-app --zone=us-east1-b
       - name: cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
         run: cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
-        env:
-          KUBECONFIG: kubeconfig.yaml
     container:
       image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
   cluster-services-diff:
@@ -134,13 +133,16 @@ jobs:
       - name: import secrets
         run: cue convert github.com/augustfengd/augustfeng.app/secrets
       - name: configure google application credentials
-        run: printf '%s' "${GOOGLE_CREDENTIALS}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
-        env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-          GOOGLE_APPLICATION_CREDENTIALS: application_default_credentials.json
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+      - name: install gcloud
+        uses: google-github-actions/setup-gcloud@v1
+      - name: gcloud components install gke-gcloud-auth-plugin
+        run: 'gcloud components install gke-gcloud-auth-plugin '
+      - name: gcloud container clusters get-credentials augustfeng-app
+        run: gcloud container clusters get-credentials augustfeng-app --zone=us-east1-b
       - name: cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
         run: cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
-        env:
-          KUBECONFIG: kubeconfig.yaml
     container:
       image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest

@@ -92,27 +92,23 @@ workflows: "cloud.yaml": {
 			name: "cluster services (apply)"
 			needs: ["terraform-apply", "build"]
 			"runs-on": "ubuntu-latest"
-			env: {
-				GOOGLE_CREDENTIALS:             "${{ secrets.GOOGLE_CREDENTIALS }}"
-				GOOGLE_APPLICATION_CREDENTIALS: "application_default_credentials.json"
-				KUBECONFIG:                     "kubeconfig.yaml"
-			}
-			if: "github.event_name =='push'"
+			if:        "github.event_name =='push'"
 			steps: [
 				#actions.checkoutCode,
 				#actions.with.decryptionKey & #actions.secrets.decrypt,
 				#actions.secrets.import,
-				#actions.gcp.login & {
-					env: {
-						GOOGLE_CREDENTIALS:             "${{ secrets.GOOGLE_CREDENTIALS }}"
-						GOOGLE_APPLICATION_CREDENTIALS: "application_default_credentials.json"
-					}
+				#actions.gcloud.auth,
+				#actions.gcloud.install,
+				#actions.gcloud.command & {
+					#command: "components install gke-gcloud-auth-plugin"
+				},
+				#actions.gcloud.command & {
+					#command: "container clusters get-credentials augustfeng-app"
+					#flags: "--zone": "us-east1-b"
 				},
 				#actions.cue.command & {
 					#command: "apply"
 					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik"
-
-					env: KUBECONFIG: "kubeconfig.yaml"
 				},
 			]
 			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
@@ -126,17 +122,18 @@ workflows: "cloud.yaml": {
 				#actions.checkoutCode,
 				#actions.with.decryptionKey & #actions.secrets.decrypt,
 				#actions.secrets.import,
-				#actions.gcp.login & {
-					env: {
-						GOOGLE_CREDENTIALS:             "${{ secrets.GOOGLE_CREDENTIALS }}"
-						GOOGLE_APPLICATION_CREDENTIALS: "application_default_credentials.json"
-					}
+				#actions.gcloud.auth,
+				#actions.gcloud.install,
+				#actions.gcloud.command & {
+					#command: "components install gke-gcloud-auth-plugin"
+				},
+				#actions.gcloud.command & {
+					#command: "container clusters get-credentials augustfeng-app"
+					#flags: "--zone": "us-east1-b"
 				},
 				#actions.cue.command & {
 					#command: "diff"
 					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik"
-
-					env: KUBECONFIG: "kubeconfig.yaml"
 				},
 			]
 			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"

@@ -55,6 +55,35 @@ import (
 		}
 	}
 
+	gcloud: {
+		auth: github.#Workflow.#Step & {
+			name: "configure google application credentials"
+			uses: "google-github-actions/auth@v1"
+			with: credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
+		}
+		install: github.#Workflow.#Step & {
+			name: "install gcloud"
+			uses: "google-github-actions/setup-gcloud@v1"
+		}
+		command: github.#Workflow.#Step & {
+			#command: string
+			#flags: [string]: string | *null
+
+			let flags = strings.Join([ for flag, value in #flags {
+				if value != null {
+					"\(flag)=\(value)"
+				}
+				if value == null {
+					"\(flag)"
+				}
+			}], " ")
+
+			name: "gcloud \(#command)"
+			run:  "gcloud \(#command) \(flags)"
+		}
+	}
+
+	// NOTE: gcloud.auth does the same thing.
 	gcp: login: github.#Workflow.#Step & {
 		name: "configure google application credentials"
 		env: {
