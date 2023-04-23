@@ -20,7 +20,7 @@ import (
 	converted: [ for _, f in secret.files if !strings.HasSuffix(f, ".enc.json") && !strings.HasSuffix(f, "_tool.cue") && !strings.HasSuffix(f, "secrets.cue") {strings.Replace(f, ".json", ".cue", -1)}]
 }
 
-command: encrypt: {
+encrypt: {
 	secrets: #secrets
 	for _, f in secrets.decrypted {
 		(f): exec.Run & {
@@ -30,7 +30,7 @@ command: encrypt: {
 	}
 }
 
-command: decrypt: {
+decrypt: {
 	secrets: #secrets
 	for _, f in secrets.encrypted {
 		(f): exec.Run & {
@@ -40,7 +40,7 @@ command: decrypt: {
 	}
 }
 
-command: convert: {
+convert: {
 	secrets: #secrets
 	for _, f in secrets.decrypted {
 		(f): exec.Run & {
@@ -56,7 +56,7 @@ command: convert: {
 	}
 }
 
-command: updatekeys: {
+updatekeys: {
 	secrets: #secrets
 	for _, f in secrets.encrypted {
 		(f): exec.Run & {

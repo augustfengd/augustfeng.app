@@ -19,7 +19,7 @@ manifests: [
 	certificate.manifests,
 ]
 
-kubectl & {
+command: kubectl & {
 	#namespace: "system-ingress"
 	#manifests: manifests
 }

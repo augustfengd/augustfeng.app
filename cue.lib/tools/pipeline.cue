@@ -8,7 +8,7 @@ import (
 
 #workflows: [string]: {}
 
-command: build: {
+build: {
 	root: git.#root
 	for f, pipeline in #workflows {
 		(f): file.Create & {
@@ -18,7 +18,7 @@ command: build: {
 	}
 }
 
-command: clean: {
+clean: {
 	root: git.#root
 	for f, pipeline in #workflows {
 		(f): file.RemoveAll & {

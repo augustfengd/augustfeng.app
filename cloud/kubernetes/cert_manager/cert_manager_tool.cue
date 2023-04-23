@@ -32,11 +32,11 @@ k: kubectl & {
 	#manifests: manifests
 }
 
-command: "repo.add": h.command."repo.add"
+command: "repo.add": h."repo.add"
 
 command: template: {
-	a:           h.command.template & {stdout: string}
-	b:           k.command.template & {stdout: string}
+	a:           h.template & {stdout: string}
+	b:           k.template & {stdout: string}
 	concatenate: exec.Run & {
 		cmd:   "cat"
 		stdin: yaml.MarshalStream(
@@ -47,8 +47,8 @@ command: template: {
 }
 
 command: diff: {
-	a:           h.command.template & {stdout: string}
-	b:           k.command.template & {stdout: string}
+	a:           h.template & {stdout: string}
+	b:           k.template & {stdout: string}
 	concatenate: exec.Run & {
 		cmd:   "kubectl diff -f -"
 		stdin: yaml.MarshalStream(
@@ -59,6 +59,6 @@ command: diff: {
 }
 
 command: install: {
-	"helm":    h.command.install
-	"kubectl": k.command.apply & {steps: "0": $dep: command.install."helm".$done}
+	"helm":    h.install
+	"kubectl": k.apply & {steps: "0": $dep: command.install."helm".$done}
 }

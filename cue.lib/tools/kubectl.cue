@@ -9,17 +9,17 @@ import (
 #namespace: string
 #manifests: [...[...]] & [...[...{metadata: namespace: #namespace}]]
 
-command: template: exec.Run & {
+template: exec.Run & {
 	cmd:   "cat"
 	stdin: yaml.MarshalStream(list.FlattenN(#manifests, 1))
 }
 
-command: diff: exec.Run & {
+diff: exec.Run & {
 	cmd:   "kubectl diff -f -"
 	stdin: yaml.MarshalStream(list.FlattenN(#manifests, 1))
 }
 
-command: apply: steps: {
+apply: steps: {
 	for i, manifest in #manifests {
 		"\(i)": exec.Run & {
 			if i > 0 {
