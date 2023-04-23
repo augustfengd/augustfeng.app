@@ -95,8 +95,6 @@ workflows: "cloud.yaml": {
 			if:        "github.event_name =='push'"
 			steps: [
 				#actions.checkoutCode,
-				#actions.with.decryptionKey & #actions.secrets.decrypt,
-				#actions.secrets.import,
 				#actions.gcloud.auth,
 				#actions.gcloud.install,
 				#actions.gcloud.command & {
@@ -106,6 +104,8 @@ workflows: "cloud.yaml": {
 					#command: "container clusters get-credentials augustfeng-app"
 					#flags: "--zone": "us-east1-b"
 				},
+				#actions.with.decryptionKey & #actions.secrets.decrypt,
+				#actions.secrets.import,
 				#actions.cue.command & {
 					#command: "repo.add"
 					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager"
@@ -128,8 +128,6 @@ workflows: "cloud.yaml": {
 			if:        "github.event_name == 'pull_request'"
 			steps: [
 				#actions.checkoutCode,
-				#actions.with.decryptionKey & #actions.secrets.decrypt,
-				#actions.secrets.import,
 				#actions.gcloud.auth,
 				#actions.gcloud.install,
 				#actions.gcloud.command & {
@@ -139,6 +137,8 @@ workflows: "cloud.yaml": {
 					#command: "container clusters get-credentials augustfeng-app"
 					#flags: "--zone": "us-east1-b"
 				},
+				#actions.with.decryptionKey & #actions.secrets.decrypt,
+				#actions.secrets.import,
 				#actions.cue.command & {
 					#command: "repo.add"
 					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager"

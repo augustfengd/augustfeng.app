@@ -97,12 +97,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: decrypt secrets
-        run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
-        env:
-          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-      - name: import secrets
-        run: cue convert github.com/augustfengd/augustfeng.app/secrets
       - name: configure google application credentials
         uses: google-github-actions/auth@v1
         with:
@@ -113,6 +107,12 @@ jobs:
         run: 'gcloud components install gke-gcloud-auth-plugin '
       - name: gcloud container clusters get-credentials augustfeng-app
         run: gcloud container clusters get-credentials augustfeng-app --zone=us-east1-b
+      - name: decrypt secrets
+        run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+      - name: import secrets
+        run: cue convert github.com/augustfengd/augustfeng.app/secrets
       - name: cue repo.add github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager
         run: cue repo.add github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager
       - name: cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager
@@ -130,12 +130,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: decrypt secrets
-        run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
-        env:
-          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-      - name: import secrets
-        run: cue convert github.com/augustfengd/augustfeng.app/secrets
       - name: configure google application credentials
         uses: google-github-actions/auth@v1
         with:
@@ -146,6 +140,12 @@ jobs:
         run: 'gcloud components install gke-gcloud-auth-plugin '
       - name: gcloud container clusters get-credentials augustfeng-app
         run: gcloud container clusters get-credentials augustfeng-app --zone=us-east1-b
+      - name: decrypt secrets
+        run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+      - name: import secrets
+        run: cue convert github.com/augustfengd/augustfeng.app/secrets
       - name: cue repo.add github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager
         run: cue repo.add github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager
       - name: cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager
