@@ -26,7 +26,7 @@ docker.push: docker.build
 docker.pull: docker.push ; touch $@
 
 digest.cue: docker.pull
-	sed -i "s/string/\"$$(docker inspect ghcr.io/augustfengd/augustfeng.app/blog:latest -f '{{index .RepoDigests 0}}' | cut -d @ -f 2)\"/" digest.cue
+	@printf $$(docker inspect ghcr.io/augustfengd/augustfeng.app/blog:latest -f '{{index .RepoDigests 0}}' | cut -d @ -f 2) | cue import --force --package blog --path 'deployment: image: digest: ' --outfile $@ text: -
 
 .PHONY: clean
 clean:

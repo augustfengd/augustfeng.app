@@ -47,11 +47,20 @@ import (
 		run:  "git config --global --add safe.directory \(#directory)"
 	}
 
-	uploadArtifact: github.#Workflow.#Step & {
-		uses: "actions/upload-artifact@v3"
-		with: {
-			name: string
-			path: string
+	artifact: {
+		upload: github.#Workflow.#Step & {
+			uses: "actions/upload-artifact@v3"
+			with: {
+				name: string
+				path: string
+			}
+		}
+		download: github.#Workflow.#Step & {
+			uses: "actions/download-artifact@v3"
+			with: {
+				name: string
+				path: string
+			}
 		}
 	}
 

@@ -8,6 +8,7 @@ deployment:
 	kubernetes.#deployment & {
 		image: {
 			name:   "ghcr.io/augustfengd/augustfeng.app/blog"
+			digest: string
 		}
 		expose: ports: http: 80
 	}

@@ -6,10 +6,51 @@ name: apps/blog
     branches: main
 concurrency: apps/blog
 jobs:
-  build-push-apply:
+  build:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: make all
+        run: make all
+        working-directory: apps/blog
+      - uses: actions/upload-artifact@v3
+        with:
+          name: blog
+          path: /apps/blog/build/
+  push:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
+    needs:
+      - build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: docker login
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+      - uses: actions/download-artifact@v3
+        with:
+          name: blog
+          path: /apps/blog/build/
+      - name: make docker.push
+        run: make docker.push
+        working-directory: apps/blog
+      - name: make digest.cue
+        run: make digest.cue
+        working-directory: apps/blog
+      - uses: actions/upload-artifact@v3
+        with:
+          name: digest
+          path: /apps/blog/digest.cue
+  apply:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
+    needs:
+      - push
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -19,13 +60,11 @@ jobs:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
       - name: install gcloud
         uses: google-github-actions/setup-gcloud@v1
-      - name: docker login
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
-      - name: make push
-        run: make push
-        working-directory: apps/blog
-      - name: make digest.cue
-        run: make digest.cue
-        working-directory: apps/blog
+      - name: gcloud components install gke-gcloud-auth-plugin
+        run: 'gcloud components install gke-gcloud-auth-plugin '
+      - uses: actions/download-artifact@v3
+        with:
+          name: digest
+          path: /apps/blog/digest.cue
       - name: cue apply github.com/augustfengd/augustfeng.app/apps/blog
         run: cue apply github.com/augustfengd/augustfeng.app/apps/blog

@@ -12,3 +12,6 @@ themes/hugo-paper/
 docker.build
 docker.push
 docker.pull
+
+# generated
+digest.cue
