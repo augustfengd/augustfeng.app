@@ -56,6 +56,7 @@ dagger.#Plan & {
 				}
 				output: files.output
 			}
+			_hugo:      core.#Pull & {source: "klakegg/hugo:0.107.0-alpine"}
 			_terraform: core.#Pull & {source: "hashicorp/terraform:1.3.0"}
 			_helm:      core.#Pull & {source: "alpine/helm:3.11.3"}
 			_sops:      core.#Pull & {source: "mozilla/sops:v3.7.3-alpine"}
@@ -87,6 +88,11 @@ dagger.#Plan & {
 							name: "sed"
 							args: ["-i", "s/^plugins=(.*)/plugins=(\(#plugins))/", "/root/.zshrc"]
 						}
+					},
+					docker.#Copy & {
+						contents: _hugo.output
+						source:   "/bin/hugo"
+						dest:     "/usr/bin/local/hugo"
 					},
 					docker.#Copy & {
 						contents: _cue.output
