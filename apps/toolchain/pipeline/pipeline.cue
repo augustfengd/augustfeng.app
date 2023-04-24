@@ -9,7 +9,7 @@ workflows: "apps.toolchain.yaml": {
 	name:           "apps/toolchain"
 	on: push: {
 		branches: #DefaultBranch
-		paths: ["containers/**"]
+		paths: ["apps/toolchain/**"]
 	}
 
 	jobs: github.#Workflow.#Jobs & {

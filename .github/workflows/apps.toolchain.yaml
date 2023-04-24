@@ -3,7 +3,7 @@ name: apps/toolchain
   push:
     branches: main
     paths:
-      - containers/**
+      - apps/toolchain/**
 jobs:
   build-and-push:
     runs-on: ubuntu-latest

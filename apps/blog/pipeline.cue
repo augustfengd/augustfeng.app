@@ -37,7 +37,6 @@ workflows: "apps.blog.yaml": {
 		}
 		"push": {
 			"runs-on": "ubuntu-latest"
-			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
 			needs: ["build"]
 			steps: [
 				#actions.checkoutCode,
