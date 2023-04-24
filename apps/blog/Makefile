@@ -5,45 +5,33 @@ THEME_FILES := \
 	$(shell find themes/augustfeng.app -type f)
 
 .PHONY: all
-all: ../../.github/workflows/apps.blog.yaml build/public
-
-../../.github/workflows/apps.blog.yaml: pipeline.cue ../../cloud/pipeline.cue
-	@cue export -f  pipeline.cue -o $@
+all: build/public
 
 build/public: $(THEME_FILES) $(CONTENT_FILES) ; @mkdir -p build
-	@docker run -v $(CURDIR):/src klakegg/hugo --destination $@
+	@hugo --destination $@
 
 $(THEME_FILES) &: ; @mkdir -p themes
 	@wget -qO- 'https://github.com/nanxiaobei/hugo-paper/archive/master.tar.gz' | $(TAR) xzf - -C themes --transform 's/hugo-paper-main/hugo-paper/' --overwrite
 
-# operations
+# docker
 
-.PHONY: server
-server: $(THEME_FILES) $(CONTENT_FILES)
-	@docker run -it -v $(CURDIR):/src -p 1313:1313 klakegg/hugo server
-
-.PHONY: build
-build: build/public
+docker.build: build/public
 	@docker build . -t ghcr.io/augustfengd/augustfeng.app/blog:latest
+	touch $@
 
-.PHONY: push
-push: build
+docker.push: docker.build
 	@docker push ghcr.io/augustfengd/augustfeng.app/blog:latest
+	touch $@
 
-.PHONY: digest.cue
-digest.cue:
+docker.pull: docker.push ; touch $@
+
+digest.cue: docker.pull
 	sed -i "s/string/\"$$(docker inspect ghcr.io/augustfengd/augustfeng.app/blog:latest -f '{{index .RepoDigests 0}}' | cut -d @ -f 2)\"/" digest.cue
-
-.PHONY: manifests
-manifests: ; @docker pull ghcr.io/augustfengd/augustfeng.app/blog:latest ; mkdir -p build
-	@docker inspect ghcr.io/augustfengd/augustfeng.app/blog:latest | docker run -i -v $(CURDIR)/../../:/augustfeng.app -w /augustfeng.app/apps/blog cuelang/cue export -f -e 'yaml.MarshalStream(manifests)' -o=text:build/manifests.yaml kube.cue -l "_image:" json: -
-
-.PHONY: apply
-apply: manifests
-	@docker run -v $(CURDIR)/../../:/augustfeng.app -w /augustfeng.app/apps/blog -e KUBECONFIG=${KUBECONFIG} -e GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS} -v $(pwd)/${GOOGLE_APPLICATION_CREDENTIALS}:/${GOOGLE_APPLICATION_CREDENTIALS} bitnami/kubectl:1.25 apply --namespace apps-blog -f build/manifests.yaml
 
 .PHONY: clean
 clean:
+	rm .hugo_build.lock
 	rm -rf build
 	rm -rf themes/hugo-paper
-	rm -rf ../../.github/workflows/apps.blog.yaml
+	rm -f docker.build docker.push docker.pull
+	sed -i "/deployment: image: digest: / c deployment: image: digest: string" digest.cue

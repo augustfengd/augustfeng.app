@@ -7,3 +7,8 @@ build/
 
 # online theme dir
 themes/hugo-paper/
+
+# virtualized files for make
+docker.build
+docker.push
+docker.pull
