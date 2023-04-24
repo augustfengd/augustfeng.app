@@ -13,18 +13,14 @@ manifests: [
 
 workflows: "blog.yaml": {}
 
-k: kubectl & {
+command: kubectl & {
 	#namespace: "blog"
 	#manifests: manifests
 }
 
-p: pipeline & {
-	#workflows: workflows
-}
-
-command: pipeline: p.command.build
-command: {
-	template: k.command.template
-	diff:     k.command.diff
-	apply:    k.command.apply
+command: pipeline: {
+	let p = pipeline & {
+		#workflows: workflows
+	}
+	p.build
 }

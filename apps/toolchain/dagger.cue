@@ -1,4 +1,4 @@
-package containers
+package toolchain
 
 import (
 	"strings"
@@ -11,93 +11,11 @@ import (
 
 dagger.#Plan & {
 	client: network: "unix:///var/run/docker.sock": connect: dagger.#Socket
-	client: filesystem: "../apps/blog": read: {
-		contents: dagger.#FS
-		include: ["config.toml", "content", "themes"]
-	}
-	client: env: {
-		GITHUB_TOKEN: dagger.#Secret
-	}
+	client: env: GITHUB_TOKEN: dagger.#Secret
 
 	actions: build: {
-		postfix: docker.#Build & {
-			steps: [
-				alpine.#Build & {
-					packages: {
-						"bash":    _
-						"postfix": _
-					}
-				},
-				docker.#Run & {
-					command: {
-						name: "apk"
-						args: ["add", "vim", "ripgrep", "zsh", "curl", "git"]
-						flags: {
-							"-U":         true
-							"--no-cache": true
-						}
-					}
-				},
-				docker.#Run & {
-					command: {
-						name: "sh"
-						args: ["-c", "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" \"\" --unattended"]
-					}
-				},
-				docker.#Run & {
-					command: {
-						name: "postconf"
-						#s:   "maillog_file = /dev/stdout"
-						args: ["-e", #s]
-					}
-				},
-				docker.#Run & {
-					command: {
-						name: "postconf"
-						#s:   "mydestination = augustfeng.app"
-						args: ["-e", #s]
-					}
-				},
-				docker.#Set & {
-					config: {
-						label: "org.opencontainers.image.source": "https://github.com/augustfengd/augustfeng.app"
-						cmd: ["postfix", "start-fg"]
-					}
-				},
-			]
-		}
-		// deprecated, but keep for snippet sake.
-		_blog: {
-			docker.#Build & {
-				steps: [
-					docker.#Pull & {
-						source: "klakegg/hugo:latest"
-					},
-					docker.#Copy & {
-						contents: client.filesystem."../apps/blog".read.contents
-						dest:     "/src"
-					},
-					docker.#Run & {
-						entrypoint: ["mkdir", "-p", "/src/themes/hugo-paper"]
-					},
-					docker.#Run & {
-						entrypoint: ["sh"]
-						command: {
-							name: "-c"
-							args: ["wget -qO- 'https://github.com/nanxiaobei/hugo-paper/archive/master.tar.gz' | tar xzf - --strip-components=1 -C /src/themes/hugo-paper"]
-						}
-					},
-					docker.#Set & {
-						config: {
-							label: "org.opencontainers.image.source": "https://github.com/augustfengd/augustfeng.app"
-							cmd: ["serve"]
-						}
-					},
-				]
-			}
-		}
 		toolchain: {
-			_cue: core.#Pull & {source: "cuelang/cue:0.4.3"}
+			_cue: core.#Pull & {source: "cuelang/cue:0.5.0"}
 			_jsonnet: {
 				archive: core.#HTTPFetch & {
 					source: "https://github.com/google/go-jsonnet/releases/download/v0.19.1/go-jsonnet_0.19.1_Linux_x86_64.tar.gz"
@@ -214,28 +132,67 @@ dagger.#Plan & {
 				]
 			}
 		}
-	}
-
-	actions: load: {
-		for i, _ in actions.build {
-			(i): cli.#Load & {
-				image: actions.build[i].output
-				host:  client.network."unix:///var/run/docker.sock".connect
-				tag:   "ghcr.io/augustfengd/augustfeng.app/\(i)"
-			}
+		// move this to it's own folder
+		_postfix: docker.#Build & {
+			steps: [
+				alpine.#Build & {
+					packages: {
+						"bash":    _
+						"postfix": _
+					}
+				},
+				docker.#Run & {
+					command: {
+						name: "apk"
+						args: ["add", "vim", "ripgrep", "zsh", "curl", "git"]
+						flags: {
+							"-U":         true
+							"--no-cache": true
+						}
+					}
+				},
+				docker.#Run & {
+					command: {
+						name: "sh"
+						args: ["-c", "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" \"\" --unattended"]
+					}
+				},
+				docker.#Run & {
+					command: {
+						name: "postconf"
+						#s:   "maillog_file = /dev/stdout"
+						args: ["-e", #s]
+					}
+				},
+				docker.#Run & {
+					command: {
+						name: "postconf"
+						#s:   "mydestination = augustfeng.app"
+						args: ["-e", #s]
+					}
+				},
+				docker.#Set & {
+					config: {
+						label: "org.opencontainers.image.source": "https://github.com/augustfengd/augustfeng.app"
+						cmd: ["postfix", "start-fg"]
+					}
+				},
+			]
 		}
 	}
 
-	actions: push: {
-		for i, _ in actions.build {
-			(i): docker.#Push & {
-				image: actions.build[i].output
-				dest:  "ghcr.io/augustfengd/augustfeng.app/\(i)"
-				auth: {
-					username: "augustfengd"
-					secret:   client.env.GITHUB_TOKEN
-				}
-			}
+	actions: load: cli.#Load & {
+		image: actions.build.toolchain.output
+		host:  client.network."unix:///var/run/docker.sock".connect
+		tag:   "ghcr.io/augustfengd/augustfeng.app/toolchain"
+	}
+
+	actions: push: docker.#Push & {
+		image: actions.build.toolchain.output
+		dest:  "ghcr.io/augustfengd/augustfeng.app/toolchain"
+		auth: {
+			username: "augustfengd"
+			secret:   client.env.GITHUB_TOKEN
 		}
 	}
 }

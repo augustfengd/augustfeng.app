@@ -30,6 +30,12 @@ This project relies heavily on pipelines for execution.
     cue pipeline github.com/augustfengd/augustfeng.app/apps/blog
   #+end_src
 
+- toolchain pipeline:
+
+  #+begin_src shell :results none
+    cue build github.com/augustfengd/augustfeng.app/apps/toolchain/pipeline
+  #+end_src
+
 ** Terraform
 
 The entire terraform (cloud) setup and operations is automated:
