@@ -30,7 +30,7 @@ workflows: "apps.blog.yaml": {
 				#actions.artifact.upload & {
 					with: {
 						name: "blog"
-						path: "/apps/blog/build/"
+						path: "apps/blog/build/"
 					}
 				},
 			]
@@ -44,7 +44,7 @@ workflows: "apps.blog.yaml": {
 				#actions.artifact.download & {
 					with: {
 						name: "blog"
-						path: "/apps/blog/build/"
+						path: "apps/blog/build/"
 					}
 				},
 				#actions.make & {
@@ -52,13 +52,18 @@ workflows: "apps.blog.yaml": {
 					"working-directory": "apps/blog"
 				},
 				#actions.make & {
-					#target:             "digest.cue"
+					#target:             "docker.pull"
 					"working-directory": "apps/blog"
+				},
+				{
+					name: "make digest.cue"
+					uses: "docker://ghcr.io/augustfengd/augustfeng.app/toolchain"
+					with: args: "make -C apps/blog digest.cue"
 				},
 				#actions.artifact.upload & {
 					with: {
 						name: "digest"
-						path: "/apps/blog/digest.cue"
+						path: "apps/blog/digest.cue"
 					}
 				},
 			]
@@ -74,10 +79,14 @@ workflows: "apps.blog.yaml": {
 				#actions.gcloud.command & {
 					#command: "components install gke-gcloud-auth-plugin"
 				},
+				#actions.gcloud.command & {
+					#command: "container clusters get-credentials augustfeng-app"
+					#flags: "--zone": "us-east1-b"
+				},
 				#actions.artifact.download & {
 					with: {
 						name: "digest"
-						path: "/apps/blog/digest.cue"
+						path: "apps/blog"
 					}
 				},
 				#actions.cue.command & {

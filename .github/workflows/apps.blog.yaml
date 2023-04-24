@@ -19,11 +19,9 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: blog
-          path: /apps/blog/build/
+          path: apps/blog/build/
   push:
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
     needs:
       - build
     steps:
@@ -34,17 +32,21 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: blog
-          path: /apps/blog/build/
+          path: apps/blog/build/
       - name: make docker.push
         run: make docker.push
         working-directory: apps/blog
-      - name: make digest.cue
-        run: make digest.cue
+      - name: make docker.pull
+        run: make docker.pull
         working-directory: apps/blog
+      - name: make digest.cue
+        uses: docker://ghcr.io/augustfengd/augustfeng.app/toolchain
+        with:
+          args: make -C apps/blog digest.cue
       - uses: actions/upload-artifact@v3
         with:
           name: digest
-          path: /apps/blog/digest.cue
+          path: apps/blog/digest.cue
   apply:
     runs-on: ubuntu-latest
     container:
@@ -62,9 +64,11 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
       - name: gcloud components install gke-gcloud-auth-plugin
         run: 'gcloud components install gke-gcloud-auth-plugin '
+      - name: gcloud container clusters get-credentials augustfeng-app
+        run: gcloud container clusters get-credentials augustfeng-app --zone=us-east1-b
       - uses: actions/download-artifact@v3
         with:
           name: digest
-          path: /apps/blog/digest.cue
+          path: apps/blog
       - name: cue apply github.com/augustfengd/augustfeng.app/apps/blog
         run: cue apply github.com/augustfengd/augustfeng.app/apps/blog
