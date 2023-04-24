@@ -11,14 +11,14 @@ manifests: [
 	certificate.manifests,
 ]
 
-workflows: "blog.yaml": {}
+workflows: [string]: {}
 
 command: kubectl & {
 	#namespace: "blog"
 	#manifests: manifests
 }
 
-command: pipeline: {
+command: "pipeline": {
 	let p = pipeline & {
 		#workflows: workflows
 	}

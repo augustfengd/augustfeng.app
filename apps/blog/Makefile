@@ -30,6 +30,10 @@ build: build/public
 push: build
 	@docker push ghcr.io/augustfengd/augustfeng.app/blog:latest
 
+.PHONY: digest.cue
+digest.cue:
+	sed -i "s/string/\"$$(docker inspect ghcr.io/augustfengd/augustfeng.app/blog:latest -f '{{index .RepoDigests 0}}' | cut -d @ -f 2)\"/" digest.cue
+
 .PHONY: manifests
 manifests: ; @docker pull ghcr.io/augustfengd/augustfeng.app/blog:latest ; mkdir -p build
 	@docker inspect ghcr.io/augustfengd/augustfeng.app/blog:latest | docker run -i -v $(CURDIR)/../../:/augustfeng.app -w /augustfeng.app/apps/blog cuelang/cue export -f -e 'yaml.MarshalStream(manifests)' -o=text:build/manifests.yaml kube.cue -l "_image:" json: -

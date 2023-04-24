@@ -8,21 +8,24 @@ concurrency: apps/blog
 jobs:
   build-push-apply:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: configure google application credentials
-        run: printf '%s' "${GOOGLE_CREDENTIALS}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
-        env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-          GOOGLE_APPLICATION_CREDENTIALS: application_default_credentials.json
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+      - name: install gcloud
+        uses: google-github-actions/setup-gcloud@v1
       - name: docker login
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
       - name: make push
         run: make push
         working-directory: apps/blog
+      - name: make digest.cue
+        run: make digest.cue
+        working-directory: apps/blog
       - name: cue apply github.com/augustfengd/augustfeng.app/apps/blog
         run: cue apply github.com/augustfengd/augustfeng.app/apps/blog
-        env:
-          KUBECONFIG: ../../kubeconfig.yaml
-          GOOGLE_APPLICATION_CREDENTIALS: ../../application_default_credentials.json

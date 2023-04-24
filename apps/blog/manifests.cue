@@ -7,7 +7,7 @@ import (
 deployment:
 	kubernetes.#deployment & {
 		image: {
-			name: "ghcr.io/augustfengd/augustfeng.app/blog"
+			name:   "ghcr.io/augustfengd/augustfeng.app/blog"
 		}
 		expose: ports: http: 80
 	}

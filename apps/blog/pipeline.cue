@@ -20,27 +20,23 @@ workflows: "apps.blog.yaml": {
 		let #actions = pipeline.#actions
 		"build-push-apply": {
 			"runs-on": "ubuntu-latest"
+			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
 			steps: [
 				#actions.checkoutCode,
-				#actions.gcp.login & {
-					env: {
-						GOOGLE_CREDENTIALS:             "${{ secrets.GOOGLE_CREDENTIALS }}"
-						GOOGLE_APPLICATION_CREDENTIALS: "application_default_credentials.json"
-					}
-				},
+				#actions.gcloud.auth,
+				#actions.gcloud.install,
 				#actions.docker.login,
 				#actions.make & {
 					#target:             "push"
 					"working-directory": "apps/blog"
 				},
+				#actions.make & {
+					#target:             "digest.cue"
+					"working-directory": "apps/blog"
+				},
 				#actions.cue.command & {
 					#command: "apply"
 					#package: "github.com/augustfengd/augustfeng.app/apps/blog"
-
-					env: {
-						KUBECONFIG:                     "../../kubeconfig.yaml"
-						GOOGLE_APPLICATION_CREDENTIALS: "../../application_default_credentials.json"
-					}
 				},
 			]
 		}
