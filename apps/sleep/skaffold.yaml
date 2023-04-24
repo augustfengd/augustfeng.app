@@ -13,4 +13,4 @@ manifests:
   hooks:
     before:
     - host:
-        command: ["make", "k8s/manifests.yaml"]
+        command: ["cue", "build.manifests"]

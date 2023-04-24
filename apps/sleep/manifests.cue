@@ -1,11 +1,7 @@
-package kubernetes
+package sleep
 
 import (
-	"github.com/augustfengd/augustfeng.app/cloud:kubernetes"
+	"github.com/augustfengd/augustfeng.app/cue.lib/kubernetes"
 )
 
-_app: {
-	sleep: {kubernetes.#pod & {image: name: "augustfengd/augustfeng.app/sleep"}}
-}
-
-manifests: _app.sleep.manifests
+sleep: kubernetes.#pod & {image: name: "augustfengd/augustfeng.app/sleep"}
