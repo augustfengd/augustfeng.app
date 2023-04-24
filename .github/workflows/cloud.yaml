@@ -6,12 +6,6 @@ name: cloud
       - cloud/**
       - cue.mod/**
       - cue.lib/**
-  pull_request:
-    branches: main
-    paths:
-      - cloud/**
-      - cue.mod/**
-      - cue.lib/**
 concurrency: augustfeng.app
 jobs:
   build:
@@ -39,34 +33,9 @@ jobs:
         run: cue configure github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
     container:
       image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
-  terraform-plan:
-    name: terraform (plan)
+  terraform:
+    name: terraform
     needs:
-      - build
-      - configure
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: decrypt secrets
-        run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
-        env:
-          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-      - name: import secrets
-        run: cue convert github.com/augustfengd/augustfeng.app/secrets
-      - name: cue build github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
-        run: cue build github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
-      - name: cue init github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
-        run: cue init github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
-      - name: cue plan github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
-        run: cue plan github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
-    container:
-      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
-  terraform-apply:
-    name: terraform (apply)
-    needs:
-      - build
       - configure
     runs-on: ubuntu-latest
     if: github.event_name =='push'
@@ -87,11 +56,10 @@ jobs:
         run: cue apply github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
     container:
       image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
-  cluster-services-apply:
-    name: cluster services (apply)
+  kubernetes:
+    name: kubernetes
     needs:
-      - terraform-apply
-      - build
+      - terraform
     runs-on: ubuntu-latest
     if: github.event_name =='push'
     steps:
@@ -119,38 +87,5 @@ jobs:
         run: cue install github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager
       - name: cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
         run: cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
-    container:
-      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
-  cluster-services-diff:
-    name: cluster services (diff)
-    needs:
-      - build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: configure google application credentials
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-      - name: install gcloud
-        uses: google-github-actions/setup-gcloud@v1
-      - name: gcloud components install gke-gcloud-auth-plugin
-        run: 'gcloud components install gke-gcloud-auth-plugin '
-      - name: gcloud container clusters get-credentials augustfeng-app
-        run: gcloud container clusters get-credentials augustfeng-app --zone=us-east1-b
-      - name: decrypt secrets
-        run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
-        env:
-          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-      - name: import secrets
-        run: cue convert github.com/augustfengd/augustfeng.app/secrets
-      - name: cue repo.add github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager
-        run: cue repo.add github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager
-      - name: cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager
-        run: cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager
-      - name: cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
-        run: cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
     container:
       image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest

@@ -6,6 +6,6 @@ import (
 
 workflows: [string]: {}
 
-pipeline & {
+command: pipeline & {
 	#workflows: workflows
 }
