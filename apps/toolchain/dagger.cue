@@ -91,8 +91,8 @@ dagger.#Plan & {
 					},
 					docker.#Copy & {
 						contents: _hugo.output
-						source:   "/bin/hugo"
-						dest:     "/usr/bin/local/hugo"
+						source:   "/usr/lib/hugo/hugo"
+						dest:     "/usr/local/bin/hugo"
 					},
 					docker.#Copy & {
 						contents: _cue.output
