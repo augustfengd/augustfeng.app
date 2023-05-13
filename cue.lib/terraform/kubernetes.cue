@@ -34,6 +34,7 @@ lib: kubernetes: {
 						annotations: (configuration.labels)
 					}
 				}
+				depends_on: ["google_container_cluster.kubernetes"]
 			}
 		}
 	}
