@@ -18,15 +18,6 @@ configuration: terraform.configuration & {
 				roles: ["roles/container.admin"]
 				key: true
 			}
-			"cert-manager": {
-				account_id:   "cert-manager"
-				display_name: "cert-manager"
-				roles: ["roles/dns.admin"]
-				workloadIdentity: {
-					namespace:      "system-ingress"
-					serviceaccount: "cert-manager"
-				}
-			}
 			"domain-controller": {
 				account_id:   "domain-controller"
 				display_name: "domain-controller"
