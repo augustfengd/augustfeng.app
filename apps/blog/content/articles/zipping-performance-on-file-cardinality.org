@@ -1,0 +1,93 @@
+#+TITLE: Zipping Performance on File Cardinally
+
+* About
+
+Just documenting some quick experiments relating zipping performance when the
+number of files vary.
+
+* Creating the data for the experiment
+
+#+begin_src scheme :results output
+  (set! *random-state* (random-state-from-platform))
+
+  (use-modules (ice-9 binary-ports)
+               (ice-9 textual-ports)
+               (ice-9 popen)
+               (ice-9 format)
+               (srfi srfi-19))
+
+  (define ls
+    (lambda ()
+      (let ((port (open-input-pipe "ls -l")))
+        (get-string-all port))))
+
+  (define mktempdir
+    (lambda ()
+      (let ((port (open-input-pipe "mktemp -d")))
+        (string-drop-right (get-string-all port) 1))))
+
+  (define zip
+    (lambda (zipfile)
+      (let ((cmd (format #f "zip ~s *" zipfile)))
+        (system cmd))))
+
+  (define time
+    (lambda (f)
+      (let ((start (current-time)))
+        (f)
+        (time-difference (current-time) start))))
+
+  (define kb
+    (lambda (n)
+      (let ((kb-in-bytes 1024))
+        (* n kb-in-bytes))))
+
+  (define mb
+    (lambda (n)
+      (let ((mb-in-bytes (kb 1024)))
+        (* n mb-in-bytes))))
+
+  (define gb
+    (lambda (n)
+      (let ((gb-in-bytes (mb 1024)))
+        (* n gb-in-bytes))))
+
+  (define write-random-data
+    (lambda (port n)
+      (unless (equal? n 0)
+        (put-u8 port (random 256))
+        (write-random-data port (- n 1)))))
+
+  (define create-random-file
+    (lambda (filename n)
+      (let ((port (open-file filename "wb")))
+        (write-random-data port n)
+        (close-port port))))
+
+  (define create-files
+    (lambda (n l)
+      (unless (equal? n 0)
+        (create-random-file (format #f "~r" n) l)
+        (create-files (- n 1) l))))
+
+  (begin
+    (let ((directory "/tmp/work"))
+      (chdir directory)
+      (create-files 1000 (mb 1))
+      (let ((t (time (lambda () (zip "foobar.zip")))))
+        (display (time-second t)))))
+#+end_src
+
+* Results
+
+** compression ratio
+
+The compression ratio is 0%, which makes sense because the random data is so
+unordered.
+
+In fact, when compressing a single file, the archive turned out to be bigger.
+
+** compression time
+
+The compression time made no difference between 1000 files @ 1mb, or 1 file @
+1gb. Both took 19 seconds.
