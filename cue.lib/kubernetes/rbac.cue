@@ -7,9 +7,9 @@ import (
 )
 
 #clusterrole: {
-	_#apiGroups: "" | "extensions" | "networking.k8s.io" // exhaust this disjunction later.
+	_#apiGroups: "" | "extensions" | "networking.k8s.io" | string // exhaust this disjunction later.
 
-	_#resources: "services" | "endpoints" | "secrets" | "ingresses" | "ingressclasses" | "ingresses/status" // exhaust this disjunction later.
+	_#resources: "services" | "endpoints" | "secrets" | "ingresses" | "ingressclasses" | "ingresses/status" | string // exhaust this disjunction later.
 
 	_#verbs: {
 		// exhaust this disjunction later

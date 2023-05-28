@@ -25,6 +25,28 @@ clusterroles:
 			"networking.k8s.io": {
 				"ingresses/status": #update
 			}
+			"traefik.containo.us": {
+				middlewares:       #get & #list & #watch
+				middlewaretcps:    #get & #list & #watch
+				ingressroutes:     #get & #list & #watch
+				traefikservices:   #get & #list & #watch
+				ingressroutetcps:  #get & #list & #watch
+				ingressrouteudps:  #get & #list & #watch
+				tlsoptions:        #get & #list & #watch
+				tlsstores:         #get & #list & #watch
+				serverstransports: #get & #list & #watch
+			}
+			// "traefik.io": {
+			// 	middlewares:       #get & #list & #watch
+			// 	middlewaretcps:    #get & #list & #watch
+			// 	ingressroutes:     #get & #list & #watch
+			// 	traefikservices:   #get & #list & #watch
+			// 	ingressroutetcps:  #get & #list & #watch
+			// 	ingressrouteudps:  #get & #list & #watch
+			// 	tlsoptions:        #get & #list & #watch
+			// 	tlsstores:         #get & #list & #watch
+			// 	serverstransports: #get & #list & #watch
+			// }
 		}
 	}
 

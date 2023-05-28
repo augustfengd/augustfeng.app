@@ -38,7 +38,7 @@ import (
 					kind:  string
 				}]
 			}]
-			tls: {secretName: fqdn}
+			tls: certResolver: "letsencrypt"
 		}
 	}]
 	// fix me when I'm less lazy

@@ -14,9 +14,10 @@ manifests: [
 	serviceaccount.manifests,
 	clusterroles.manifests,
 	clusterrolebinding.manifests,
+	cm.manifests,
 	deployment.manifests,
-	ingressroute.manifests,
-	certificate.manifests,
+	ingressroute.manifests
+	// certificate.manifests,,,
 ]
 
 command: kubectl & {

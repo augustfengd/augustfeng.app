@@ -11,6 +11,7 @@ import (
 
 #deployment: {
 	name: string | *{ let s = strings.Split(image.name, "/"), s[len(s)-1]}
+	annotations: [string]: string
 	image: {
 		name: string
 		*{
@@ -60,7 +61,7 @@ import (
 		apps.#Deployment & {
 			X=metadata: {
 				"name": name
-				labels: "app.kubernetes.io/name": name
+				"labels": "app.kubernetes.io/name": name
 			}
 			spec: selector: matchLabels: X.labels
 			spec: template: spec: containers: [{
