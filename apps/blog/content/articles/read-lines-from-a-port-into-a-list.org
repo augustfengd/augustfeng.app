@@ -1,0 +1,20 @@
+#+title: read lines from a port into a list
+#+categories[]: lisp
+#+tags[]: lisp scheme guile scripting
+#+date: 2023-05-31
+
+Just some elegant code (that took me way too long to learn and write) for
+reading text into a list.
+
+#+begin_src scheme
+  (use-modules (ice-9 popen)
+               (ice-9 rdelim))
+
+  (define (read-lines port)
+    (let read-line-into-list ((lines '()))
+      (cond ((read-line port) string? => (lambda (line) (read-line-into-list (cons line lines))))
+            (else (reverse lines)))))
+
+  (let ((port (open-input-pipe "echo foo; echo bar")))
+    (read-lines port))
+#+end_src
