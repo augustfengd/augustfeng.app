@@ -1,0 +1,62 @@
+#+TITLE: Uncovering iptables in GKE
+
+* About
+
+This is a quick walkthrough on the plumbing for routing cluster-level traffic of a private GKE cluster to the GCP managed control plane.
+
+* Walkthrough
+** find ip range of control plane
+
+This is the subnet for the control plane, in a VPC from a GCP managed project. Private clusters are connected to it via a VPC Network Peering connection.
+
+#+begin_src shell
+  gcloud container clusters describe ${cluster} --zone ${zone} --format json | jq '.privateClusterConfig.masterIpv4CidrBlock' # 10.0.0.0/28
+#+end_src
+
+** find cluster ip of kube-apiserver
+
+#+begin_src shell
+  kubectl -n default get svc kubernetes # 10.210.34.1
+#+end_src
+
+** connect to a node
+
+The first step is to connect to a node in the cluster.
+
+List the nodes using ~kubectl~, and login the node using the ~ssh~ command from the *gcloud* utility:
+
+#+begin_src shell
+  # get node and zone pairs
+  kubectl get nodes -ojson | jq -r '.items[] | [ .metadata.name , .metadata.labels."topology.kubernetes.io/zone" ]'
+
+  # connect to node
+  gcloud compute ssh ${node} --zone ${zone}
+#+end_src
+
+** (If applicable) Use the toolbox
+
+Container-Optimized OS have a minimal set of tools, but provide ~/usr/bin/toolbox~ for debugging purposes. We'll be using that to run ~iptable~ commands.
+
+** Navigating iptables
+
+Let's grep for the cluster ip in iptables:
+
+#+begin_src shell
+  iptables-legacy -t nat --list -v -n | grep -w 10.210.34.1
+  #  0     0 KUBE-SVC-NPX46M4PTMTKRN6Y  tcp  --  *      *       0.0.0.0/0            10.210.34.1          /* default/kubernetes:https cluster IP */ tcp dpt:443
+  #  0     0 KUBE-MARK-MASQ  tcp  --  *      *      !10.210.33.64/26      10.210.34.1          /* default/kubernetes:https cluster IP */ tcp dpt:443
+#+end_src
+
+This command shows lists two entries, and we're interested in the ~KUBE-SVC-NPX46M4PTMTKRN6Y~ value. This is the chain that contains the DNAT rule which maps the traffic to the ip in the VPC:
+
+#+begin_src shell
+  iptables-legacy -t nat --list KUBE-SVC-NPX46M4PTMTKRN6Y
+  # Chain KUBE-SVC-NPX46M4PTMTKRN6Y (1 references)
+  # target     prot opt source               destination
+  # KUBE-MARK-MASQ  tcp  -- !10.210.33.64/26      10.210.34.1          /* default/kubernetes:https cluster IP */ tcp dpt:https
+  # KUBE-SEP-PKDWM7I2QBFOCH2B  all  --  anywhere             anywhere             /* default/kubernetes:https -> 10.0.0.2:443 */
+#+end_src
+
+* Conclusion
+
+Now I have some commands that I can copy paste for the next time I want to reverse a bit of kubernetes networking :).
