@@ -1,0 +1,48 @@
+#+TITLE: Create FSharp Test Projects From Scratch
+
+* About
+
+This is a quick breakdown study I did to understand the automation behind F#
+test projects.
+
+* Breakdown
+
+** Creating a test project the typical way
+
+This [[https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-fsharp-with-dotnet-test][article]] from Microsoft goes through the process of creating a ~.sln~ with
+two projects: the source and test projects.
+
+For this study, it's not strictly necessary so I'll only be creating the test projects.
+
+#+begin_src shell :results verbatim
+  tempdir=$(mktemp -d); cd ${tempdir}
+  dotnet new xunit -lang 'F#'
+#+end_src
+
+From there on, simply running ~dotnet test~ will correctly run the sample test
+in ~Tests.fs~
+
+** Creating a test project from a console application
+
+These are the commands to hack a console-based application into a testing
+project.
+
+There are a few warnings when running ~dotnet test~, but that is expected as
+we've basically MacGyver'ed an source project into a test project.
+
+#+begin_src shell :results verbatim
+  tempdir=$(mktemp -d); cd ${tempdir}
+  dotnet new console -lang 'F#'
+
+  # add unit testing tool
+  dotnet add package xunit
+
+  # add microsoft testing sdk
+  dotnet add package Microsoft.NET.Test.Sdk
+  dotnet add package xunit.runner.visualstudio
+#+end_src
+
+* Conclusion
+
+I'm hoping this breakdown will give me some insight on the plumbing happening
+behind dotnet's testing framework.
