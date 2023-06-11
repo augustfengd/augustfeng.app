@@ -81,10 +81,6 @@ jobs:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
       - name: import secrets
         run: cue convert github.com/augustfengd/augustfeng.app/secrets
-      - name: cue repo.add github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager
-        run: cue repo.add github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager
-      - name: cue install github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager
-        run: cue install github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert_manager
       - name: cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
         run: cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
     container:
