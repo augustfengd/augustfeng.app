@@ -14,4 +14,18 @@ deployment:
 			"/etc/traefik/traefik.yml": "traefik.yml"
 		}
 		sa: "traefik"
+	} & {
+		manifests: [
+			{
+				spec: template: spec: {
+					containers: [{
+						ports: [{
+							name:          "websecure"
+							containerPort: 443
+							hostPort:      443
+						}]
+					}]
+					nodeSelector: "cloud.google.com/gke-nodepool": "default-pool"
+				}
+			}, {}]
 	}

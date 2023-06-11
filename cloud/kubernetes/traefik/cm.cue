@@ -15,12 +15,13 @@ traefik_yml: {
 		dashboard: true
 		insecure:  true
 	}
+	entryPoints: websecure: address: ":443"
 	providers: kubernetesCRD: {}
-	certificateResolvers: letsencrypt: acme: {
+	certificatesResolvers: letsencrypt: acme: {
 		email:   "augustfengd@gmail.com"
 		storage: "acme.json"
 		tlsChallenge: {}
-		caserver: "https://acme-staging-v02.api.letsencrypt.org/directory"
+		caserver: "https://acme-v02.api.letsencrypt.org/directory"
 	}
 }
 
