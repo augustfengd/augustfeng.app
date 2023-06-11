@@ -12,10 +12,6 @@ ingressroute:
 			services: [{
 				name: "api@internal"
 				kind: "TraefikService"
-			}]}]
-	}
-
-certificate:
-	kubernetes.#certificate & {
-		fqdn: "traefik.augustfeng.app"
+			}]
+		}]
 	}
