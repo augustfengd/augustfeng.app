@@ -24,7 +24,3 @@ ingressroute:
 			}]}]
 	}
 
-certificate:
-	kubernetes.#certificate & {
-		fqdn: "blog.augustfeng.app"
-	}
