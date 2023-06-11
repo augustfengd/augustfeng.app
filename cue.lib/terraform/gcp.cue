@@ -25,8 +25,8 @@ lib: gcp: {
 
 	// Cloud DNS
 	resource: {
-		google_dns_managed_zone: "augustfeng": {
-			name:          "augustfeng"
+		google_dns_managed_zone: "augustfeng-app": {
+			name:          "augustfeng-app"
 			dns_name:      "augustfeng.app."
 			force_destroy: true
 		}
