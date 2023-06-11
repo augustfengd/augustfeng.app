@@ -14,9 +14,10 @@ manifests: [
 	serviceaccount.manifests,
 	clusterroles.manifests,
 	clusterrolebinding.manifests,
+	cm.manifests,
 	deployment.manifests,
-	ingressroute.manifests,
-	certificate.manifests,
+	ingressroute.manifests
+	// certificate.manifests,,,
 ]
 
 command: kubectl & {
@@ -29,7 +30,7 @@ command: crd: {
 
 	get: http.Get & {
 		request: body: ""
-		url: "https://raw.githubusercontent.com/traefik/traefik/v2.9/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml"
+		url: "https://raw.githubusercontent.com/traefik/traefik/v2.10/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml"
 	}
 
 	import: exec.Run & {

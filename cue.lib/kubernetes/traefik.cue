@@ -38,6 +38,7 @@ import (
 					kind:  string
 				}]
 			}]
+			tls: certResolver: "letsencrypt"
 		}
 	}]
 	// fix me when I'm less lazy

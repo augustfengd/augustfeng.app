@@ -7,11 +7,11 @@ import (
 deployment:
 	kubernetes.#deployment & {
 		image: name: "traefik"
-		args: {
-			"--api.insecure":                null
-			"--providers.kubernetesingress": null
-		}
 		expose: ports: "web":       80
 		expose: ports: "dashboard": 8080
+		mount: configmap: "traefik": {
+			#data:                      "foobar"
+			"/etc/traefik/traefik.yml": "traefik.yml"
+		}
 		sa: "traefik"
 	}

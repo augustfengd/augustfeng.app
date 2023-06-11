@@ -99,3 +99,11 @@ command: apply: {
 		dir: root.dir + "/cloud/terraform"
 	}
 }
+
+command: destroy: {
+	root: git.#root
+	run:  exec.Run & {
+		cmd: "terraform destroy"
+		dir: root.dir + "/cloud/terraform"
+	}
+}
