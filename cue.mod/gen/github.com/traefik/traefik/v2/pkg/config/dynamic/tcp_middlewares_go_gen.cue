@@ -13,7 +13,7 @@ package dynamic
 // TCPInFlightConn holds the TCP InFlightConn middleware configuration.
 // This middleware prevents services from being overwhelmed with high load,
 // by limiting the number of allowed simultaneous connections for one IP.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/tcp/inflightconn/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/tcp/inflightconn/
 #TCPInFlightConn: {
 	// Amount defines the maximum amount of allowed simultaneous connections.
 	// The middleware closes the connection if there are already amount connections opened.

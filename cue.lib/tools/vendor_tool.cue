@@ -1,7 +1,6 @@
 package vendor
 
 import (
-	"strings"
 
 	"path"
 
@@ -41,14 +40,14 @@ command: importdefinitions: {
 	}
 	traefik: {
 		go: exec.Run & {
-			version: "v2.9.4"
+			version: "v2.10.1"
 
 			cmd: "go get github.com/traefik/traefik/v2@" + (version)
 			dir: root.dir
 		}
 		cue: exec.Run & {
 			$dep: go.$done
-			cmd:  "cue get go github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
+			cmd:  "cue get go github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefikio/v1alpha1"
 			dir:  root.dir
 		}
 		// crypto/tls is imported at cue.mod/gen but CUE thinks it's builtin.
@@ -97,7 +96,7 @@ command: importdefinitions: {
 }
 
 command: clean: {
-	root: #root
+	root: git.#root
 	k8s:  file.RemoveAll & {
 		path: root.dir + "/" + "cue.mod/gen/k8s.io"
 	}

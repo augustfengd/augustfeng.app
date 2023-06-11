@@ -21,6 +21,7 @@ package types
 	addServicesLabels?:    bool   @go(AddServicesLabels) @toml(addServicesLabels,omitempty)
 	entryPoint?:           string @go(EntryPoint) @toml(entryPoint,omitempty)
 	manualRouting?:        bool   @go(ManualRouting) @toml(manualRouting,omitempty)
+	headerLabels?: {[string]: string} @go(HeaderLabels,map[string]string) @toml(headerLabels,omitempty)
 }
 
 // Datadog contains address and metrics pushing interval configuration.

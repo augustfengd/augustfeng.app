@@ -1,7 +1,7 @@
 package kubernetes
 
 import (
-	traefik "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
+	traefik "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefikio/v1alpha1"
 )
 
 #ingressroute: {
@@ -45,7 +45,7 @@ import (
 	fixme: {
 		if middlewares != null {
 			[ for n, spec in middlewares {
-				apiVersion: "traefik.containo.us/v1alpha1"
+				apiVersion: "traefik.io/v1alpha1"
 				kind:       "Middleware"
 				metadata: name: n
 				"spec": stripPrefix: prefixes: [spec.stripPrefix]},

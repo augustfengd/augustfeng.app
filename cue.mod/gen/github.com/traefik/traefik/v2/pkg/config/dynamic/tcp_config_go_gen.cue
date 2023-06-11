@@ -66,7 +66,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 }
 
 // ProxyProtocol holds the PROXY Protocol configuration.
-// More info: https://doc.traefik.io/traefik/v2.9/routing/services/#proxy-protocol
+// More info: https://doc.traefik.io/traefik/v2.10/routing/services/#proxy-protocol
 #ProxyProtocol: {
 	// Version defines the PROXY Protocol version to use.
 	version?: int @go(Version) @toml(version,omitempty)

@@ -46,7 +46,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 // AddPrefix holds the add prefix middleware configuration.
 // This middleware updates the path of a request before forwarding it.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/addprefix/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/addprefix/
 #AddPrefix: {
 	// Prefix is the string to add before the current path in the requested URL.
 	// It should include a leading slash (/).
@@ -55,7 +55,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 // BasicAuth holds the basic auth middleware configuration.
 // This middleware restricts access to your services to known users.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/basicauth/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/basicauth/
 #BasicAuth: {
 	// Users is an array of authorized users.
 	// Each user must be declared using the name:hashed-password format.
@@ -74,13 +74,13 @@ import "github.com/traefik/traefik/v2/pkg/types"
 	removeHeader?: bool @go(RemoveHeader) @toml(removeHeader,omitempty)
 
 	// HeaderField defines a header field to store the authenticated user.
-	// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/basicauth/#headerfield
+	// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/basicauth/#headerfield
 	headerField?: string @go(HeaderField) @toml(headerField,omitempty)
 }
 
 // Buffering holds the buffering middleware configuration.
 // This middleware retries or limits the size of requests that can be forwarded to backends.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/buffering/#maxrequestbodybytes
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/buffering/#maxrequestbodybytes
 #Buffering: {
 	// MaxRequestBodyBytes defines the maximum allowed body size for the request (in bytes).
 	// If the request exceeds the allowed size, it is not forwarded to the service, and the client gets a 413 (Request Entity Too Large) response.
@@ -102,7 +102,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 	// RetryExpression defines the retry conditions.
 	// It is a logical combination of functions with operators AND (&&) and OR (||).
-	// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/buffering/#retryexpression
+	// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/buffering/#retryexpression
 	retryExpression?: string @go(RetryExpression) @toml(retryExpression,omitempty)
 }
 
@@ -115,7 +115,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 // CircuitBreaker holds the circuit breaker middleware configuration.
 // This middleware protects the system from stacking requests to unhealthy services, resulting in cascading failures.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/circuitbreaker/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/circuitbreaker/
 #CircuitBreaker: {
 	// Expression defines the expression that, once matched, opens the circuit breaker and applies the fallback mechanism instead of calling the services.
 	expression?: string @go(Expression) @toml(expression,omitempty)
@@ -123,7 +123,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 // Compress holds the compress middleware configuration.
 // This middleware compresses responses before sending them to the client, using gzip compression.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/compress/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/compress/
 #Compress: {
 	// ExcludedContentTypes defines the list of content types to compare the Content-Type header of the incoming requests and responses before compressing.
 	excludedContentTypes?: [...string] @go(ExcludedContentTypes,[]string) @toml(excludedContentTypes,omitempty)
@@ -135,7 +135,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 // DigestAuth holds the digest auth middleware configuration.
 // This middleware restricts access to your services to known users.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/digestauth/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/digestauth/
 #DigestAuth: {
 	// Users defines the authorized users.
 	// Each user should be declared using the name:realm:encoded-password format.
@@ -152,7 +152,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 	realm?: string @go(Realm) @toml(realm,omitempty)
 
 	// HeaderField defines a header field to store the authenticated user.
-	// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/basicauth/#headerfield
+	// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/basicauth/#headerfield
 	headerField?: string @go(HeaderField) @toml(headerField,omitempty)
 }
 
@@ -176,7 +176,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 // ForwardAuth holds the forward auth middleware configuration.
 // This middleware delegates the request authentication to a Service.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/forwardauth/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/forwardauth/
 #ForwardAuth: {
 	// Address defines the authentication server address.
 	address?: string @go(Address) @toml(address,omitempty)
@@ -191,7 +191,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 	authResponseHeaders?: [...string] @go(AuthResponseHeaders,[]string) @toml(authResponseHeaders,omitempty)
 
 	// AuthResponseHeadersRegex defines the regex to match headers to copy from the authentication server response and set on forwarded request, after stripping all headers that match the regex.
-	// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/forwardauth/#authresponseheadersregex
+	// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/forwardauth/#authresponseheadersregex
 	authResponseHeadersRegex?: string @go(AuthResponseHeadersRegex) @toml(authResponseHeadersRegex,omitempty)
 
 	// AuthRequestHeaders defines the list of the headers to copy from the request to the authentication server.
@@ -201,7 +201,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 // Headers holds the headers middleware configuration.
 // This middleware manages the requests and responses headers.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/headers/#customrequestheaders
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/headers/#customrequestheaders
 #Headers: {
 	// CustomRequestHeaders defines the header names and values to apply to the request.
 	customRequestHeaders?: {[string]: string} @go(CustomRequestHeaders,map[string]string) @toml(customRequestHeaders,omitempty)
@@ -310,7 +310,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 }
 
 // IPStrategy holds the IP strategy configuration used by Traefik to determine the client IP.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/ipwhitelist/#ipstrategy
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/ipwhitelist/#ipstrategy
 #IPStrategy: {
 	// Depth tells Traefik to use the X-Forwarded-For header and take the IP located at the depth position (starting from the right).
 	depth?: int @go(Depth) @toml(depth,omitempty)
@@ -321,7 +321,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 // IPWhiteList holds the IP whitelist middleware configuration.
 // This middleware accepts / refuses requests based on the client IP.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/ipwhitelist/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/ipwhitelist/
 #IPWhiteList: {
 	// SourceRange defines the set of allowed IPs (or ranges of allowed IPs by using CIDR notation).
 	sourceRange?: [...string] @go(SourceRange,[]string) @toml(sourceRange,omitempty)
@@ -330,7 +330,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 // InFlightReq holds the in-flight request middleware configuration.
 // This middleware limits the number of requests being processed and served concurrently.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/inflightreq/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/inflightreq/
 #InFlightReq: {
 	// Amount defines the maximum amount of allowed simultaneous in-flight request.
 	// The middleware responds with HTTP 429 Too Many Requests if there are already amount requests in progress (based on the same sourceCriterion strategy).
@@ -339,13 +339,13 @@ import "github.com/traefik/traefik/v2/pkg/types"
 	// SourceCriterion defines what criterion is used to group requests as originating from a common source.
 	// If several strategies are defined at the same time, an error will be raised.
 	// If none are set, the default is to use the requestHost.
-	// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/inflightreq/#sourcecriterion
+	// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/inflightreq/#sourcecriterion
 	sourceCriterion?: null | #SourceCriterion @go(SourceCriterion,*SourceCriterion) @toml(sourceCriterion,omitempty)
 }
 
 // PassTLSClientCert holds the pass TLS client cert middleware configuration.
 // This middleware adds the selected data from the passed client TLS certificate to a header.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/passtlsclientcert/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/passtlsclientcert/
 #PassTLSClientCert: {
 	// PEM sets the X-Forwarded-Tls-Client-Cert header with the certificate.
 	pem?: bool @go(PEM) @toml(pem,omitempty)
@@ -388,7 +388,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 // RedirectRegex holds the redirect regex middleware configuration.
 // This middleware redirects a request using regex matching and replacement.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/redirectregex/#regex
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/redirectregex/#regex
 #RedirectRegex: {
 	// Regex defines the regex used to match and capture elements from the request URL.
 	regex?: string @go(Regex) @toml(regex,omitempty)
@@ -402,7 +402,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 // RedirectScheme holds the redirect scheme middleware configuration.
 // This middleware redirects requests from a scheme/port to another.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/redirectscheme/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/redirectscheme/
 #RedirectScheme: {
 	// Scheme defines the scheme of the new URL.
 	scheme?: string @go(Scheme) @toml(scheme,omitempty)
@@ -416,7 +416,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 // ReplacePath holds the replace path middleware configuration.
 // This middleware replaces the path of the request URL and store the original path in an X-Replaced-Path header.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/replacepath/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/replacepath/
 #ReplacePath: {
 	// Path defines the path to use as replacement in the request URL.
 	path?: string @go(Path) @toml(path,omitempty)
@@ -424,7 +424,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 // ReplacePathRegex holds the replace path regex middleware configuration.
 // This middleware replaces the path of a URL using regex matching and replacement.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/replacepathregex/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/replacepathregex/
 #ReplacePathRegex: {
 	// Regex defines the regular expression used to match and capture the path from the request URL.
 	regex?: string @go(Regex) @toml(regex,omitempty)
@@ -436,7 +436,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 // Retry holds the retry middleware configuration.
 // This middleware reissues requests a given number of times to a backend server if that server does not reply.
 // As soon as the server answers, the middleware stops retrying, regardless of the response status.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/retry/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/retry/
 #Retry: {
 	// Attempts defines how many times the request should be retried.
 	attempts?: int @go(Attempts) @toml(attempts,omitempty)
@@ -444,7 +444,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 // StripPrefix holds the strip prefix middleware configuration.
 // This middleware removes the specified prefixes from the URL path.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/stripprefix/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/stripprefix/
 #StripPrefix: {
 	// Prefixes defines the prefixes to strip from the request URL.
 	prefixes?: [...string] @go(Prefixes,[]string) @toml(prefixes,omitempty)
@@ -456,7 +456,7 @@ import "github.com/traefik/traefik/v2/pkg/types"
 
 // StripPrefixRegex holds the strip prefix regex middleware configuration.
 // This middleware removes the matching prefixes from the URL path.
-// More info: https://doc.traefik.io/traefik/v2.9/middlewares/http/stripprefixregex/
+// More info: https://doc.traefik.io/traefik/v2.10/middlewares/http/stripprefixregex/
 #StripPrefixRegex: {
 	// Regex defines the regular expression to match the path prefix from the request URL.
 	regex?: [...string] @go(Regex,[]string) @toml(regex,omitempty)
