@@ -38,7 +38,6 @@ import (
 					kind:  string
 				}]
 			}]
-			tls: {secretName: fqdn}
 		}
 	}]
 	// fix me when I'm less lazy

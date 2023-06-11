@@ -7,8 +7,7 @@ import (
 
 manifests: [
 	deployment.manifests,
-	ingressroute.manifests,
-	certificate.manifests,
+	ingressroute.manifests
 ]
 
 workflows: [string]: {}
