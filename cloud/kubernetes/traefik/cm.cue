@@ -5,16 +5,9 @@ import (
 	"github.com/augustfengd/augustfeng.app/cue.lib/kubernetes"
 )
 
-#traefik_yml: {
-
-}
+#traefik_yml: {} // TODO: import schema from the go code
 
 traefik_yml: {
-	log: level: "INFO"
-	api: {
-		dashboard: true
-		insecure:  true
-	}
 	entryPoints: websecure: address: ":443"
 	providers: kubernetesCRD: {}
 	certificatesResolvers: letsencrypt: acme: {
