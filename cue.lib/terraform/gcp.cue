@@ -30,16 +30,26 @@ lib: gcp: {
 			dns_name:      "augustfeng.app."
 			force_destroy: true
 		}
+		google_dns_record_set: "augustfeng-app": {
+			name: "${google_dns_managed_zone.augustfeng-app.dns_name}"
+			type: "A"
+			ttl:  300
+
+			managed_zone: "${google_dns_managed_zone.augustfeng-app.name}"
+
+			rrdatas: ["0.0.0.0"] // a controller is expected to manage this.
+			lifecycle: ignore_changes: ["rrdatas"]
+		}
 	}
 
 	// Google Kubernetes Engine
 	resource: {
-		google_service_account: "kubernetes": {
-			account_id:   "augustfeng-app-cluster"
-			display_name: "augustfeng-app-cluster"
+		google_service_account: "augustfeng-app": {
+			account_id:   "augustfeng-app"
+			display_name: "augustfeng-app"
 		}
 
-		google_container_cluster: "kubernetes": {
+		google_container_cluster: "augustfeng-app": {
 			name:     #gcp.cluster.name
 			location: #gcp.cluster.location
 
@@ -48,8 +58,9 @@ lib: gcp: {
 			node_config: {
 				machine_type: "e2-micro"
 				disk_size_gb: "10"
+				disk_type:    "pd-standard"
 
-				service_account: "${google_service_account.kubernetes.email}"
+				service_account: "${google_service_account.augustfeng-app.email}"
 				oauth_scopes: [
 					"https://www.googleapis.com/auth/cloud-platform",
 				]
@@ -61,16 +72,17 @@ lib: gcp: {
 
 		google_container_node_pool: "e2-small": {
 			name:       "e2-small-pool"
-			cluster:    "${google_container_cluster.kubernetes.id}"
+			cluster:    "${google_container_cluster.augustfeng-app.id}"
 			node_count: 1
 
 			node_config: {
 				spot:         true
 				machine_type: "e2-small"
 				disk_size_gb: "10"
+				disk_type:    "pd-standard"
 
 				// Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
-				service_account: "${google_service_account.kubernetes.email}"
+				service_account: "${google_service_account.augustfeng-app.email}"
 				oauth_scopes: [
 					"https://www.googleapis.com/auth/cloud-platform",
 				]
@@ -83,7 +95,7 @@ lib: gcp: {
 
 			source_ranges: ["0.0.0.0/0"]
 
-			target_service_accounts: ["${google_service_account.kubernetes.email}"]
+			target_service_accounts: ["${google_service_account.augustfeng-app.email}"]
 			allow: {
 				protocol: "tcp"
 				ports: ["443"]
@@ -121,7 +133,7 @@ lib: gcp: {
 	terraform: required_providers: {
 		google: {
 			source:  "hashicorp/google"
-			version: "4.41.0"
+			version: "4.68.0"
 		}
 	}
 

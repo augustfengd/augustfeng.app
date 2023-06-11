@@ -15,15 +15,9 @@ lib: kubernetes: {
 
 	data: google_client_config: provider: {}
 
-	// neat trick: this is already declared in gcp.cue and will unify under
-	// correct circumstances.
-	resource: google_container_cluster: kubernetes: {
-		name:     #kubernetes.cluster.name
-		location: #kubernetes.cluster.location
-	}
-
 	resource: {
 		for namespace, configuration in #kubernetes.namespaces {
+			// XXX: https://github.com/hashicorp/terraform-provider-kubernetes/issues/1788
 			kubernetes_namespace: (namespace): {
 				metadata: {
 					name: (namespace)
@@ -34,15 +28,21 @@ lib: kubernetes: {
 						annotations: (configuration.labels)
 					}
 				}
-				depends_on: ["google_container_cluster.kubernetes"]
+				depends_on: ["google_container_cluster.augustfeng-app"]
 			}
+		}
+	}
+	terraform: required_providers: {
+		kubernetes: {
+			source:  "hashicorp/kubernetes"
+			version: "2.21.1"
 		}
 	}
 
 	provider: kubernetes: {
-		host:                   "https://${google_container_cluster.kubernetes.endpoint}"
+		host:                   "https://${google_container_cluster.augustfeng-app.endpoint}"
 		token:                  "${data.google_client_config.provider.access_token}"
-		cluster_ca_certificate: "${base64decode(google_container_cluster.kubernetes.master_auth[0].cluster_ca_certificate)}"
+		cluster_ca_certificate: "${base64decode(google_container_cluster.augustfeng-app.master_auth[0].cluster_ca_certificate)}"
 	}
 
 	provider: google: {
