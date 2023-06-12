@@ -8,6 +8,7 @@ import (
 #traefik_yml: {} // TODO: import schema from the go code
 
 traefik_yml: {
+	api: {}
 	entryPoints: websecure: address: ":443"
 	providers: kubernetesCRD: {}
 	certificatesResolvers: letsencrypt: acme: {
