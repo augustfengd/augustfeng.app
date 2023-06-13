@@ -1,0 +1,26 @@
+#+TITLE: Debugging "jka-compr" package
+
+
+* About
+
+The *jka-compr* package allows us to read compressed files as if they were
+uncompressed. It uses an external tool in the backend, ~gunzip~ in the case of
+MacOS as seen in the source code.
+
+* Issue
+
+There seems to be an issue with a locally compiled emacs (29.0) where Spacemacs
+ignores the ~jka-compr.elc~ files, and tries to load the compressed
+~jka-compr.el.gz~, which is a circular dependency / bootstrap issue.
+
+This is hinted in a discussion from an unrelated(?)  [[https://debbugs.gnu.org/cgi/bugreport.cgi?bug=60346][bug report]].
+
+* Fix
+
+I didn't pinpoint if the preference of ~*.el.gz~ was due a behaviour in
+Spacemacs, instead I just deleted all compressed files in the
+~Emacs.app/Contents/Resources/lisp~ directory:
+
+#+begin_src sh
+  find Emacs.app/Contents/Resources/lisp -name '*.el.gz' -exec rm {} \;
+#+end_src

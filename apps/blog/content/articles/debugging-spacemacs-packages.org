@@ -103,6 +103,11 @@ the changes by removing and re-registering the client.
 
 ** local lsp servers
 
+* init files
+
+I've not had too much luck with the [[https://github.com/Malabarba/elisp-bug-hunter][bug-hunter]] package while investigating an
+initialization issue, but I'd like to try again.
+
 * Creating environments
 ** removing hooks
 
@@ -139,3 +144,13 @@ code, and start and restart new instances of emacs that will source the new code
 
 We can use a helm command (~C-x c C-c C-x emacs~) to run an new emacs instance
 with our changes while use the current emacs to iterate on a code.
+
+** parallel spacemacs installation
+
+In certain cases where we want to hack away the Spacemacs code without mutating
+our working instance, just clone the repository elsewhere (e.g:
+~/.emacs.d.hack~) and ~s/".spacemacs"/".spacemacs.hack"/~ in the directory so
+that new Spacemacs installation uses another configuration file instead.
+
+Now it's just a matter of running Emacs with the argument
+~--init-directory=~/.emacs.d.hack~.
