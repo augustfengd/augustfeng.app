@@ -1,0 +1,26 @@
+#+TITLE: Using SRTP
+
+F#7 introduced a [[https://devblogs.microsoft.com/dotnet/announcing-fsharp-7/#making-working-with-srtps-easier][friendlier syntax]] for using SRTP. The constraints can now be
+specified in the function signature rather in the body.
+
+#+begin_src fsharp
+  type Foo =
+      { Bar: string
+        Baz: string -> string }
+
+  // before F# 7.0
+  let inline runv1 foo : string * string =
+      (^a: (member Bar: string) foo), (^a: (member Baz: (string -> string)) foo) "helloworld"
+
+  // after F# 7.0
+  let inline runv2<'T when 'T : (member Bar: string)
+      and  'T : (member Baz: (string -> string))> (foo : 'T) : string * string =
+      foo.Bar, foo.Baz "helloworld"
+
+  [<EntryPoint>]
+  let main _ =
+      let foo = { Bar = "helloworld", Baz = id }
+      runv1 foo |> printfn "%A"
+      runv2 foo |> printfn "%A"
+      0
+#+end_src

@@ -1,6 +1,5 @@
 #+TITLE: Debugging "jka-compr" package
 
-
 * About
 
 The *jka-compr* package allows us to read compressed files as if they were
