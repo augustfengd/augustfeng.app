@@ -1,0 +1,19 @@
+#+TITLE: Managing .NET installations
+
+* list versions
+
+#+begin_src shell
+  dotnet --list-sdks
+#+end_src
+
+#+begin_src shell
+  dotnet sdk check
+#+end_src
+
+#+begin_src shell
+  dotnet --version # this checks the entrypoint version (/usr/local/bin/dotnet)
+#+end_src
+
+* delete installations
+
+Ah, these files are everywhere.
