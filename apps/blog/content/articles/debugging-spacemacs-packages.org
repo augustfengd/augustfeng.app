@@ -80,6 +80,15 @@ We can remove breakpoints caused by entry on functions.
   (call-interactively 'cancel-debug-on-entry)
 #+end_src
 
+*** debugging on variable changes
+
+This breakpoint surfaced the call stack, and I was able to identify the code
+that inadvertently caused the loading of ~org-capture~.
+
+#+begin_src
+  (debug-on-variable-change 'org-capture-templates)
+#+end_src
+
 * lsp-mode
 ** session file
 

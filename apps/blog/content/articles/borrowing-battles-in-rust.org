@@ -1,0 +1,39 @@
+#+TITLE: Borrowing Battles in Rust
+
+* About
+
+The knowledge gained from winning my fights against the borrow checker is ever
+fleeting. Hopefully documenting it here will preserve some understanding.
+
+* Battles
+
+** A
+
+#+begin_src rust
+  async fn get_html(url: &str) -> Result<String, Error> {
+      ClientBuilder::native().connect("http://localhost:4444")
+          .map_err(Error::ClientInitializationError)
+          .and_then(|c| {
+              c.source().map_err(Error::WebDriverError)
+          }).await
+  }
+
+  // error[E0515]: cannot return value referencing function parameter `c`
+  //   --> src/main.rs:15:13
+  //    |
+  // 15 |             c.source().map_err(Error::WebDriverError)
+  //    |             ----------^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  //    |             |
+  //    |             returns a value referencing data owned by the current function
+  //    |             `c` is borrowed here
+  // 
+  // For more information about this error, try `rustc --explain E0515`.
+  // error: could not compile `web-scraping-1` due to previous error
+#+end_src
+
+My understanding here is that the closure is assuming ownership of the client
+(~c~). As a result, the data is being discarded at the end of the invocation and
+there is nothing left to return.
+
+Theoretically, this is resolved by borrowing the data instead but we're dealing
+with futures here and ~.as_ref()~ is not an available method for futures.
