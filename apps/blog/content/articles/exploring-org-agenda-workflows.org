@@ -1,0 +1,13 @@
+#+TITLE: Exploring org agenda workflows
+
+* Cycling between agenda files
+
+@@html:<kbd>@@ C-' @@html:</kbd>@@: Cycle through the files in
+‘org-agenda-files’.
+
+* Filtering agenda items
+
+@@html:<kbd>@@ \ @@html:</kbd>@@: Keep only those lines in the agenda buffer
+that have a specific tag.
+
+ref: https://orgmode.org/manual/Filtering_002flimiting-agenda-items.html
