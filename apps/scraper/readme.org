@@ -1,0 +1,24 @@
+#+TITLE: readme
+
+* Development
+
+** On WSL2
+
+*** requirements
+
+- geckodriver.exe (~choco.exe install selenium-gecko-driver~)
+- rust things
+
+*** setup
+
+Run the geckoserver on windows' side and allow incoming traffic from wsl2 ("localhost"):
+
+#+begin_src shell
+  geckoserver.exe --host $(route.exe print | awk '/0.0.0.0/ {print $4 ; exit}') --allow-hosts localhost
+#+end_src
+
+Create a socket from WSL2 to Windows using socat:
+
+#+begin_src shell
+  socat TCP-LISTEN:4444,fork,reuseaddr TCP:$(route.exe print | awk '/0.0.0.0/ {print $4 ; exit}'):4444
+#+end_src
