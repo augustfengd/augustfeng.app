@@ -1,0 +1,182 @@
+#+title: Learning Rust Iterators
+#+date: 2023-06-29
+
+* Iterators
+
+By definition, Iterators are structs that implement the ~IntoIterator~ trait.
+There is also the ~Iterator~ trait, will inadvertently implements the
+~IntoIterator~ trait:
+
+#+begin_src rust
+  impl<I: Iterator> const IntoIterator for I {
+      type Item = I::Item;
+      type IntoIter = I;
+
+      #[inline]
+      fn into_iter(self) -> I {
+          self
+      }
+  }
+#+end_src
+
+The implementation of the ~IntoIterator~ trait enables the usage of the *for*
+loop construct on the object.
+
+#+begin_src rust
+  struct Foobar {
+      s: String,
+  }
+
+  struct Foobaz {
+      s: String,
+  }
+
+  impl Iterator for Foobar {
+      type Item = char;
+      fn next(&mut self) -> Option<Self::Item> {
+          if self.s.len() > 0 {
+              Some(self.s.remove(0))
+          } else {
+              None
+          }
+      }
+  }
+
+  // Manual implementation of *IntoIterator* by piggy-backing on ~Foobar~ who
+  // indirectly implements *IntoIterator*.
+  impl IntoIterator for Foobaz {
+      type Item = char;
+      type IntoIter = Foobar;
+      fn into_iter(self) -> Self::IntoIter {
+          Foobar { s: self.s }
+      }
+  }
+
+  fn main() {
+      let a = Foobar {
+          s: String::from("hello"),
+      };
+      for it in a.into_iter() {
+          println!("{}", it)
+      }
+
+      let b = Foobaz {
+          s: String::from("world"),
+      };
+      for it in b.into_iter() {
+          println!("{}", it)
+      }
+
+      // same
+
+      let c = vec!['h', 'e', 'l', 'l', 'o'];
+      for it in c.iter() {
+          println!("{}", it)
+      }
+
+      let d = vec!['h', 'e', 'l', 'l', 'o'];
+      for it in &d {
+          println!("{}", it)
+      }
+
+      // same
+
+      let mut e = vec!['h', 'e', 'l', 'l', 'o'];
+      for it in e.iter_mut() {
+          println!("{}", it)
+      }
+
+      let mut f = vec!['h', 'e', 'l', 'l', 'o'];
+      for it in &mut f {
+          println!("{}", it)
+      }
+  }
+#+end_src
+
+There is also the conventional ~iter()~ and ~iter_mut()~ method which don't
+consume the vector upon iteration. These methods are not standardized under a
+trait and will generally be also be available as ~into_iter()~ when the values
+are bound to a (mutable?) reference.
+
+* Case Study
+
+** Vec
+
+The [[https://doc.rust-lang.org/std/vec/struct.Vec.html][Vec]] struct only implements the [[https://doc.rust-lang.org/std/iter/trait.IntoIterator.html][IntoIterator]] trait. It uses a struct
+([[https://doc.rust-lang.org/std/vec/struct.IntoIter.html][IntoIter]]) in the backend for plumbing.
+
+There are three different implementations.
+
+*** value
+
+#+begin_src rust
+  impl<T, A: Allocator> IntoIterator for Vec<T, A> {
+      type Item = T;
+      type IntoIter = IntoIter<T, A>;
+
+      /// Creates a consuming iterator, that is, one that moves each value out of
+      /// the vector (from start to end). The vector cannot be used after calling
+      /// this.
+      ///
+      /// # Examples
+      ///
+      /// ```
+      /// let v = vec!["a".to_string(), "b".to_string()];
+      /// let mut v_iter = v.into_iter();
+      ///
+      /// let first_element: Option<String> = v_iter.next();
+      ///
+      /// assert_eq!(first_element, Some("a".to_string()));
+      /// assert_eq!(v_iter.next(), Some("b".to_string()));
+      /// assert_eq!(v_iter.next(), None);
+      /// ```
+      #[inline]
+      fn into_iter(self) -> Self::IntoIter {
+          unsafe {
+              let mut me = ManuallyDrop::new(self);
+              let alloc = ManuallyDrop::new(ptr::read(me.allocator()));
+              let begin = me.as_mut_ptr();
+              let end = if T::IS_ZST {
+                  begin.wrapping_byte_add(me.len())
+              } else {
+                  begin.add(me.len()) as *const T
+              };
+              let cap = me.buf.capacity();
+              IntoIter {
+                  buf: NonNull::new_unchecked(begin),
+                  phantom: PhantomData,
+                  cap,
+                  alloc,
+                  ptr: begin,
+                  end,
+              }
+          }
+      }
+  }
+#+end_src
+
+*** reference
+
+#+begin_src rust
+  impl<'a, T, A: Allocator> IntoIterator for &'a Vec<T, A> {
+      type Item = &'a T;
+      type IntoIter = slice::Iter<'a, T>;
+
+      fn into_iter(self) -> Self::IntoIter {
+          self.iter()
+      }
+  }
+#+end_src
+
+*** mutable reference
+
+#+begin_src rust
+  impl<'a, T, A: Allocator> IntoIterator for &'a mut Vec<T, A> {
+      type Item = &'a mut T;
+      type IntoIter = slice::IterMut<'a, T>;
+
+      fn into_iter(self) -> Self::IntoIter {
+          self.iter_mut()
+      }
+  }
+#+end_src
