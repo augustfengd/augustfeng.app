@@ -37,3 +37,38 @@ there is nothing left to return.
 
 Theoretically, this is resolved by borrowing the data instead but we're dealing
 with futures here and ~.as_ref()~ is not an available method for futures.
+
+** B
+
+The Rust book demonstrates a simple example where a variable outlives.
+
+#+begin_src rust
+  fn main() {
+      let r;                // ---------+-- 'a
+                            //          |
+      {                     //          |
+          let x = 5;        // -+-- 'b  |
+          r = &x;           //  |       |
+      }                     // -+       |
+                            //          |
+      println!("r: {}", r); //          |
+  }                         // ---------+
+#+end_src
+
+The C equivalent code compiles fine and may execute as "expected", but ~r~ is
+actually a wild pointer once the nested scope exits.
+
+#+begin_src c
+  #include <stdio.h>
+
+  void main() {
+    int *r;
+
+    {
+      int x = 5;
+      r = &x;
+    }
+
+    printf("The value of 'x' is %d", *r);
+  }
+#+end_src
