@@ -1,4 +1,6 @@
 #+title: Managing dotnet installations
+#+categories[]: configuration
+#+tags[]: dotnet
 #+date: [2023-06-22 Thu]
 
 * list versions

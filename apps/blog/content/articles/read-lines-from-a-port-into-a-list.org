@@ -1,6 +1,6 @@
-#+title: read lines from a port into a list
-#+categories[]: lisp
-#+tags[]: lisp scheme guile scripting
+#+title: Read Lines From a Port Into a List
+#+categories[]: scripting
+#+tags[]: lisp guile scripting
 #+date: [2023-05-31 Wed]
 
 Just some elegant code (that took me way too long to learn and write) for

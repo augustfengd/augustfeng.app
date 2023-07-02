@@ -1,4 +1,6 @@
 #+title: Uncovering iptables in GKE
+#+categories[]: devops
+#+tags[]: kubernetes linux
 #+date: [2023-05-30 Tue]
 
 * About

@@ -1,4 +1,6 @@
 #+title: File Cardinality on Zipping Performance
+#+categories[]: scripting
+#+tags[]: scripting
 #+date: [2023-05-23 Tue]
 
 * About

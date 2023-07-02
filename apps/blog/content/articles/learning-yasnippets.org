@@ -1,4 +1,6 @@
-#+title: Learning yasnippets
+#+title: Learning yasnippets package
+#+categories[]: learning
+#+tags[]: emacs
 #+date: [2023-06-22 Thu]
 
 * Creating snippets

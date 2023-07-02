@@ -1,6 +1,6 @@
 #+title: Configure Guile
-#+categories[]: development
-#+tags[]: editor
+#+categories[]: configuration
+#+tags[]: lisp scheme guile
 #+draft: true
 #+date: [2022-12-16 Fri]
 

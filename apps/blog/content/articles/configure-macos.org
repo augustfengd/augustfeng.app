@@ -1,5 +1,5 @@
 #+title: Configure MacOS
-#+categories[]: emacs
+#+categories[]: configuration
 #+tags[]: emacs elisp org-mode
 #+date: [2023-04-02 Sun]
 

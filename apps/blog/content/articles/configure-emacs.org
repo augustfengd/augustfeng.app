@@ -1,6 +1,6 @@
 #+title: Configure Emacs
-#+categories[]: development
-#+tags[]: editor
+#+categories[]: configuration
+#+tags[]: ide
 #+draft: true
 #+date: [2022-12-16 Fri]
 

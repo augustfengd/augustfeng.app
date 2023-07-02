@@ -1,6 +1,6 @@
 #+title: Configure JetBrains
-#+categories[]: development
-#+tags[]: editor
+#+categories[]: configuration
+#+tags[]: ide
 #+draft: true
 #+date: [2023-04-02 Sun]
 
