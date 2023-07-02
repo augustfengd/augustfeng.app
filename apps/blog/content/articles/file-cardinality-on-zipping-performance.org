@@ -1,4 +1,4 @@
-#+TITLE: Zipping Performance on File Cardinally
+#+TITLE: File Cardinality on Zipping Performance
 
 * About
 

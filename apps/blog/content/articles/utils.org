@@ -3,7 +3,7 @@
 #+tags[]: emacs elisp org-mode
 #+date: 2022-11-28
 
-#+PROPERTY: header-args:elisp :results none
+#+property: header-args:elisp :results none
 
 * introduction
 
@@ -45,8 +45,12 @@
       (insert-file-contents filename)
       (cadar (org-collect-keywords '("TITLE")))))
 
+  ;; rename file if filename does not match title
+  (defun rename-file-if-necessary (file)
+    (let ((destination (title-to-filename (get-title-from-post file))))
+      (unless (file-exists-p destination) (rename-file file destination))))
+
   ;; run
   (let ((files (get-posts)))
-    (mapc (lambda (file)
-            (rename-file file (title-to-filename (get-title-from-post file)))) files))
+    (mapc #'rename-file-if-necessary files))
 #+end_src
