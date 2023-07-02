@@ -2,6 +2,7 @@
 #+categories[]: emacs
 #+tags[]: emacs elisp org-mode
 #+date: [2023-07-02 Sun]
+#+draft: true
 
 #+property: header-args:elisp :results none
 
