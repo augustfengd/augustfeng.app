@@ -1,4 +1,4 @@
-#+title: Vendoring helm charts for jsonnet usage
+#+title: Vendoring Helm Charts for Jsonnet Usage
 #+categories[]: devops
 #+tags[]: helm json jsonnet
 #+date: [2022-11-28 Mon]

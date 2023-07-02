@@ -1,4 +1,4 @@
-#+title: Exploring org agenda workflows
+#+title: Exploring org-agenda Workflows
 #+categories[]: emacs
 #+tags: emacs org-mode
 #+date: [2023-06-26 Mon]
