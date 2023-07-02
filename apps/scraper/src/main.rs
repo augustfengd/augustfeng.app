@@ -1,6 +1,13 @@
+#![feature(iterator_try_collect)]
+
 use fantoccini::ClientBuilder;
 use futures::TryFutureExt;
-use scraper::Html;
+
+pub mod utils;
+use utils::Add;
+
+pub mod parser;
+use parser::{build_listing, find_listings_html, ParsingError};
 
 struct Program {
     client: fantoccini::Client,
@@ -10,6 +17,7 @@ struct Program {
 enum Error {
     ClientInitializationError(fantoccini::error::NewSessionError),
     WebDriverError(fantoccini::error::CmdError),
+    ParserError(ParsingError),
 }
 
 impl Program {
@@ -29,9 +37,16 @@ impl Program {
     }
 
     async fn run(self, url: &str) -> Result<Self, Error> {
-        // let html = &self.get_html(url).await?;
-        let html = Html::parse_document(" <div><div>a</div><div>b</div></div>");
-        println!("{:#?}", html.tree);
+        let html = self.get_html(url).await?;
+        let listings_html = find_listings_html(html).map_err(Error::ParserError)?;
+
+        println!(
+            "a: {:#?}",
+            listings_html
+                .into_iter()
+                .map(build_listing)
+                .collect::<Vec<_>>()
+        );
         Ok(self)
     }
 
@@ -39,27 +54,21 @@ impl Program {
         self.client.close().map_err(Error::WebDriverError).await
     }
 
-    async fn get_html(&self, url: &str) -> Result<Html, Error> {
-        let text = self
-            .client
-            .goto(url)
-            .and_then(|_| self.client.source())
-            .map_err(Error::WebDriverError)
-            .await?;
+    async fn get_html(&self, url: &str) -> Result<scraper::Html, Error> {
+        let html = match std::fs::read_to_string("page.html").ok() {
+            Some(data) => data,
+            None => {
+                self.client
+                    .goto(url)
+                    .and_then(|_| self.client.source())
+                    .map_err(Error::WebDriverError)
+                    .await?
+            }
+        };
 
-        Ok(Html::parse_document(&text))
-    }
-}
+        // std::fs::write("page.html", &html);
 
-// I have the fluent interface itch
-trait Add {
-    fn add(self, k: String, v: serde_json::Value) -> Self;
-}
-
-impl Add for serde_json::map::Map<String, serde_json::Value> {
-    fn add(mut self, k: String, v: serde_json::Value) -> Self {
-        self.insert(k, v);
-        self.to_owned()
+        Ok(scraper::Html::parse_document(&html))
     }
 }
 
