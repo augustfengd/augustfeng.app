@@ -1,4 +1,5 @@
-#+TITLE: Borrowing Battles in Rust
+#+title: Borrowing Battles in Rust
+#+date: [2023-07-01 Sat]
 
 * About
 

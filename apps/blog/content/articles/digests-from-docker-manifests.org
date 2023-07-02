@@ -1,7 +1,7 @@
-#+TITLE: Digests from Docker Manifests
+#+title: Digests from Docker Manifests
 #+categories[]: docker
 #+tags[]: container docker
-#+date: 2022-12-19
+#+date: [2022-12-17 Sat]
 
 * About
 

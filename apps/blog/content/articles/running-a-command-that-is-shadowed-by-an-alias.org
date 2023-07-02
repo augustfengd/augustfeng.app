@@ -1,7 +1,7 @@
 #+title: Running a Command That Is Shadowed by an Alias
 #+categories[]: linux
 #+tags[]: shell
-#+date: 2022-05-10
+#+date: [2022-05-10 Tue]
 
 In May 2022, I wrote an article [[https://www.baeldung.com/linux/alias-run-shadowed-command][Running A Command That Is Shadowed by an Alias]]
 for [[https://www.baeldung.com/linux/alias-run-shadowed-command][Baeldung]].

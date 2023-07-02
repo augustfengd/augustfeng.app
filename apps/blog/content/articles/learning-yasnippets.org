@@ -1,4 +1,5 @@
-#+TITLE: yasnippets
+#+title: Learning yasnippets
+#+date: [2023-06-22 Thu]
 
 * Creating snippets
 
@@ -18,7 +19,6 @@ Wrap the lisp code with ~`~. This will be evaluated upon expansion.
 I don't think there's a way to list *all* snippets, but I'm mostly often
 interested in editing snippets I've written, which are saved in the first
 directory of the ~yas-snippet-dirs~.
-
 
 #+begin_src emacs-lisp
   (expand-file-name (car yas-snippet-dirs))

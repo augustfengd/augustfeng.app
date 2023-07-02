@@ -1,7 +1,7 @@
 #+title: impl Read for Foobar
 #+categories[]: development
 #+tags[]: rust
-#+date: 2022-11-28
+#+date: [2022-12-20 Tue]
 
 I'm almost halfway through Ken Youens-Clark's *Command-Line Rust: A
 Project-Based Primer for Writing Rust CLIs* book, and I thought I'd take a

@@ -1,7 +1,7 @@
-#+TITLE: Keeping a Linear History with GitHub Actions
+#+title: Keeping a Linear History with GitHub Actions
 #+categories[]: devops
 #+tags[]: github git devops
-#+date: 2023-04-01
+#+date: [2023-04-02 Sun]
 #+mermaid: true
 
 * workflows triggered by the ~pull_request~ event uses merged code

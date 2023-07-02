@@ -1,4 +1,5 @@
-#+TITLE: Using SRTP
+#+title: Using SRTP
+#+date: [2023-06-20 Tue]
 
 F#7 introduced a [[https://devblogs.microsoft.com/dotnet/announcing-fsharp-7/#making-working-with-srtps-easier][friendlier syntax]] for using SRTP. The constraints can now be
 specified in the function signature rather in the body.

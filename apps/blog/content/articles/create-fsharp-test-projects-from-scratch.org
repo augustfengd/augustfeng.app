@@ -1,4 +1,5 @@
-#+TITLE: Create FSharp Test Projects From Scratch
+#+title: Create FSharp Test Projects From Scratch
+#+date: [2023-05-31 Wed]
 
 * About
 

@@ -1,5 +1,5 @@
 #+title: Learning Rust Iterators
-#+date: 2023-06-29
+#+date: [2023-06-29 Thu]
 
 * Iterators
 

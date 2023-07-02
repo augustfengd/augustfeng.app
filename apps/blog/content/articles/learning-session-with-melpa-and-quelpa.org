@@ -1,7 +1,7 @@
 #+title: Learning Session with melpa and quelpa
 #+categories[]: emacs
 #+tags[]: emacs elisp org-mode
-#+date: 2023-03-26
+#+date: [2023-04-03 Mon]
 
 * About
 
