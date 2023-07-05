@@ -17,6 +17,10 @@
   dotnet --version # this checks the entrypoint version (/usr/local/bin/dotnet)
 #+end_src
 
+#+begin_src shell
+  dotnet --info
+#+end_src
+
 * delete installations
 
 Ah, these files are everywhere.
