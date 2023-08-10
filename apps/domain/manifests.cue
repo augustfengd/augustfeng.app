@@ -1,7 +1,7 @@
 package kubernetes
 
 import (
-	"github.com/augustfengd/augustfeng.app/cloud:kubernetes"
+	"github.com/augustfengd/augustfeng.app/cue.lib/kubernetes"
 )
 
 _app: {
