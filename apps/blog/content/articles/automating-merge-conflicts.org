@@ -1,0 +1,120 @@
+#+TITLE: Automating Merge Conflicts
+#+categories[]: programming
+#+tags[]: git
+#+date: [2023-08-10 Thu]
+#+mermaid: true
+
+* About
+
+Using the default ~ort~ merge strategy, what do the strategy options *ours* and
+*theirs* do?
+
+Let's assume this git history for context.
+
+{{<mermaid>}}
+gitGraph
+   commit id: "foo"
+   branch foobar
+   commit id: "foobar"
+   checkout main
+   branch foobaz
+   commit id: "foobaz"
+{{</mermaid>}}
+
+Each commit mutates a file ~helloworld.txt~:
+
+#+begin_src shell
+  git init -q
+
+  echo 'foo' > helloworld.txt
+  git add helloworld.txt
+  git commit -q -m "create helloworld.txt"
+
+  git switch -q -c foobar master
+  echo 'bar' >> helloworld.txt
+  git add helloworld.txt
+  git commit -q -m "foobar"
+
+  git switch -q -c foobaz master
+  echo 'baz' >> helloworld.txt
+  git add helloworld.txt
+  git commit -q -m "foobaz"
+#+end_src
+
+
+** git merge
+
+Let's merge foobar and foobaz respectively into main:
+
+#+begin_src shell
+  git switch main
+  git merge foobar
+  git merge --strategy-option ours foobaz
+#+end_src
+
+When we specify ~ours~, we are telling git to prefer the *HEAD*'s hunk. This
+would have been the merge conflict if we did not specify the strategy option:
+
+#+begin_src git
+  foo
+  <<<<<<< HEAD
+  bar
+  =======
+  baz
+  >>>>>>> foobaz
+#+end_src
+
+The final content of ~helloworld.txt~ will be:
+
+#+begin_src text
+  foo
+  bar
+#+end_src
+
+The final git history will be:
+
+{{<mermaid>}}
+gitGraph
+   commit id: "foo"
+   branch foobaz
+   commit id: "foobaz"
+   checkout main
+   commit id: "foobar"
+   checkout main
+   merge foobaz id: "Merge branch 'foobaz'"
+{{</mermaid>}}
+
+** git rebase
+
+Let's try to achieve a similar git history with rebase, where the history will be as follows:
+
+{{<mermaid>}}
+gitGraph
+   commit id: "foo"
+   branch foobar
+   commit id: "foobar"
+   checkout main
+   branch "foobaz"
+   commit id: "foobar'"
+   commit id: "foobaz"
+{{</mermaid>}}
+
+
+The *ours* strategy behaves slightly in a unexpected way if we don't understand
+what happens during a rebase operation.
+
+If we use the *ours* strategy option when using the ~rebase~ command on the
+*foobaz* branch, we'll end up with *foobar*'s change:
+
+#+begin_src shell
+  git rebase --strategy-option ours foobar 2>&1 | tr '\r' '\n'
+  cat helloworld.txt
+  # foo
+  # bar
+#+end_src
+
+The reason is that a *rebase* command will _stash_ away the current branch's
+commits and switch into *foobar* to subsequently apply them one by one.
+
+The corollary of this is that we'll be on the *foobar* branch as we merge the
+stashed commits, so "our" changes are actually *foobar*'s.
