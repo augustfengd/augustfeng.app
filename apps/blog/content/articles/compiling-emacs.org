@@ -1,0 +1,16 @@
+#+TITLE: Compiling Emacs
+#+categories[]: emacs
+#+tags[]: emacs
+#+draft: true
+#+date: [2023-08-14 Mon]
+
+* packages before compilation
+
+** Optional
+
+These packages are not strictly necessary for the compilation, but they will
+enable default features.
+
+~libsqlite3-dev~: used by  magit's database.
+~libxml2-dev~: used to render html in emacs.
+~librsvg2-dev~: used to display icons in dired.
