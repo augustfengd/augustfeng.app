@@ -64,7 +64,7 @@ configuration: terraform.configuration & {
 		#vars: [
 			{
 				key:       "GITHUB_TOKEN"
-				value:     sec["github-secrets.json"].GITHUB_TOKEN
+				value:     sec["github-secrets.json"].terraform
 				category:  "env"
 				sensitive: true
 			},
