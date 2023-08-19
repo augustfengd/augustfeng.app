@@ -11,8 +11,8 @@ workflows: "apps.blog.yaml": {
 	name: "apps/blog"
 
 	on: push: {
-		paths: ["apps/blog/**"]
 		branches: #DefaultBranch
+		paths: ["apps/blog/**"]
 	}
 	concurrency: "apps/blog"
 
@@ -96,5 +96,4 @@ workflows: "apps.blog.yaml": {
 			]
 		}
 	}
-
 }

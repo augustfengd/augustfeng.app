@@ -70,10 +70,6 @@ import (
 			uses: "google-github-actions/auth@v1"
 			with: credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
 		}
-		install: github.#Workflow.#Step & {
-			name: "install gcloud"
-			uses: "google-github-actions/setup-gcloud@v1"
-		}
 		command: github.#Workflow.#Step & {
 			#command: string
 			#flags: [string]: string | *null
@@ -90,16 +86,7 @@ import (
 			name: "gcloud \(#command)"
 			run:  "gcloud \(#command) \(flags)"
 		}
-	}
-
-	// NOTE: gcloud.auth does the same thing.
-	gcp: login: github.#Workflow.#Step & {
-		name: "configure google application credentials"
-		env: {
-			GOOGLE_CREDENTIALS:             string
-			GOOGLE_APPLICATION_CREDENTIALS: string
-		}
-		run: "printf '%s' \"${GOOGLE_CREDENTIALS}\" > \"${GOOGLE_APPLICATION_CREDENTIALS}\""
+		"install": install.gcloud
 	}
 
 	docker: login: github.#Workflow.#Step & {
@@ -107,6 +94,25 @@ import (
 		run:  "echo \"${{ secrets.GITHUB_TOKEN }}\" | docker login ghcr.io -u $ --password-stdin"
 	}
 
+	skaffold: {
+		command: {
+			#command: string
+			#flags: [string]: string | *null
+
+			let flags = strings.Join([ for flag, value in #flags {
+				if value != null {
+					"\(flag)=\(value)"
+				}
+				if value == null {
+					"\(flag)"
+				}
+			}], " ")
+
+			name: "skaffold \(#command)"
+			run:  "skaffold \(#command) \(flags)"
+		}
+		"install": install.skaffold
+	}
 	install: {
 		sops: {
 			#version: string | *"v3.7.3"
@@ -126,6 +132,10 @@ import (
 				chmod +x bin/skaffold
 				echo "${GITHUB_WORKSPACE}/bin" >> $GITHUB_PATH
 				"""
+		}
+		gcloud: github.#Workflow.#Step & {
+			name: "install gcloud"
+			uses: "google-github-actions/setup-gcloud@v1"
 		}
 	}
 

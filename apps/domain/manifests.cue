@@ -10,7 +10,30 @@ _app: {
 			name: "ghcr.io/augustfengd/augustfeng.app/domain"
 		}
 		sa: "domain-controller"
+		manifests: [{metadata: namespace: "system-ingress"}]
 	}
+
+	// use cronjob until i create a controller-based workload
+	cronjob: manifests: [{
+		apiVersion: "batch/v1"
+		kind:       "CronJob"
+		metadata: {
+			name: "domain"
+			labels: "app.kubernetes.io/name": "domain"
+		}
+		spec: {
+			schedule: "0 * * * *"
+			jobTemplate: spec: template: spec: {
+				serviceAccountName: "domain-controller"
+				containers: [{
+					name:  "domain"
+					image: "ghcr.io/augustfengd/augustfeng.app/domain"
+				}]
+				restartPolicy: "Never"
+			}
+		}
+	}]
+
 	// abstract me later
 	rbac: manifests: [
 		{
@@ -89,6 +112,8 @@ _app: {
 	]
 }
 
-manifests:
-	_app.deployment.manifests +
-	_app.rbac.manifests
+manifests: {
+	cronjob:    _app.cronjob.manifests
+	deployment: _app.deployment.manifests
+	rbac:       _app.rbac.manifests
+}

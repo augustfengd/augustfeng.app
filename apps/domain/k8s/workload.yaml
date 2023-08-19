@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: domain
+  labels:
+    app.kubernetes.io/name: domain
+spec:
+  schedule: 0 * * * *
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: domain-controller
+          containers:
+            - name: domain
+              image: ghcr.io/augustfengd/augustfeng.app/domain
+          restartPolicy: Never
+

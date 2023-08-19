@@ -25,8 +25,8 @@ workflow: "apps.sleep.yaml": {
 				#actions.checkoutCode,
 				#actions.install.skaffold,
 				#actions.docker.login,
-				#actions.run & {
-					run:                 "skaffold build --push"
+				#actions.skaffold.command & {
+					#command:            "build"
 					"working-directory": "apps/sleep"
 				},
 			]

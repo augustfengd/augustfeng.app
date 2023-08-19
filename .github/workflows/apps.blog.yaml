@@ -1,9 +1,9 @@
 name: apps/blog
 "on":
   push:
+    branches: main
     paths:
       - apps/blog/**
-    branches: main
 concurrency: apps/blog
 jobs:
   build:

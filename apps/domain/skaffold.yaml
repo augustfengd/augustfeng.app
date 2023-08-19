@@ -1,7 +1,17 @@
-apiVersion: skaffold/v4beta3
+apiVersion: skaffold/v4beta6
 kind: Config
-metadata:
-  name: domain
+manifests:
+  rawYaml:
+    - k8s/rbac.yaml
+  hooks:
+    before:
+    - host:
+        command: ["make", "k8s/rbac.yaml"]
+deploy:
+  kubectl: {}
+---
+apiVersion: skaffold/v4beta6
+kind: Config
 build:
   tagPolicy:
     sha256: {}
@@ -10,7 +20,11 @@ build:
       docker:
         dockerfile: Dockerfile
 manifests:
+  rawYaml:
+    - k8s/workload.yaml
   hooks:
     before:
     - host:
-        command: ["make", "k8s/manifests.yaml"]
+        command: ["make", "k8s/workload.yaml"]
+deploy:
+  kubectl: {}

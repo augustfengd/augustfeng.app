@@ -1,0 +1,8 @@
+These files are pre-created to save skaffold from crashing because
+~manifests.rawYaml~ does not (?) support manifest hooks.
+
+https://github.com/GoogleContainerTools/skaffold/pull/7785
+
+#+begin_src shell :results silent
+  touch -d @0 rbac.yaml workload.yaml
+#+end_src

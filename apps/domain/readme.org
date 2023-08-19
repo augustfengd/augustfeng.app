@@ -1,0 +1,15 @@
+* development
+
+#+begin_src shell
+skaffold dev --keep-running-on-failure=true --trigger=manual
+#+end_src
+
+* notes
+
+Until this is deployed, update the dns record manually.
+
+#+begin_src shell
+  kubectl get nodes -l cloud.google.com/gke-nodepool=default-pool -ojson \
+      | jq -r '.items[].status.addresses[] | select(.type == "ExternalIP") | .address' \
+      | xargs gcloud dns record-sets update augustfeng.app. --type A --zone augustfeng-app --rrdatas
+#+end_src
