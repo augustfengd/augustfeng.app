@@ -19,6 +19,7 @@ _app: {
 		kind:       "CronJob"
 		metadata: {
 			name: "domain"
+			namespace: "system-ingress"
 			labels: "app.kubernetes.io/name": "domain"
 		}
 		spec: {

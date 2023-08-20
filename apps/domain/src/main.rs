@@ -230,7 +230,7 @@ impl Program {
         match r.status() {
             reqwest::StatusCode::OK => Ok(log::info!(
                 "Successfully configured DNS record: {}, ",
-                node_address.address,
+                node_address.address
             )),
             sc => Err(Error::BadResponse(sc)),
         }
