@@ -1,5 +1,8 @@
 #![feature(iter_intersperse, try_find)]
 
+use env_logger;
+use log;
+
 use futures::TryFutureExt;
 pub mod kubernetes;
 use kubernetes::{Deployment, Node, NodeAddress, ObjectList, Pod, ReplicaSet};
@@ -23,6 +26,7 @@ enum Error {
     ClientHeaderError(reqwest::header::InvalidHeaderValue),
     SerializationError(serde_json::Error),
     RequestError(reqwest::Error),
+    BadResponse(reqwest::StatusCode),
 }
 
 impl Program {
@@ -210,26 +214,36 @@ impl Program {
 
     async fn configure_dns_record(&self, node_address: NodeAddress) -> Result<(), Error> {
         let rrs = ResourceRecordSets {
-            rrdatas: vec![node_address.address],
+            rrdatas: vec![node_address.address.clone()],
             update_mask: ResourceRecordSetsUpdateMask {
                 paths: vec![String::from("rrset.rrdatas")],
             },
         };
 
-        self.gcp
-            .patch("https://dns.googleapis.com/dns/v1beta2/projects/augustfengd/managedZones/augustfeng/rrsets/augustfeng.app./A")
+        let r = self.gcp
+            .patch("https://dns.googleapis.com/dns/v1/projects/augustfengd/managedZones/augustfeng-app/rrsets/augustfeng.app./A")
             .json(&rrs)
             .send()
             .await
-            .map(|_| ())
-            .map_err(Error::RequestError)
+            .map_err(Error::RequestError)?;
+
+        match r.status() {
+            reqwest::StatusCode::OK => Ok(log::info!(
+                "Successfully configured DNS record: {}, ",
+                node_address.address,
+            )),
+            sc => Err(Error::BadResponse(sc)),
+        }
     }
 }
 
 #[tokio::main]
 async fn main() {
+    env_logger::builder()
+        .filter(None, log::LevelFilter::Info)
+        .init();
     match Program::new().and_then(Program::run).await {
         Ok(_) => (),
-        Err(e) => eprintln!("{:?}", e),
+        Err(e) => log::error!("{:?}", e),
     }
 }
