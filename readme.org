@@ -2,12 +2,12 @@
 
 Hello! This is a project for my cloud infrastructure and some personal projects.
 
-* Usage
+* Setup
 
 ** Secrets
 
 The credentials are statically encrypted in the repository using sops and can be
-easily decrypted/imported:
+easily decrypted, and imported for CUE consumption as required.
 
 #+begin_src shell :results none
   cue decrypt github.com/augustfengd/augustfeng.app/secrets
@@ -16,7 +16,9 @@ easily decrypted/imported:
 
 ** Building the pipelines
 
-This project relies heavily on pipelines for execution.
+This project is nearly heavily automated using pipelines. The pipeline
+configuration are coded with CUE and compiled using a variety of different
+methods.
 
 - cloud pipeline:
 
@@ -29,6 +31,12 @@ This project relies heavily on pipelines for execution.
   #+begin_src shell :results none
     cue pipeline github.com/augustfengd/augustfeng.app/apps/blog
   #+end_src
+
+- domain pipeline:
+
+#+begin_src shell :results none
+  make -C apps/domain ../../.github/workflows/apps.domain.yaml
+#+end_src
 
 - toolchain pipeline:
 
@@ -61,9 +69,9 @@ The entire terraform (cloud) setup and operations is automated:
 
 ** Kubernetes
 
-I have written abstractions in CUE to easily author kubernetes configuration.
-Additionally, there is a thin scripting layer which integrates this and helm
-charts:
+I have written some abstractions in CUE to easily author kubernetes
+configuration. Additionally, there is a thin scripting layer which integrates
+this and helm charts:
 
 #+begin_src shell
   # kubectl backend
