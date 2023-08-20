@@ -22,27 +22,27 @@ methods.
 
 - cloud pipeline:
 
-  #+begin_src shell :results none
-    cue build github.com/augustfengd/augustfeng.app/cloud/pipeline
-  #+end_src
+#+begin_src shell :results none
+cue build github.com/augustfengd/augustfeng.app/cloud/pipeline
+#+end_src
 
 - blog pipeline:
 
-  #+begin_src shell :results none
-    cue pipeline github.com/augustfengd/augustfeng.app/apps/blog
-  #+end_src
+#+begin_src shell :results none
+cue pipeline github.com/augustfengd/augustfeng.app/apps/blog
+#+end_src
 
 - domain pipeline:
 
 #+begin_src shell :results none
-  make -C apps/domain ../../.github/workflows/apps.domain.yaml
+make -C apps/domain ../../.github/workflows/apps.domain.yaml
 #+end_src
 
 - toolchain pipeline:
 
-  #+begin_src shell :results none
-    cue build github.com/augustfengd/augustfeng.app/apps/toolchain/pipeline
-  #+end_src
+#+begin_src shell :results none
+cue build github.com/augustfengd/augustfeng.app/apps/toolchain/pipeline
+#+end_src
 
 ** Terraform
 
@@ -50,22 +50,22 @@ The entire terraform (cloud) setup and operations is automated:
 
 - configure the workspace variables:
 
-  #+begin_src shell
-    # if working from root directory.
-    cue configure github.com/augustfengd/augustfeng.app/cloud/terraform
+#+begin_src shell
+# if working from root directory.
+cue configure github.com/augustfengd/augustfeng.app/cloud/terraform
 
-    # if working from cloud/terraform directory.
-    cue configure
-  #+end_src
+# if working from cloud/terraform directory.
+cue configure
+#+end_src
 
 - build, plan and apply:
 
-  #+begin_src shell
-    cue build
-    cue init
-    cue plan
-    cue apply
-  #+end_src
+#+begin_src shell
+cue build
+cue init
+cue plan
+cue apply
+#+end_src
 
 ** Kubernetes
 
