@@ -2,7 +2,7 @@ FROM rust:1.67 as builder
 
 WORKDIR /usr/src/domain
 
-# copy dependency specifications.
+# copy dependency information.
 
 COPY Cargo.toml Cargo.lock rust-toolchain.toml ./
 
