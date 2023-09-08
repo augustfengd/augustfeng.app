@@ -18,13 +18,21 @@ deployment:
 			{
 				spec: template: spec: {
 					containers: [{
-						ports: [{
-							name:          "websecure"
-							containerPort: 443
-							hostPort:      443
-						}]
+						ports: [
+							{
+								name:          "web"
+								containerPort: 80
+								hostPort:      80
+							},
+							{
+								name:          "dns"
+								containerPort: 53
+								hostPort:      53
+							}]
 					}]
-					nodeSelector: "cloud.google.com/gke-nodepool": "default-pool"
 				}
-			}, {}]
+				// The running pod needs to let go of the host ports for the rollout to proceed.
+				spec: strategy: type: "Recreate"
+			},
+			{}]
 	}

@@ -80,3 +80,8 @@ import (
 	name: string
 	manifests: [core.#ServiceAccount & {metadata: "name": name}]
 }
+
+#namespace: {
+	name: string
+	manifests: [core.#Namespace & {metadata: "name": name}]
+}

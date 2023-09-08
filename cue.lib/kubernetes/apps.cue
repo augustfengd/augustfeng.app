@@ -70,11 +70,14 @@ import (
 					if image.digest != _|_ {strings.Join([image.name, image.digest], "@")}
 				}
 				"name": name
-				"env": [ for k, v in _env_ {name: k, v}]
+				"env": [ for k, v in _env_ {
+					name:  k
+					value: v
+				}]
 				_env_: {
 					for n, c in env {
 						if c.value != null {
-							(n): value: c.value
+							(n): c.value
 						}
 						if c.secret != null {
 							(n): valueFrom: secretKeyRef: {

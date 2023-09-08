@@ -27,7 +27,6 @@ import (
 			middlewares: [ for middleware in r.middlewares {name: middleware}]
 		}]
 		spec: {
-			entryPoints: ["websecure"]
 			routes: [...{
 				kind:  "Rule"
 				match: string
@@ -38,6 +37,15 @@ import (
 					kind:  string
 				}]
 			}]
+
+		}
+		if fqdn =~ ".home.arpa" {
+			spec: entryPoints: ["web"]
+		}
+		spec: {
+			entryPoints: ["web"]
+		} | *{
+			entryPoints: ["websecure"]
 			tls: certResolver: "letsencrypt"
 		}
 	}]

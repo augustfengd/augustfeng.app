@@ -1,0 +1,26 @@
+#+TITLE: hacks
+
+* About
+
+Here lies some manual hacks I did to get things going. A proper solution will be
+implemented when the motivation is right. That's a commitment for future me.
+
+* Hacks
+
+** remove node taint from master
+
+I'm running a single node setup, so I'll need the control plane as workers.
+
+#+begin_src shell
+   k taint nodes laptop2020 node-role.kubernetes.io/control-plane:NoSchedule-
+#+end_src
+
+** disable systemd-resolved.service
+
+Ubuntu machines does something that involves hosting a local dns server. Since
+I'm hosting a dns service (pihole), I'll disable this.
+
+#+begin_src shell
+  systemctl stop systemd-resolved.service
+  systemctl disable systemd-resolved.service
+#+end_src
