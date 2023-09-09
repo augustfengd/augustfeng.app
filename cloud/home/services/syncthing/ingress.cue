@@ -15,3 +15,20 @@ ingressroute:
 			}]
 		}]
 	}
+
+// wip
+_ingressrouteudp: manifests: [{
+	apiVersion: "traefik.io/v1alpha1"
+	kind:       "IngressRouteUDP"
+	metadata: name: "syncthing.home.arpa"
+	spec: {
+		entryPoints: [""]
+		routes: [{
+			services: [{
+				name: "syncthing"
+				port: 53
+				// nativeLB: true
+			}]
+		}]
+	}
+}]

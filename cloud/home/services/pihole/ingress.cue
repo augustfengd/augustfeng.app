@@ -26,7 +26,6 @@ ingressrouteudp: manifests: [{
 			services: [{
 				name: "pihole"
 				port: 53
-				// nativeLB: true
 			}]
 		}]
 	}

@@ -20,4 +20,6 @@ deployment:
 			"quic":      "UDP"
 			"discovery": "UDP"
 		}
-	}
+	} & {manifests: [{
+		spec: template: spec: containers: [{volumeMounts: [{mountPath: "/var/syncthing/Sync", name: "sync"}, {mountPath: "/var/syncthing/config", name: "config"}]}]
+		spec: template: spec: volumes: [{name: "sync", hostPath: path: "/home/augustfengd/Sync"}, {name: "config", hostPath: path: "/home/augustfengd/.config/syncthing"}]}, {}]}

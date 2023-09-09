@@ -23,6 +23,7 @@
 
 *** reading messages
 
+@@html:<kbd>@@ d @@html:</kbd>@@ or @@html:<kbd>@@ M-d @@html:</kbd>@@ (gnus-summary-next-unread-article): open current article, and go to next unread one.
 @@html:<kbd>@@ n @@html:</kbd>@@ (gnus-summary-next-unread-article): open current article, and go to next unread one.
 @@html:<kbd>@@ p @@html:</kbd>@@ (gnus-summary-prev-unread-article): open previous unread article, or go back to another group.
 
