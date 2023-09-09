@@ -15,8 +15,11 @@ traefik_yml: {
 		insecure:  true
 	}
 	entryPoints: {
-		web: address: ":80"
-		dns: address: ":53/udp"
+		web: address:                   ":80"
+		dns: address:                   ":53/udp"
+		"syncthing-tcp": address:       ":22000/tcp"
+		"syncthing-udp": address:       ":22000/udp"
+		"syncthing-discovery": address: ":21027/udp"
 	}
 	providers: kubernetesCRD: {}
 }

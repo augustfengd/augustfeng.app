@@ -16,19 +16,47 @@ ingressroute:
 		}]
 	}
 
-// wip
-_ingressrouteudp: manifests: [{
+ingressroutetcp: manifests: [{
 	apiVersion: "traefik.io/v1alpha1"
-	kind:       "IngressRouteUDP"
-	metadata: name: "syncthing.home.arpa"
+	kind:       "IngressRouteTCP"
+	metadata: name: "tcp.syncthing.home.arpa"
 	spec: {
-		entryPoints: [""]
+		entryPoints: ["syncthing-tcp"]
 		routes: [{
+			match: "HostSNI(`*`)"
 			services: [{
 				name: "syncthing"
-				port: 53
-				// nativeLB: true
+				port: 22000
 			}]
 		}]
 	}
 }]
+
+ingressrouteudp: manifests: [{
+	apiVersion: "traefik.io/v1alpha1"
+	kind:       "IngressRouteUDP"
+	metadata: name: "udp.syncthing.home.arpa"
+	spec: {
+		entryPoints: ["syncthing-udp"]
+		routes: [{
+			services: [{
+				name: "syncthing"
+				port: 22000
+			}]
+		}]
+	}
+}, {
+	apiVersion: "traefik.io/v1alpha1"
+	kind:       "IngressRouteUDP"
+	metadata: name: "discovery.syncthing.home.arpa"
+	spec: {
+		entryPoints: ["syncthing-discovery"]
+		routes: [{
+			services: [{
+				name: "syncthing"
+				port: 21027
+			}]
+		}]
+	}
+},
+]

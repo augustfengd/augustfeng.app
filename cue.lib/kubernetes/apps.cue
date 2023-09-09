@@ -95,7 +95,7 @@ import (
 				if args != null {
 					"args": [ for k, v in args if v == null {k}] + list.FlattenN([ for k, v in args if v != null {[k, v]}], -1)
 				}
-				"volumeMounts": [ for mp, c in _volumeMounts_ {mountPath: mp, c}] | *[...{}]
+				"volumeMounts": *[ for mp, c in _volumeMounts_ {mountPath: mp, c}] | [...{}]
 				_volumeMounts_: {
 					for s, c in {mount.secret, mount.configmap, mount.emptydir} {
 						for mp, sp in c {
@@ -110,7 +110,7 @@ import (
 					}
 				}
 			}]
-			spec: template: spec: volumes:    [ for s, _ in mount.emptydir {name: s, emptyDir: {}}]+[ for s, _ in mount.secret {name: s, secret: secretName: s}]+[ for s, _ in mount.configmap {name: s, configMap: name: s}] | *[...{}]
+			spec: template: spec: volumes:    *([ for s, _ in mount.emptydir {name: s, emptyDir: {}}]+[ for s, _ in mount.secret {name: s, secret: secretName: s}]+[ for s, _ in mount.configmap {name: s, configMap: name: s}]) | [...{}]
 			spec: template: metadata: labels: X.labels
 			spec: template: spec: {if sa != null {serviceAccountName: sa}}
 		},

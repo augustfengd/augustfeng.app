@@ -17,6 +17,9 @@ deployment:
 		manifests: [
 			{
 				spec: template: spec: {
+					hostNetwork: true // XXX: container does not crash nor open
+									  // port 53 on host without this for some
+									  // reason.
 					containers: [{
 						ports: [
 							{
@@ -28,6 +31,21 @@ deployment:
 								name:          "dns"
 								containerPort: 53
 								hostPort:      53
+							},
+							{
+								name:          "syncthing-tcp"
+								containerPort: 22000
+								hostPort:      22000
+							},
+							{
+								name:          "syncthing-udp"
+								containerPort: 22000
+								hostPort:      22000
+							},
+							{
+								name:          "syncthing-dis"
+								containerPort: 21027
+								hostPort:      21027
 							}]
 					}]
 				}

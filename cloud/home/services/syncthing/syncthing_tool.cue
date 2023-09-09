@@ -13,6 +13,8 @@ manifests: [
 	namespace.manifests,
 	deployment.manifests,
 	ingressroute.manifests,
+	ingressroutetcp.manifests,
+	ingressrouteudp.manifests,
 ]
 
 command: kubectl & {
