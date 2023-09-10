@@ -1,0 +1,38 @@
+#+TITLE: Opening Emacs from Windows
+#+categories[]: emacs
+#+tags[]: emacs
+#+date: [2023-09-10 Sun]
+
+* About
+
+For various reasons, I prefer running a Emacs from WSL. I also exclusively it
+with a window system.
+
+Wouldn't it be nice to open Emacs directly from Windows?
+
+* Issue
+
+In order to open Emacs, I run it from a shell as it requires some environment
+variables which are configured from the login scripts. As a result, I need to
+keep a terminal window open for that shell.
+
+It's not too inconvenient most of the time since I usually have some other needs
+for the terminal. Nevertheless it's still noise in my desktop environment when I
+just want to use Emacs.
+
+* Solutions
+
+Over the years, I've tried multiple solutions and I've finally found one that
+I'm satifised with.
+
+The idea is to use tmux to spin up the Emacs process. Since tmux does not need
+to be always attached to the terminal, I can keep my window count to just Emacs.
+
+In order to launch everything from the Windows side of things, I create a
+shortcut with the following target:
+
+#+begin_src shell
+C:\Windows\System32\wsl.exe --cd "/home/augustfengd" --exec zsh -lic "if ! tmux new-window -t emacs: emacs; then tmux new-session -A -d -s emacs emacs; fi"
+#+end_src
+
+This enables me to launch Emacs from the Start menu.
