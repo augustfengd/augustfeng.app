@@ -1,0 +1,105 @@
+#+TITLE: Taking the time to learn git push
+#+categories[]: git
+#+tags[]: git
+#+date: <2023-09-14 Thu>
+
+* About
+
+OK, let's take the time to learn the default behaviours of ~git push~ instead of
+fumbling around each time. :D
+
+I'm going to read the manual of the git for each things that I find a bit
+magical and will document them here.
+
+I'll be using GitHub as a provider for this experiment.
+
+* Setup
+
+After creating a repository on GitHub and following the initialization steps, we
+end up with *.git/config* file that looks like this:
+
+#+begin_src toml
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+	precomposeunicode = true
+[remote "origin"]
+	url = https://github.com/augustfengd/foobar.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "main"]
+	remote = origin
+	merge = refs/heads/main
+#+end_src
+
+* The Experience
+
+Typically, one would branch off *main*, commit a few patches and then run *git
+push*:
+
+#+begin_src shell
+# branch off
+git switch -c feature
+
+# commit some changes
+echo foobar > helloworld.txt
+git add helloworld.txt
+
+# git push
+git push
+#+end_src
+
+With an default setup, such an operation will be met with this familiar error:
+
+#+begin_src
+git push
+# fatal: The current branch feature has no upstream branch.
+# To push the current branch and set the remote as upstream, use
+# 
+#     git push --set-upstream origin feature
+# 
+# To have this happen automatically for branches without a tracking
+# upstream, see 'push.autoSetupRemote' in 'git help config'.
+#+end_src
+
+* git push
+
+Let's investigate what git understand when we run ~git push~.
+
+According to the /man/ page of _git-push_, the interpretation of that command
+verbatim will be *git push /[<repository> [<refspec>...]]/*
+
+** /<repository>/
+
+Assuming the *.git/config* from earlier, the behaviour of omitting
+/<repository>/ is to default to *origin*.
+
+This behaviour can be changed by configuring the branch in *.git/config*:
+
+#+begin_src toml
+[branch "feature"]
+	remote = xyz
+#+end_src
+
+** /[<refspec>...]/
+
+Assuming the *.git/config* from earlier, the behaviour of omitting
+/[<refspec>...]/ is to use the *simple* mode from the list of predefined
+behaviour in *push.default*.
+
+The *simple* mode says that *git push* should push the current branch to a
+branch of the same name on remote.
+
+* configuring the branch
+
+We define the *upstream* branch for a given branch by introducing
+*branch.<name>.remote* and *branch.<name>.merge* to the branch's configuration
+in the *.git/config* file:
+
+#+begin_src toml
+[branch "feature"]
+  remote = origin
+	merge = refs/heads/feature
+#+end_src

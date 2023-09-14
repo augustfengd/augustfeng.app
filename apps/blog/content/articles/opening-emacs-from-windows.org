@@ -31,7 +31,7 @@ to be always attached to the terminal, I can keep my window count to just Emacs.
 In order to launch everything from the Windows side of things, I create a
 shortcut with the following target:
 
-#+begin_src shell
+#+begin_src bat
 C:\Windows\System32\wsl.exe --cd "/home/augustfengd" --exec zsh -lic "if ! tmux new-window -t emacs: emacs; then tmux new-session -A -d -s emacs emacs; fi"
 #+end_src
 
