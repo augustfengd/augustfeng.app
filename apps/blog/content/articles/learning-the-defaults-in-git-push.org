@@ -1,4 +1,4 @@
-#+TITLE: Taking the time to learn git push
+#+TITLE: Learning the defaults in git push
 #+categories[]: git
 #+tags[]: git
 #+date: <2023-09-14 Thu>

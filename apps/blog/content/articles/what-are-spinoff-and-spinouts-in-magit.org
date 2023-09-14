@@ -1,0 +1,32 @@
+#+TITLE: What are spinoff and spinouts in magit
+#+categories[]: programming
+#+tags[]: git
+#+date: [2023-09-14 Thu]
+#+mermaid: true
+
+* Spinoff
+
+Let's assume the following working git tree:
+
+#+begin_src text
+* 465318a (HEAD -> foobar) helloworld
+* f4dd687 (master) init
+#+end_src text
+
+A ~magit-branch-spinoff~ will create a new branch *foobaz* which takes
+*foobar*'s place, and *foobar* will be moved to the branch's /upstream/:
+
+#+begin_src text
+* 465318a (HEAD -> foobaz) helloworld
+* f4dd687 (master, foobar) init
+#+end_src
+
+* Spinout
+
+A ~magit-branch-spinoff~ will perform the same operations of
+~magit-branch-spinoff~, however we'll stay on the current branch.
+
+#+begin_src text
+* 465318a (foobaz) helloworld
+* f4dd687 (HEAD -> foobar, master) init
+#+end_src
