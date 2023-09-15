@@ -1,4 +1,4 @@
-#+TITLE: Learning the defaults in git push
+#+TITLE: Learning and configuring git push
 #+categories[]: git
 #+tags[]: git
 #+date: <2023-09-14 Thu>
@@ -6,13 +6,10 @@
 * About
 
 OK, let's take the time to learn the default behaviours of ~git push~ instead of
-fumbling around each time. :D
+fumbling around each time. ☺
 
 I'm going to read the manual of the git for each things that I find a bit
 magical and will document them here.
-
-I'll be using GitHub as a provider for this experiment.
-
 * Setup
 
 After creating a repository on GitHub and following the initialization steps, we
@@ -34,7 +31,7 @@ end up with *.git/config* file that looks like this:
 	merge = refs/heads/main
 #+end_src
 
-* The Experience
+* The experience
 
 Typically, one would branch off *main*, commit a few patches and then run *git
 push*:
@@ -92,7 +89,7 @@ behaviour in *push.default*.
 The *simple* mode says that *git push* should push the current branch to a
 branch of the same name on remote.
 
-* configuring the branch
+* Configuring the branch
 
 We define the *upstream* branch for a given branch by introducing
 *branch.<name>.remote* and *branch.<name>.merge* to the branch's configuration
@@ -100,6 +97,52 @@ in the *.git/config* file:
 
 #+begin_src toml
 [branch "feature"]
-  remote = origin
-	merge = refs/heads/feature
+	remote = origin
+	merge = refs/heads/main
+#+end_src
+
+* An opinionated configuration
+
+Note that the feature branch configuration from earlier is different than what
+would happen when we run the command from advice: ~git push --set-upstream
+origin feature~.
+
+The reason I target the /master/ or /main/ remote branch as *upstream* for my
+all branches instead of a remote branch with the same name is because:
+
+- These are the branches that I want my changes to /eventually/ land on.
+
+- My branch's tracking status in relation to /master/ is more informative than
+  seeing how many commits I forgot to push.
+
+In order to achieve this automagically, I need to change a few git settings.
+
+The first one is to automatically setup the branch's *upstream* configuration
+upon branch creation.
+
+** branch.autoSetupMerge
+
+This configuration controls this setup automation, and the *inherit* setting
+fits my need the most, since I want to keep the upstream for all my branches.
+
+#+begin_src toml
+[branch]
+	autoSetupMerge = inherit
+#+end_src
+
+** push.default
+
+This configuration controls what happen when we don't specify /[<repository>
+[<refspec>...]]/ after the *git push* command.
+
+It's default value is *simple*, which is to push to *upstream*.
+
+In my setup, *upstream* is always *master* so I use the ~current~ setting
+instead which causes *git push* to push the current branch to one with the same
+name on the remote.
+
+
+#+begin_src toml
+[push]
+	default = current
 #+end_src
