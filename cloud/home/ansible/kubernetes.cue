@@ -1,47 +1,14 @@
-package home
+package ansible
 
-#c: {
-	controlplane: ["laptop2020"]
-	worker: []
-	etc: null // ignore for now.
-	versions: {
-		containerd: "1.6.23"
-		runc:       "1.1.9"
-		cni:        "1.3.0"
-		kubernetes: "1.28"
-		weave:      "2.8.1"
-	}
+#versions: {
+	containerd: string
+	runc:       string
+	cni:        string
+	kubernetes: string
+	weave:      string
 }
 
-ansibleCfg: """
-	[defaults]
-	inventory=inventory.yaml
-	"""
-
-inventoryYaml: {
-	controlplane: hosts: {
-		for i, ip in #c.controlplane {
-			"controlplane-\(i)": ansible_host: ip
-			"controlplane-\(i)": ansible_user: "augustfengd"
-		}
-	}
-
-	worker: hosts: {
-		for i, ip in #c.worker {
-			"worker-\(i)": ansible_host: ip
-			"worker-\(i)": ansible_user: "augustfengd"
-		}
-	}
-}
-
-installKubernetesYaml: [
-	#configureContainerRuntimePrerequisites,
-	#configureContainerRuntime,
-	#configureKubeadmKubeletKubectl,
-	#installKubernetes,
-	#installNetworkAddOn,
-	// ssh onto controlplane and run kubeadm commands manually: "kubeadm init --pod-network-cidr=10.244.0.0/16"
-]
+versions: #versions
 
 #configureContainerRuntimePrerequisites: {
 	hosts:  "controlplane, worker"
@@ -105,7 +72,7 @@ installKubernetesYaml: [
 	tasks: [{
 		name: "containerd (install)"
 		unarchive: {
-			src:        "https://github.com/containerd/containerd/releases/download/v\(#c.versions.containerd)/containerd-\(#c.versions.containerd)-linux-amd64.tar.gz"
+			src:        "https://github.com/containerd/containerd/releases/download/v\(versions.containerd)/containerd-\(versions.containerd)-linux-amd64.tar.gz"
 			dest:       "/usr/local"
 			remote_src: "yes"
 		}
@@ -134,7 +101,7 @@ installKubernetesYaml: [
 	}, {
 		name: "runc (install)"
 		get_url: {
-			url:  "https://github.com/opencontainers/runc/releases/download/v\(#c.versions.runc)/runc.amd64"
+			url:  "https://github.com/opencontainers/runc/releases/download/v\(versions.runc)/runc.amd64"
 			dest: "/usr/local/sbin/runc"
 			mode: "755"
 		}
@@ -147,7 +114,7 @@ installKubernetesYaml: [
 	}, {
 		name: "cni (install)"
 		unarchive: {
-			src:        "https://github.com/containernetworking/plugins/releases/download/v\(#c.versions.cni)/cni-plugins-linux-amd64-v\(#c.versions.cni).tgz"
+			src:        "https://github.com/containernetworking/plugins/releases/download/v\(versions.cni)/cni-plugins-linux-amd64-v\(versions.cni).tgz"
 			dest:       "/opt/cni/bin"
 			remote_src: "yes"
 		}
@@ -172,8 +139,8 @@ installKubernetesYaml: [
 		}
 	}, {
 		name: "disable swap (/etc/fstab)"
-		mount: {
-			name:   "swap"
+		"ansible.posix.mount": {
+			path:   "none" // fstab(5)
 			fstype: "swap"
 			state:  "absent"
 		}
@@ -190,13 +157,13 @@ installKubernetesYaml: [
 	tasks: [{
 		name: "signing key (install)"
 		get_url: {
-			url:  "https://pkgs.k8s.io/core:/stable:/v\(#c.versions.kubernetes)/deb/Release.key"
+			url:  "https://pkgs.k8s.io/core:/stable:/v\(versions.kubernetes)/deb/Release.key"
 			dest: "/etc/apt/keyrings/kubernetes-apt-keyring.asc"
 		}
 	}, {
 		name: "signing key (configure)"
 		apt_repository: {
-			repo:  "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/v\(#c.versions.kubernetes)/deb/ /"
+			repo:  "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/v\(versions.kubernetes)/deb/ /"
 			state: "present"
 		}
 	}, {
@@ -246,7 +213,21 @@ installKubernetesYaml: [
 	become: "yes"
 	tasks: [{
 		name:    "weave net (install)"
-		command: "kubectl apply -f https://github.com/weaveworks/weave/releases/download/v\(#c.versions.weave)/weave-daemonset-k8s.yaml"
+		command: "kubectl apply -f https://github.com/weaveworks/weave/releases/download/v\(versions.weave)/weave-daemonset-k8s.yaml"
 		when:    "ansible_weave is falsy" // untested
+	}]
+}
+
+#configureDns: {
+	hosts:  "controlplane"
+	become: "yes"
+	tasks: [{
+		name: "NetworkManager.service (configure)"
+		"ini_file": {
+			path:    "/etc/NetworkManager/NetworkManager.conf"
+			section: "main"
+			option:  "dns"
+			value:   "default"
+		}
 	}]
 }
