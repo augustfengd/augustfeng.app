@@ -30,5 +30,4 @@ apply: steps: {
 			stdin: yaml.MarshalStream(manifest)
 		}
 	}
-
 }

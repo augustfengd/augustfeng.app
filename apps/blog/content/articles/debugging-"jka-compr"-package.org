@@ -26,3 +26,12 @@ Spacemacs, instead I just deleted all compressed files in the
 #+begin_src sh
   find Emacs.app/Contents/Resources/lisp -name '*.el.gz' -exec rm {} \;
 #+end_src
+
+* Fix (Updated)
+
+I found out that these compressed lisp files are the original ~.el~. As a
+result, I'd rather decompress them to recover the ~.el~ for debugging instead:
+
+#+begin_src sh
+  find Emacs.app/Contents/Resources/lisp -name '*.el.gz' -exec gzip -d {} \;
+#+end_src
