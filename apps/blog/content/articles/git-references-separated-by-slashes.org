@@ -1,0 +1,36 @@
+#+TITLE: git references separated by slashes
+#+categories[]: git
+#+tags[]: git
+#+date: [2023-09-26 Tue]
+
+* About
+
+This article documents a quick investigation on why we cannot have git
+references with slashes who's parts are parts of another reference.
+
+This is a bit difficult to explain so I'll illustrate the use case by example:
+
+#+begin_src shell
+git init
+git switch -c foo/bar
+git commit --message 'foo/bar' --allow-empty
+git switch -c foo # this will not work!
+
+# vice-versa
+git init
+git switch -c foo
+git commit --message 'foo' --allow-empty
+git switch -c foo/bar # this will not work!
+#+end_src
+
+* Why
+
+A git reference's sha is stored in ~.git/refs/heads/~.
+
+For example, the commit with the message *foo/bar* has a sha
+/b855e5727081283951c786cf72669cb6bde385e2/, which is printed in the
+~.git/refs/heads/foo/bar~ file.
+
+Each parent part of the slash separated reference is a directory. In Linux, we
+cannot have both a directory and a file named the same. As a result, the
+reference ~foo~ is unavailable.
