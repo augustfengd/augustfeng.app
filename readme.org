@@ -52,7 +52,7 @@ The entire terraform (cloud) setup and operations is automated:
 
 #+begin_src shell
 # if working from root directory.
-cue configure github.com/augustfengd/augustfeng.app/cloud/terraform
+cue configure github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
 
 # if working from cloud/terraform directory.
 cue configure
