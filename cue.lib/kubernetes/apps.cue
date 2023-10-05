@@ -10,8 +10,10 @@ import (
 )
 
 #deployment: {
-	name: string | *{ let s = strings.Split(image.name, "/"), s[len(s)-1]}
-	annotations: [string]: string
+	name:        string | *{ let s = strings.Split(image.name, "/"), s[len(s)-1]}
+	annotations: {
+		[string]: string
+	} | *null
 	image: {
 		name: string
 		*{
@@ -110,8 +112,13 @@ import (
 					}
 				}
 			}]
-			spec: template: spec: volumes:    *([ for s, _ in mount.emptydir {name: s, emptyDir: {}}]+[ for s, _ in mount.secret {name: s, secret: secretName: s}]+[ for s, _ in mount.configmap {name: s, configMap: name: s}]) | [...{}]
-			spec: template: metadata: labels: X.labels
+			spec: template: spec: volumes: *([ for s, _ in mount.emptydir {name: s, emptyDir: {}}] + [ for s, _ in mount.secret {name: s, secret: secretName: s}] + [ for s, _ in mount.configmap {name: s, configMap: name: s}]) | [...{}]
+			spec: template: metadata: {
+				labels: X.labels
+				if annotations != null {
+					"annotations": {for k, v in annotations {(k): v}}
+				}
+			}
 			spec: template: spec: {if sa != null {serviceAccountName: sa}}
 		},
 

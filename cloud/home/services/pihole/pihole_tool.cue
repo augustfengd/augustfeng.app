@@ -11,6 +11,7 @@ import (
 
 manifests: [
 	namespace.manifests,
+	cm.manifests,
 	deployment.manifests,
 	ingressroute.manifests,
 	ingressrouteudp.manifests,
