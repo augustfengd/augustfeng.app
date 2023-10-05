@@ -3,6 +3,7 @@
 resources
 
 # build dir
+public/
 build/
 
 # online theme dir

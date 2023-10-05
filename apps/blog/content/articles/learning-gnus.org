@@ -9,14 +9,19 @@
 *** commands to change views
 
 @@html:<kbd>@@ A A @@html:</kbd>@@ (gnus-group-list-active): list all groups that are available on the servers.
-@@html:<kbd>@@ L @@html:</kbd>@@, @@html:<kbd>@@ A u @@html:</kbd>@@ (gnus-group-list-all-groups): list all groups.
+
+@@html:<kbd>@@ L @@html:</kbd>@@ , @@html:<kbd>@@ A u @@html:</kbd>@@ (gnus-group-list-all-groups): list all groups.
+
 @@html:<kbd>@@ l @@html:</kbd>@@ (gnus-group-list-groups): list groups with unread articles.
+
 @@html:<kbd>@@ t @@html:</kbd>@@ (gnus-topic-mode): toggle the minor topic mode.
 
 ** Summary buffer
 
 @@html:<kbd>@@ M-g @@html:</kbd>@@ (gnus-summary-rescan-group): show read messages. this seems to only work when all articles are read?
+
 @@html:<kbd>@@ ! @@html:</kbd>@@ or @@html:<kbd>@@ u @@html:</kbd>@@ (gnus-summary-tick-article-forward): tick the message.
+
 @@html:<kbd>@@ M-u @@html:</kbd>@@ (gnus-summary-clear-mark-forward): clear mark.
 
 @@html:<kbd>@@ / @@html:</kbd>@@ @@html:<kbd>@@ o @@html:</kbd>@@ (gnus-summary-insert-old-articles): show unread messages along read messages.
@@ -24,17 +29,22 @@
 *** reading messages
 
 @@html:<kbd>@@ d @@html:</kbd>@@ or @@html:<kbd>@@ M-d @@html:</kbd>@@ (gnus-summary-next-unread-article): open current article, and go to next unread one.
+
 @@html:<kbd>@@ n @@html:</kbd>@@ (gnus-summary-next-unread-article): open current article, and go to next unread one.
+
 @@html:<kbd>@@ p @@html:</kbd>@@ (gnus-summary-prev-unread-article): open previous unread article, or go back to another group.
 
 @@html:<kbd>@@ g @@html:</kbd>@@ (gnus-summary-show-article): show the article.
+
 @@html:<kbd>@@ SPC @@html:</kbd>@@ (gnus-summary-next-page): page down the article and goes to next article, but will open if window is not present.
+
 @@html:<kbd>@@ RET @@html:</kbd>@@ (gnus-summary-scroll-up): supposed to scroll up, but it just opens the current article and scrolls down the window.
 
 @@html:<kbd>@@ = @@html:</kbd>@@ (gnus-summary-expand-window): expand the summary buffer, causing the article window to close.
 
+@@html:<kbd>@@ u @@html:</kbd>@@ (shr-maybe-probe-and-copy-url) : copy the URL under point to the kill ring.
 
-* nnimap
+* nnimap (backend)
 ** integration with gmail
 
 - Ticked messages (exclamation mark) translate to starred mails in gmail.
@@ -53,8 +63,11 @@ order for emacs to be able to render html messages.
 
 ** Multiple gmail accounts
 
-I configured the primary select method as ~(setq gnus-select-method '(nnnil
-nil))~ and stopped confusing the secondary accounts with the primary.
+*** secondary methods only
+
+I had to configure the primary select method as ~(setq gnus-select-method
+'(nnnil nil))~ in order for gnus stopped confusing the secondary accounts with
+the primary.
 
 While figuring this out, I was left with some groups in the *Group buffer* that
 I could not get rid of. They did not appear as zombie groups, and killing them
@@ -63,3 +76,40 @@ with @@html:<kbd>@@ C-k @@html:</kbd>@@ did not rid of them either.
 In the end, I deleted the ~/.newsrc.eld~ file to reset everything.
 
 Note that this will delete emails on setup where the mails are stored locally.
+It's harmless when viewing emails using IMAP protocol.
+
+*** configuration files
+
+~/.gnus.el:
+
+#+begin_src emacs-lisp
+(setq gnus-select-method '(nnnil nil))
+
+(setq gnus-secondary-select-methods '((nnimap "foo@gmail.com"
+                                              (nnimap-address "imap.gmail.com")
+                                              (nnimap-server-port "imaps")
+                                              (nnimap-stream ssl))
+
+                                      (nnimap "bar@gmail.com"
+                                              (nnimap-address "imap.gmail.com")
+                                              (nnimap-server-port "imaps")
+                                              (nnimap-stream ssl))
+
+                                      (nnimap "baz@gmail.com"
+                                              (nnimap-address "imap.gmail.com")
+                                              (nnimap-server-port "imaps")
+                                              (nnimap-stream ssl))))
+#+end_src
+
+~/.authinfo.gpg:
+
+#+begin_src authinfo
+machine foo@gmail.com login foo@gmail.com password helloworld port imaps
+machine foo@gmail.com login foo@gmail.com password helloworld port 587
+
+machine bar@gmail.com login bar@gmail.com password helloworld port imaps
+machine bar@gmail.com login bar@gmail.com password helloworld port 587
+
+machine baz@gmail.com login baz@gmail.com password helloworld port imaps
+machine baz@gmail.com login baz@gmail.com password helloworld port 587
+#+end_src
