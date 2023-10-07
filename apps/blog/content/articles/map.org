@@ -1,0 +1,70 @@
+#+TITLE: map
+#+categories[]: programming
+#+date: [2023-10-06 Fri]
+
+* list map
+
+The first time I encountered map and filter would've most likely been when
+writing scripts with python.
+
+It became my bread and butter when I began coding
+with Lisp and Jsonnet.
+
+Before programming with F#, my understanding of map was that it was strictly
+limited to lists and mapping each element with *f(x)* using the provided
+function.
+
+#+begin_src lisp
+(map 'list (lambda (n) (+ n 1)) '(1 2 3))
+#+end_src
+
+* map for all
+
+There are map functions for other types besides lists, and their implementation
+are specific for each one.
+
+#+begin_src fsharp
+// Option.map
+let map f =
+    fun opt -> match opt with
+               | Some it -> f it
+               | None -> None
+
+// Result.map
+let map f =
+    fun res -> match res with
+               | Ok it -> f it
+               | Err e -> Err e
+
+// List.map
+let map f =
+    let rec inner it = match it with
+                       | x :: xs -> (f x) :: (inner xs)
+                       | [] -> acc
+    fun it -> inner it
+#+end_src
+
+* the properties of map
+
+A correct map function should respect the Functor Laws.
+
+** id
+
+The lifted function built from ~map id~ should be simply just ~id~.
+
+#+begin_src fsharp
+let foobar = map id
+foobar ['a';'b';'c'] // = ['a';'b';'c']
+#+end_src
+
+The ~foobar~ function does not apply any transformations on the input ~['a';'b';'c']~.
+
+** compose
+
+#+begin_src fsharp
+let f = sprintf "hello, %s"
+let g = sprintf "%s!"
+
+let h, h' = List.map f >> List.map g, List.map (salute >> punctuate)
+h [ "Bar" ; "Baz" ] = h' [ "Bar" ; "Baz" ] // true
+#+end_src
