@@ -1,0 +1,22 @@
+#+TITLE: apply
+#+categories[]: programming
+#+date: [2023-10-06 Fri]
+#+draft: true
+
+* Building map with apply
+* properties
+** id
+#+begin_src fsharp
+// Option.apply
+let apply f' =
+    fun x' -> match f' with
+             | Some f -> match x' with
+                         | Some x -> Some (f x)
+                         | None -> None
+             | None -> None
+
+let _return = Some
+
+let map f =
+    apply (Some f)
+#+end_src
