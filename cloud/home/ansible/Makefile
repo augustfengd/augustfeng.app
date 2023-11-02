@@ -2,10 +2,10 @@
 all: build/inventory.yaml build/playbooks/installKubernetes.yaml build/ansible.cfg
 
 build/inventory.yaml: ansible.cue ; mkdir -p build
-	cue export --expression 'build.inventory' --outfile $@ --force
+	cue export --expression 'output.inventory' --outfile $@ --force
 
 build/ansible.cfg: ansible.cue ; mkdir -p build
-	cue export --expression 'build.ansibleCfg' --out text --outfile $@ --force
+	cue export --expression 'output.ansibleCfg' --out text --outfile $@ --force
 
 build/playbooks/installKubernetes.yaml: ansible.cue ; mkdir -p build/playbooks
-	cue export --expression 'build.playbooks.installKubernetes' --outfile $@ --force
+	cue export --expression 'output.playbooks.installKubernetes' --outfile $@ --force
