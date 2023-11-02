@@ -1,0 +1,100 @@
+#+title: the newtype idioms
+#+categories[]: development
+#+tags[]: development
+#+date: [2023-11-01 Wed]
+
+* About
+
+The "newtype" idiom is a pattern observed in programming where we leverage the
+languages' type checker to aid us in supplying "correct" values.
+
+Colin has a written a blog about it [[https://colinsblog.net/2022-01-29-newtypes/][here]] and I'm just posting some notes from my
+studies.
+
+* newtype vs type aliasing
+
+** cpp
+
+The /newtype/ pattern should not be confused with type aliasing.
+
+In C++, we can use the ~typedef~ statement to create aliases but this does add
+any type checking protection. The program below compiles and runs fine:
+
+#+begin_src cpp
+#include <iostream>
+
+typedef int id;
+
+int foobar(id n) {
+  std::cout << n << std::endl;
+  return 0;
+}
+
+int main() {
+  id a = 42;
+  int b = 42;
+  foobar(a);
+  foobar(b);
+  return 0;
+}
+#+end_src
+
+** fsharp
+
+The language does not support new types inherently, but we can achieve type
+protection with single-case discriminate unions.
+
+#+begin_src fsharp
+type Id = Id of int
+
+let foobar (Id n) =
+    printfn "%d" n
+
+[<EntryPoint>]
+let main _ =
+    foobar (Id 42)
+    0
+#+end_src
+
+** rust
+
+The language does not support new types inherently either, but we have a variety
+of patterns to go about achieving the same thing.
+
+#+begin_src rust
+mod a {
+    struct Id(i32);
+
+    fn foobar(Id(n): Id) {
+        println!("{}", n)
+    }
+
+    fn foobaz(id : Id) {
+        println!("{}", id.0)
+    }
+
+    pub fn run() {
+        foobar(Id(42));
+        foobaz(Id(42));
+    }
+}
+
+mod b {
+    enum Id {
+        Id(i32),
+    }
+
+    fn foobar(Id::Id(n): Id) {
+        println!("{}", n)
+    }
+
+    pub fn run() {
+        foobar(Id::Id(42))
+    }
+}
+
+fn main() {
+    a::run();
+    b::run();
+}
+#+end_src
