@@ -1,0 +1,33 @@
+#+title: Consuming upstream themes in Hugo
+#+tags[]: hugo
+#+categories[]: website
+#+date: [2023-11-08 Wed]
+
+* About
+
+There are three ways to use upstream themes in hugo.
+
+** git submodules
+
+This involves adding the upstream theme as a git submodule in the repository.
+
+I don't work with git submodules on a regular basis so it'd an enormous context
+switch to maintain the linking of the theme.
+
+** download and copy
+
+This involves just downloading the theme into the ~themes/~ folder. I've
+thoughtfully crafted this operation using ~make~ targets.
+
+If I had known about *Hugo Submodules*, I would've went that approach but I've
+invested so much effort to finally achieve a perfect /Makefile/ that I'm
+sticking to it.
+
+The /Makefile/ has so many intricacies to achieve reproducibility that I'm now
+using it as a reference for showing how it's done.
+
+** Hugo Modules
+
+This involves configuring the ~theme~ field with
+~github.com/nanxiaobei/hugo-paper~ and hugo will fetch the theme from the
+internet when compiling the website.
