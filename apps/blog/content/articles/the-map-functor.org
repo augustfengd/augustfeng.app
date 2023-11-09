@@ -1,4 +1,4 @@
-#+TITLE: map
+#+TITLE: the map functor
 #+categories[]: programming
 #+date: [2023-10-06 Fri]
 
