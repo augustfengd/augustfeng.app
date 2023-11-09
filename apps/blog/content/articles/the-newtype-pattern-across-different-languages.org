@@ -1,4 +1,4 @@
-#+title: the newtype idioms
+#+title: The newtype pattern in across different languages
 #+categories[]: development
 #+tags[]: development
 #+date: [2023-11-01 Wed]
