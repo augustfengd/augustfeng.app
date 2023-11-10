@@ -1,0 +1,33 @@
+#+title: Linked lists for fun in Rust
+#+categories[]: programming
+#+tags[]: rust
+#+date: [2023-11-10 Fri]
+
+I did a leetcode question in Rust for fun and thought I'd implement a reversal
+method for their linked list implementation while trying to borrow as much as I
+can.
+
+#+begin_src rust
+struct Node<'a, T> {
+    value: &'a T,
+    next: Option<Box<Node<'a, T>>>,
+}
+
+impl<'a, T> Node<'a, T> {
+    fn reversed(&self) -> Self {
+        fn inner<'a, T>(node: &Node<'a, T>, acc: Option<Box<Node<'a, T>>>) -> Node<'a, T> {
+            let x = &node.next;
+            let xs = Node {
+                value: node.value,
+                next: acc,
+            };
+            // x.map_or(xs, |node| inner(node, Some(Box::new(xs)))); // XXX: does not work because the closure is set up to take ownership of the node.
+            match x {
+                Some(node) => inner(node, Some(Box::new(xs))),
+                None => xs,
+            }
+        }
+        inner(self, None)
+    }
+}
+#+end_src
