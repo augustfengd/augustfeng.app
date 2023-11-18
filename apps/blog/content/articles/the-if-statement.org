@@ -1,0 +1,89 @@
+#+title: The if statement
+#+categories[]: programming
+#+date: [2023-11-18 Sat]
+
+* Prolog
+
+I was learning a bit of prolog and came to a new insight relating to the if
+statement after working a few times with the *neck operator* (~:-~).
+
+For what it's worth, prolog uses the *neck operator* as a way to express the
+relationship /is implied by/ and it is the building block for prolog programs.
+(/if we can even call them programs/).
+
+* The material conditional (if statement)
+
+The *neck operator* is known by many names, such as the [[https://en.wikipedia.org/wiki/Material_conditional][material conditional]] in
+the mathematical world, but we know it as the ubiquitous *if* statements found
+in modern programming languages.
+
+Just as a reminder, the material conditional is a logical operator that has the
+following truth table.
+
+|-----+-----+------------|
+| *P* | *Q* | *P* -> *Q* |
+|-----+-----+------------|
+| T   | T   | T          |
+| T   | F   | F          |
+| F   | T   | T          |
+| F   | F   | T          |
+|-----+-----+------------|
+
+* A study in modern programming
+
+** go programming language
+
+I'm going to use *go* as the programming language for the illustration purposes.
+The material conditionals are expressed in go are using the ~if~ statement with
+the following form:
+
+#+begin_src
+  if *Q* { *P* }
+#+end_src
+
+** example 1
+
+Let's consider an example where *P* is *true*:
+
+#+begin_src go
+  var x int
+  if true {
+    x = 42
+  }
+#+end_src
+
+According to the truth table, when *P* is *true*, then *Q* must also be *true*,
+otherwise we encounter a contradiction.
+
+The effects of this is that *x* is 42.
+
+** example 2
+
+Let's consider an example where *P* is *false*.
+
+#+begin_src go
+  var x int
+  x = 42 // not strictly necessarily.
+  if false {
+    x = 42
+  }
+#+end_src
+
+According to the truth table, when *P* is *false*, then *Q* does not necessarily
+need to be *true*.
+
+What this means is that *x* does not need to be 42 for the program to be a
+tautology. We could let *x* be anything and the program would still be sound.
+
+** anecdotes
+
+The *go* programming language is an /imperative language/.
+
+In languages that are not declarative, the ~=~ is an assignment operator rather
+than the mathematical equality relationship.
+
+In some sense, we can interpret the assignment operator as a way to converge to
+equality by making the *LHS* equal to the *RHS*.
+
+Programming languages can improve this convergence by making the *LHS*
+immutable. It gets significantly more challenging as we tend to declarativeness.
