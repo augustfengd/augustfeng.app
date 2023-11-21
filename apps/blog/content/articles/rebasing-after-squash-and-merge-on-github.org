@@ -106,7 +106,7 @@ Fortunately, this sequence of operations is nicely packed into single rebase
 command:
 
 #+begin_src shell
-git rebase --onto master c d
+git rebase --onto origin/master origin/feature feature
 #+end_src
 
 This command follows the first form of the ~git-rebase~ command:
@@ -117,16 +117,17 @@ git rebase [-i | --interactive] [<options>] [--exec <cmd>]
 #+end_quote
 
 Destructuring our command's arguments, we get:
-  - /<newbase>/ : master
-  - /<upstream>/ : c
-  - /<branch>/ : d
+  - /<newbase>/ : origin/master
+  - /<upstream>/ : origin/feature
+  - /<branch>/ : feature
 
 The ~git-rebase(1)~ manual explains the side-effects of this command, but it is
 a bit heavy to understand as it tries to explain all forms at the same time.
 
-In short, ~git~ will switch into a copy of revision *d*, and find all the
-commits until *d* and cherry-pick them into a copy of revision *master*, which
-will be your final working tree.
+In short, ~git~ will switch into the *feature* branch, and find all the commits
+since it was last pushed to remote, that is *origin/feature*. It then resets the
+branch to *origin/master*, and then cherry picks all the commits it had found in the
+previous step.
 
 * bringing the knowledge to the origin
 
@@ -138,7 +139,7 @@ If we have newer changes that have not yet pushed to remote (GitHub), simply
 reference the outdated origin as the base for a ~git rebase~ operation:
 
 #+begin_src shell
-git fetch -a; git rebase --onto master origin/d d
+git fetch -a; git rebase --onto origin/master origin/feature feature
 #+end_src
 
 If we're diligent, immediately run a ~git reset --{TBD} origin/main~.

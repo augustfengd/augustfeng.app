@@ -38,7 +38,7 @@ The material conditionals are expressed in go are using the ~if~ statement with
 the following form:
 
 #+begin_src
-  if *Q* { *P* }
+  if *P* { *Q* }
 #+end_src
 
 ** example 1
