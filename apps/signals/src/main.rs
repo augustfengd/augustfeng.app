@@ -4,10 +4,10 @@ async fn program() -> Result<(), Box<dyn std::error::Error>> {
 
     tokio::select! {
         _ = terminate.recv() => {
-            print!("SIGTERM")
+            println!("SIGTERM")
         }
         _ = interrupt.recv() => {
-            print!("SIGINT")
+            println!("SIGINT")
         }
     }
 

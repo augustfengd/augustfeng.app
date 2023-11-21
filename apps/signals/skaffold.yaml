@@ -1,0 +1,11 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+    - image: ghcr.io/augustfengd/augustfeng.app/signals
+      docker:
+        dockerfile: Dockerfile
+deploy:
+  kubectl: {}

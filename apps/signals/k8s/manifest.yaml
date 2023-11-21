@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: signals
+spec:
+  containers:
+    - name: signals
+      image: ghcr.io/augustfengd/augustfeng.app/signals
+      # running it this way does not propogate the signals.
+      command:
+        - /bin/sh
+        - -c
+        - /usr/local/bin/signals
