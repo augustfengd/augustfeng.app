@@ -1,0 +1,81 @@
+#+title: propagating linux signals
+#+categories[]: linux
+#+tags[]: linux
+#+date: [2023-11-21 Tue]
+
+* studies
+
+** trap does interrupt processes
+
+The ~trap~ command does not interrupt processes in scripts.
+
+Given the following script content, if we ~kill -s TERM <pid>~ the during the
+~sleep~ command, it will only print after ~sleep~ exits.
+
+#+begin_src shell
+trap 'printf world' SIGTERM
+printf hello ; sleep 8 ; printf .
+#+end_src
+
+** wait
+
+This command is very feature-full and I need to write things down.
+
+*** id
+
+The /id/ field is optional, but if given, ~wait~ will only wait for those.
+
+#+begin_src shell
+gsleep infinity & gsleep infinity &
+wait %1 # pgrep gsleep | head -n1 | xargs kill -s TERM
+#+end_src
+
+If there is no /id/ field that is given, then ~wait~ will wait for all existing jobs.
+
+#+begin_src shell
+gsleep infinity &
+gsleep infinity & gsleep infinity &
+wait # killall gsleep
+#+end_src
+
+*** -n
+
+If ~-n~ flag is supplied, it only waits for one of the jobs in the supplied job list. If no jobs are supplied, it only waits for the first one.
+
+#+begin_src shell
+gsleep infinity & gsleep infinity &
+wait -n $(pgrep gsleep) # pgrep gsleep | head -n1 | xargs kill -s TERM
+#+end_src
+
+*** -p
+
+This command supplements the ~-n~ flag to know which job was waited for.
+
+#+begin_src shell
+gsleep infinity &
+wait -p foobar -n $(pgrep gsleep) # pgrep gsleep | head -n1 | xargs kill -s TERM
+echo ${foobar}
+#+end_src
+
+*** -f
+
+The ~wait~ command is generalized to status changes as well. Supplying ~-f~
+configures it to only wait for process termination.
+
+Without the flag, wait will exit.
+
+#+begin_src shell
+gsleep infinity &
+wait # pgrep gsleep | kill -s STOP
+#+end_src
+
+With the flag, wait won't exit until the process terminates.
+
+#+begin_src shell
+gsleep infinity &
+wait -f %% # pgrep gsleep | xargs kill -s STOP && pgrep gsleep | xargs kill -s CONT
+#+end_src
+
+* useful links
+
+http://mywiki.wooledge.org/SignalTrap#When_is_the_signal_handled.3F
