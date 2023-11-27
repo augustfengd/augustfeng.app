@@ -26,11 +26,7 @@ func compare(title string, path string) bool {
 }
 
 func titles(c *cobra.Command, args []string) error {
-	files, err := files(c)
-	if err != nil {
-		return err
-	}
-
+	files := files(c)
 	o := org.New()
 
 	var differences []string

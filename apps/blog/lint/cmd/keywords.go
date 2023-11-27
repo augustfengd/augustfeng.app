@@ -1,33 +1,41 @@
 package cmd
 
 import (
-	"bufio"
+	"bytes"
+	"fmt"
+	"log"
 	"os"
+	"strings"
 
 	"github.com/niklasfasching/go-org/org"
 	"github.com/spf13/cobra"
 )
 
-func keywords(c *cobra.Command, args []string) error {
-	files, err := files(c)
-	if err != nil {
-		return err
-	}
+
+
+func validate() {
+
+}
+
+func keywords(c *cobra.Command, args []string) {
+	files := files(c)
 
 	o := org.New()
 
+	// var differences []string
 	for _, file := range files {
-		f, fError := os.Open(file)
+		b, fError := os.ReadFile(file)
 		if fError != nil {
-			return fError
+			log.Fatal(fError)
 		}
-		r := bufio.NewReader(f)
-		d := o.Parse(r, file)
 
-		var _ map[string][]string
-		for k, v := range d.BufferSettings {
-			println(k,v)
+		r := bytes.NewReader(b)
+		d := o.Parse(r, file)
+		settings := make(map[string][]string)
+		for K, v := range d.BufferSettings {
+			k := strings.ToLower(K)
+			settings[k] = strings.Fields(v)
 		}
+		fmt.Printf("%+v\n", settings)
 	}
-	return nil
 }

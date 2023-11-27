@@ -1,12 +1,12 @@
 keywords: {
-	"categories[]":
+	"categories":
 		"programming" |
 		"editor" |
 		"configuration" |
 		"scripting" |
 		"devops"
 
-	"tags[]":
+	"tag":
 		"fsharp" |
 		"rust" |
 		"go" |
