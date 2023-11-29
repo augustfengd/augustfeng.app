@@ -1,5 +1,3 @@
-alias l := lint
-
 [private]
 default:
     @just --list
@@ -9,4 +7,4 @@ server:
     hugo server
 
 lint:
-    emacs --script scripts/lint.el
+    emacs --script scripts/linter/linter.el -f program | cue vet scripts/linter/linter.cue json: -
