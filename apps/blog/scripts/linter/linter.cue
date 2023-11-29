@@ -1,6 +1,7 @@
 import (
 	"path"
 	"strings"
+	"list"
 )
 
 #schema: [filename=string]: {
@@ -8,6 +9,7 @@ import (
 		_exceptions: {
 			"/home/augustfengd/repositories/gh/augustfengd/augustfeng.app/apps/blog/content/articles/command-line-completion-frameworks.org": "Command-Line Completion Frameworks"
 			"/home/augustfengd/repositories/gh/augustfengd/augustfeng.app/apps/blog/content/articles/borrowing-battles-in-rust.org":          "Borrowing Battles in Rust"
+			"/home/augustfengd/repositories/gh/augustfengd/augustfeng.app/apps/blog/content/articles/a-study-of-newtype-usage-in-rust.org":   "A study of newtype usage in Rust"
 		}
 		for k, v in _exceptions {
 			if filename == k {
@@ -34,7 +36,13 @@ import (
 	} | {
 		#exceptions.#title
 	}
-	taxonomies: [taxonomy=string]: [...string]
+	taxonomies: {
+		#languages:   "fsharp" | "rust" | "go" | "jsonnet" | "cue" | "emacs-lisp" | "scheme" | "guile" | "cpp"
+		"CATEGORIES": [ ...{"programming" | "emacs" | "configuration" | "scripting" | "kubernetes" | "containers" | "project"}] & list.UniqueItems
+		"TAGS":       [ ...{#languages | "github" | "hugo" | "dotnet" | "kubernetes" | "linux" | "windows" | "wsl2" | "org-mode" | "git" | "shell" | "helm" | "docker" | "shortcuts" | "cicd" | "jetbrains"}] & list.UniqueItems
+		"DATE": [string]
+		...
+	}
 }
 
 #schema

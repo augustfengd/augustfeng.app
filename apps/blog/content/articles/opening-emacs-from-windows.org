@@ -1,6 +1,7 @@
 #+TITLE: Opening Emacs from Windows
-#+categories[]: emacs
-#+tags[]: emacs
+#+categories: emacs
+#+tags: windows
+#+tags: wsl2
 #+date: [2023-09-10 Sun]
 
 * About

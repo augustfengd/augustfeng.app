@@ -1,6 +1,6 @@
 #+title: Create FSharp Test Projects From Scratch
-#+categories[]: programming
-#+tags[]: programming dotnet
+#+categories: programming
+#+tags: dotnet
 #+date: [2023-05-31 Wed]
 
 * About

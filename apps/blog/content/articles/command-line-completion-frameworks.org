@@ -1,6 +1,6 @@
 #+TITLE: Command-Line Completion Frameworks
-#+categories[]: programming
-#+tags[]: git
+#+categories: programming
+#+tags: git
 #+date: [2023-10-16 Mon]
 #+draft: true
 

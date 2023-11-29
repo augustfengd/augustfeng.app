@@ -1,6 +1,6 @@
-#+TITLE: Automating Merge Conflicts
-#+categories[]: programming
-#+tags[]: git
+#+TITLE: Automating merge conflicts
+#+categories: programming
+#+tags: git
 #+date: [2023-08-10 Thu]
 #+mermaid: true
 

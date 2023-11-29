@@ -1,6 +1,7 @@
 #+title: Vendoring Helm Charts for Jsonnet Usage
-#+categories[]: devops
-#+tags[]: helm json jsonnet
+#+categories: kubernetes
+#+tags: helm
+#+tags: jsonnet
 #+date: [2022-11-28 Mon]
 
 This post goes over the detail of a =Makefile= target which converts helm charts

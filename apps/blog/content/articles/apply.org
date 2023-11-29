@@ -1,5 +1,5 @@
-#+TITLE: apply
-#+categories[]: programming
+#+title: Apply
+#+categories: programming
 #+date: [2023-10-06 Fri]
 #+draft: true
 

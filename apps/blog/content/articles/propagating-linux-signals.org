@@ -1,6 +1,6 @@
-#+title: propagating linux signals
-#+categories[]: linux
-#+tags[]: linux
+#+title: Propagating linux signals
+#+categories: scripting
+#+tags: linux
 #+date: [2023-11-21 Tue]
 
 * studies

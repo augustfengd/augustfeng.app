@@ -1,6 +1,6 @@
 #+title: Linked lists for fun in Rust
-#+categories[]: programming
-#+tags[]: rust
+#+categories: programming
+#+tags: rust
 #+date: [2023-11-10 Fri]
 
 I did a leetcode question in Rust for fun and thought I'd implement a reversal

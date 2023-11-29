@@ -1,14 +1,14 @@
 #+title: Utils
-#+categories[]: emacs
-#+tags[]: emacs elisp org-mode
+#+categories: emacs
+#+tags: emacs-lisp
+#+tags: org-mode
 #+date: [2023-07-02 Sun]
 #+draft: true
 
-#+property: header-args:elisp :results none
 
 * introduction
 
-#+begin_src elisp
+#+begin_src elisp :results none
   (defun introduction ()
     "these are some scripts for managing the content.")
 
@@ -17,7 +17,7 @@
 
 * rename files according to post's title
 
-#+begin_src elisp
+#+begin_src elisp :results none
   ;; list posts in current directory
   (defun get-posts ()
     (let ((files (file-expand-wildcards "*.org")))
@@ -44,7 +44,7 @@
   (defun get-title-from-post (filename)
     (with-temp-buffer
       (insert-file-contents filename)
-      (cadar (org-collect-keywords '("TITLE")))))
+      (cadar (org-collect-keywords '("tags")))))
 
   ;; rename file if filename does not match title
   (defun rename-file-if-necessary (file)

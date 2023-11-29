@@ -1,6 +1,7 @@
 #+title: Rebasing After Squash And Merge on GitHub
-#+categories[]: development
-#+tags[]: git github
+#+categories: programming
+#+tags: git
+#+tags: github
 #+date: [2022-11-28 Mon]
 #+mermaid: true
 

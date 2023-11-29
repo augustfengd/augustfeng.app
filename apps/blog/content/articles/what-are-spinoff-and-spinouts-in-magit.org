@@ -1,6 +1,6 @@
-#+TITLE: What are spinoff and spinouts in magit
-#+categories[]: programming
-#+tags[]: git
+#+title: What are spinoff and spinouts in magit
+#+categories: programming
+#+tags: git
 #+date: [2023-09-14 Thu]
 #+mermaid: true
 
@@ -30,3 +30,4 @@ A ~magit-branch-spinoff~ will perform the same operations of
 * 465318a (foobaz) helloworld
 * f4dd687 (HEAD -> foobar, master) init
 #+end_src
+

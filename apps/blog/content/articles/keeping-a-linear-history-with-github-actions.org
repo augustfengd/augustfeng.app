@@ -1,6 +1,8 @@
 #+title: Keeping a Linear History with GitHub Actions
-#+categories[]: devops
-#+tags[]: github git devops
+#+categories: programming
+#+tags: github
+#+tags: git
+#+tags: cicd
 #+date: [2023-04-02 Sun]
 #+mermaid: true
 

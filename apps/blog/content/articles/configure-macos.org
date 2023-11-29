@@ -1,6 +1,7 @@
 #+title: Configure MacOS
-#+categories[]: configuration
-#+tags[]: emacs elisp org-mode
+#+categories: configuration
+#+tags: emacs-lisp
+#+tags: org-mode
 #+date: [2023-04-02 Sun]
 
 * disable "Search man Page Index in Terminal" shortcut

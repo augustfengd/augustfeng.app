@@ -1,6 +1,6 @@
 #+title: Debugging Spacemacs Packages
-#+categories[]: emacs
-#+tags[]: emacs elisp org-mode
+#+categories: emacs
+#+tags: emacs-lisp
 #+date: [2023-06-22 Thu]
 
 * About

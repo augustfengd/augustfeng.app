@@ -1,6 +1,6 @@
 #+TITLE: git references separated by slashes
-#+categories[]: git
-#+tags[]: git
+#+categories: programming
+#+tags: git
 #+date: [2023-09-26 Tue]
 
 * About

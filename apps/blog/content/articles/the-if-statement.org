@@ -1,5 +1,5 @@
 #+title: The if statement
-#+categories[]: programming
+#+categories: programming
 #+date: [2023-11-18 Sat]
 
 * Prolog

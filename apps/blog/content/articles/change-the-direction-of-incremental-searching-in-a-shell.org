@@ -1,6 +1,6 @@
 #+title: Change the Direction of Incremental Searching in a Shell
-#+categories[]: linux
-#+tags[]: shell
+#+categories: scripting
+#+tags: shell
 #+date: [2022-11-22 Tue]
 
 In November 2022, I wrote an article [[https://www.baeldung.com/linux/change-incremental-searching-direction-shell][Change the Direction of Incremental

@@ -1,6 +1,6 @@
 #+title: A study of newtype usage in Rust
-#+categories[]: development
-#+tags[]: rust
+#+categories: programming
+#+tags: rust
 #+date: [2023-11-08 Wed]
 
 The ~std::fs::FileType~ is a newtype that wraps an OS specific implementation of
