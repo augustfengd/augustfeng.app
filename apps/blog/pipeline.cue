@@ -20,7 +20,10 @@ workflows: "apps.blog.yaml": {
 		let #actions = pipeline.#actions
 		"lint": {
 			"runs-on": "ubuntu-latest"
-			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
+			container: {
+				image:   "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
+				options: "--user 1001"
+			}
 			steps: [
 				#actions.checkoutCode,
 				#actions.just.install,
