@@ -55,9 +55,8 @@ import (
 		title: #exceptions.titles[filename]
 	}
 	taxonomies: {
-		#languages:   "fsharp" | "rust" | "go" | "jsonnet" | "cue" | "emacs-lisp" | "scheme" | "guile" | "cpp"
 		"CATEGORIES": [ ...{"programming" | "emacs" | "configuration" | "scripting" | "kubernetes" | "containers" | "project"}] & list.UniqueItems
-		"TAGS":       [ ...{#languages | "github" | "hugo" | "dotnet" | "kubernetes" | "linux" | "windows" | "wsl2" | "org-mode" | "git" | "shell" | "helm" | "docker" | "shortcuts" | "cicd" | "jetbrains"}] & list.UniqueItems
+		"TAGS":       [ ...{"fsharp" | "rust" | "go" | "jsonnet" | "cue" | "emacs-lisp" | "scheme" | "guile" | "cpp" | "github" | "hugo" | "dotnet" | "kubernetes" | "linux" | "windows" | "wsl2" | "org-mode" | "git" | "shell" | "helm" | "docker" | "shortcuts" | "cicd" | "jetbrains"}] & list.UniqueItems
 		...
 	}
 }
