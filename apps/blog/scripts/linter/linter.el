@@ -39,7 +39,7 @@
   (let ((table (make-hash-table :test #'equal))
         (taxonomies (make-hash-table :test #'equal)))
     (maphash (lambda (key value)
-               (cond ((string-equal key "TITLE") (puthash "title" (mapconcat #'identity value) table))
+               (cond ((string-equal key "TITLE") (puthash "title" (mapconcat #'identity value "") table))
                      ((not nil) (puthash key value taxonomies)))) keywords)
     (puthash "taxonomies" taxonomies table)
     table))
