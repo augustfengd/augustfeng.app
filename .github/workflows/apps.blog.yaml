@@ -15,8 +15,6 @@ jobs:
         uses: actions/checkout@v3
       - name: install just
         uses: extractions/setup-just@v1
-      - name: install emacs
-        uses: purcell/setup-emacs@master
       - name: just lint
         run: just lint
         working-directory: apps/blog

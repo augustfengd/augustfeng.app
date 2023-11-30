@@ -24,7 +24,6 @@ workflows: "apps.blog.yaml": {
 			steps: [
 				#actions.checkoutCode,
 				#actions.just.install,
-				#actions.emacs.install,
 				#actions.just.run & {
 					#recipe:             "lint"
 					"working-directory": "apps/blog"
