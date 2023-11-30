@@ -137,6 +137,10 @@ import (
 			name: "install gcloud"
 			uses: "google-github-actions/setup-gcloud@v1"
 		}
+		just: github.#Workflow.#Step & {
+			name: "install just"
+			uses: "extractions/setup-just@v1"
+		}
 	}
 
 	secrets: {
@@ -161,8 +165,17 @@ import (
 			#command: string
 			#package: string
 
-			name: "cue \(#command) \(#package)"
-			run:  "cue \(#command) \(#package)"
+			name: "cue cmd \(#command) \(#package)"
+			run:  "cue cmd \(#command) \(#package)"
 		}
+	}
+	just: {
+		run: github.#Workflow.#Step & {
+			#recipe: string
+
+			name:  "just \(#recipe)"
+			"run": "just \(#recipe)"
+		}
+		"install": install.just
 	}
 }

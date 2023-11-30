@@ -6,10 +6,24 @@ name: apps/blog
       - apps/blog/**
 concurrency: apps/blog
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: install just
+        uses: extractions/setup-just@v1
+      - name: just lint
+        run: just lint
+        working-directory: apps/blog
   build:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
+    needs:
+      - lint
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -70,5 +84,5 @@ jobs:
         with:
           name: digest
           path: apps/blog
-      - name: cue apply github.com/augustfengd/augustfeng.app/apps/blog
-        run: cue apply github.com/augustfengd/augustfeng.app/apps/blog
+      - name: cue cmd apply github.com/augustfengd/augustfeng.app/apps/blog
+        run: cue cmd apply github.com/augustfengd/augustfeng.app/apps/blog

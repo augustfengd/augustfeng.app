@@ -18,9 +18,22 @@ workflows: "apps.blog.yaml": {
 
 	jobs: github.#Workflow.#Jobs & {
 		let #actions = pipeline.#actions
+		"lint": {
+			"runs-on": "ubuntu-latest"
+			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
+			steps: [
+				#actions.checkoutCode,
+				#actions.just.install,
+				#actions.just.run & {
+					#recipe:             "lint"
+					"working-directory": "apps/blog"
+				},
+			]
+		}
 		"build": {
 			"runs-on": "ubuntu-latest"
 			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
+			needs: ["lint"]
 			steps: [
 				#actions.checkoutCode,
 				#actions.make & {
