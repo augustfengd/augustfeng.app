@@ -141,6 +141,14 @@ import (
 			name: "install just"
 			uses: "extractions/setup-just@v1"
 		}
+		emacs: github.#Workflow.#Step & {
+			#version: string | *null
+			name:     "install emacs"
+			uses:     "purcell/setup-emacs@master"
+			if #version != null {
+				with: version: #version
+			}
+		}
 	}
 
 	secrets: {
@@ -177,5 +185,8 @@ import (
 			"run": "just \(#recipe)"
 		}
 		"install": install.just
+	}
+	emacs: {
+		"install": install.emacs
 	}
 }
