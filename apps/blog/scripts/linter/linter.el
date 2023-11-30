@@ -9,9 +9,9 @@
 
 (defun find-blog-content-dir ()
   (let ((git-absolute-dir (git '("rev-parse" "--show-toplevel")))
-        (hugo-relative-dir "apps/blog")
-        (content-relative-dir "content/articles"))
-    (file-name-concat git-absolute-dir hugo-relative-dir content-relative-dir)))
+        (blog-relative-dir "apps/blog")
+        (content-relative-dir "content"))
+    (file-name-concat git-absolute-dir blog-relative-dir content-relative-dir)))
 
 (defun get-article-filepaths ()
   (let ((files (directory-files-recursively (find-blog-content-dir) "org$")))

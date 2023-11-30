@@ -1,4 +1,4 @@
-#+title: Exploring org-agenda Workflows
+#+title: Exploring org-agenda workflows
 #+categories: emacs
 #+tags: org-mode
 #+tags: shortcuts

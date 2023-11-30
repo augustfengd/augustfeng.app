@@ -1,4 +1,4 @@
-#+title: Environment Variables and Volumes When Building Images with Docker Compose
+#+title: Environment variables and volumes when building images with Docker Compose
 #+categories: containers
 #+tags: docker
 #+date: [2023-04-03 Mon]

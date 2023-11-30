@@ -1,4 +1,4 @@
-#+title: impl Read for Foobar
+#+title: Implementing the Read trait
 #+categories: programming
 #+tags: rust
 #+date: [2022-12-20 Tue]

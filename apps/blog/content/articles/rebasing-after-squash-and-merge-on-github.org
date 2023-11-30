@@ -1,4 +1,4 @@
-#+title: Rebasing After Squash And Merge on GitHub
+#+title: Rebasing after squash and merge on GitHub
 #+categories: programming
 #+tags: git
 #+tags: github

@@ -1,4 +1,4 @@
-#+title: Learning Rust Iterators
+#+title: Learning Rust iterators
 #+categories: programming
 #+tags: rust
 #+date: [2023-06-29 Thu]

@@ -1,4 +1,4 @@
-#+title: Read Lines From a Port Into a List
+#+title: Read lines from a port into a list
 #+categories: scripting
 #+tags: scheme
 #+tags: guile

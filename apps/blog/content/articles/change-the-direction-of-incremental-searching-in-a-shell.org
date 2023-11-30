@@ -1,4 +1,4 @@
-#+title: Change the Direction of Incremental Searching in a Shell
+#+title: Change the direction of incremental searching in a shell
 #+categories: scripting
 #+tags: shell
 #+date: [2022-11-22 Tue]

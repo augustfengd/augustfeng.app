@@ -1,0 +1,8 @@
+#+title: Writing emacs lisp
+#+categories: emacs
+#+tags: emacs-lisp
+#+date: [2023-11-28 Tue]
+
+* shortcuts
+
+~C-M-x~: evaluate top level form around point.

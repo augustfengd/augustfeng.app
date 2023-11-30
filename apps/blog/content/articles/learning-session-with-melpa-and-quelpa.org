@@ -1,4 +1,4 @@
-#+title: Learning Session with melpa and quelpa
+#+title: Learning session with melpa and quelpa
 #+categories: emacs
 #+tags: emacs-lisp
 #+tags: org-mode

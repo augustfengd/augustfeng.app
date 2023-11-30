@@ -1,4 +1,4 @@
-#+title: My Favorite FSharp Functions
+#+title: My favorite fsharp functions
 #+categories: programming
 #+tags: fsharp
 #+date: [2023-10-04 Wed]

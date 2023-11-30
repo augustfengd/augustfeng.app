@@ -1,4 +1,4 @@
-#+title: The newtype pattern in across different languages
+#+title: The newtype pattern across different languages
 #+categories: programming
 #+tags: cpp
 #+tags: rust

@@ -1,4 +1,4 @@
-#+title: Keeping a Linear History with GitHub Actions
+#+title: Keeping a linear history with GitHub Actions
 #+categories: programming
 #+tags: github
 #+tags: git

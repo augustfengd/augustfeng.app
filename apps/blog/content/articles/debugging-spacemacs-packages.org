@@ -1,4 +1,4 @@
-#+title: Debugging Spacemacs Packages
+#+title: Debugging Spacemacs packages
 #+categories: emacs
 #+tags: emacs-lisp
 #+date: [2023-06-22 Thu]

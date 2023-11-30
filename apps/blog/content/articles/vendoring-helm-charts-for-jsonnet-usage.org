@@ -1,4 +1,4 @@
-#+title: Vendoring Helm Charts for Jsonnet Usage
+#+title: Vendoring helm charts for jsonnet usage
 #+categories: kubernetes
 #+tags: helm
 #+tags: jsonnet

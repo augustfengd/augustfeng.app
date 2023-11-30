@@ -1,4 +1,4 @@
-#+title: Debugging "jka-compr" package
+#+title: Debugging the jka-compr package
 #+categories: emacs
 #+date: [2023-06-20 Tue]
 
