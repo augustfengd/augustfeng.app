@@ -30,6 +30,7 @@ import (
 		"\(#blog_dir)/content/articles/configure-guile.org":                                                            "Configure Guile"
 		"\(#blog_dir)/content/articles/compiling-emacs.org":                                                            "Compiling Emacs"
 		"\(#blog_dir)/content/articles/configure-emacs.org":                                                            "Configure Emacs"
+		"\(#blog_dir)/content/articles/latex.org":                                                                      "LaTeX"
 	}
 }
 
@@ -56,7 +57,7 @@ import (
 	}
 	taxonomies: {
 		"CATEGORIES": [ ...{"programming" | "emacs" | "configuration" | "scripting" | "kubernetes" | "containers" | "project"}] & list.UniqueItems
-		"TAGS":       [ ...{"fsharp" | "rust" | "go" | "jsonnet" | "cue" | "emacs-lisp" | "scheme" | "guile" | "cpp" | "github" | "hugo" | "dotnet" | "kubernetes" | "linux" | "windows" | "wsl2" | "org-mode" | "git" | "shell" | "helm" | "docker" | "shortcuts" | "cicd" | "jetbrains"}] & list.UniqueItems
+		"TAGS":       [ ...{"fsharp" | "rust" | "go" | "jsonnet" | "cue" | "emacs-lisp" | "scheme" | "guile" | "cpp" | "latex" | "github" | "hugo" | "dotnet" | "kubernetes" | "linux" | "windows" | "wsl2" | "org-mode" | "git" | "shell" | "helm" | "docker" | "shortcuts" | "cicd" | "jetbrains"}] & list.UniqueItems
 		...
 	}
 }

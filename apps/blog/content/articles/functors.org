@@ -1,14 +1,18 @@
-#+TITLE: The map functor
+#+TITLE: Functors
 #+categories: programming
 #+date: [2023-10-06 Fri]
 
+* About
+
+A *Functor* is simply another word for a type that where a *map* function can
+operate on, or simply said, it is /mappable/.
+
 * list map
 
-The first time I encountered map and filter would've most likely been when
-writing scripts with python.
+The first time I encountered map and filter functions would've most likely been
+when writing scripts with python.
 
-It became my bread and butter when I began coding
-with Lisp and Jsonnet.
+It became my bread and butter when I began coding with Lisp and Jsonnet.
 
 Before programming with F#, my understanding of map was that it was strictly
 limited to lists and mapping each element with *f(x)* using the provided

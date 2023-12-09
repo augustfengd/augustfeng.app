@@ -33,7 +33,7 @@ In order to launch everything from the Windows side of things, I create a
 shortcut with the following target:
 
 #+begin_src bat
-C:\Windows\System32\wsl.exe --cd "/home/augustfengd" --exec zsh -lic "if ! tmux new-window -t emacs: emacs; then tmux new-session -A -d -s emacs emacs; fi"
+C:\Windows\System32\wsl.exe --cd "/home/augustfengd" --exec zsh -lic "if ! tmux new-window -t emacs: -e WEBKIT_DISABLE_COMPOSITING_MODE=1 emacs; then tmux new-session -A -d -s emacs -e WEBKIT_DISABLE_COMPOSITING_MODE=1 emacs; fi"
 #+end_src
 
 This enables me to launch Emacs from the Start menu.

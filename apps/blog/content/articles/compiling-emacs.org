@@ -3,13 +3,66 @@
 #+draft: true
 #+date: [2023-08-14 Mon]
 
-* packages before compilation
+* package dependencies
+** libsqlite3-dev
 
-** Optional
+Used by  magit's database.
 
-These packages are not strictly necessary for the compilation, but they will
-enable default features.
+** libxml2-dev
 
-~libsqlite3-dev~: used by  magit's database.
-~libxml2-dev~: used to render html in emacs.
-~librsvg2-dev~: used to display icons in dired.
+Used to render html in emacs.
+
+** librsvg2-dev
+
+Used to display icons in dired.
+
+** libjansson4 libjansson-dev
+
+Dependency of the ~--with-json~ option.
+
+** libwebkit2gtk-4.0-dev
+
+Dependency of the ~--with-xwidgets~ option.
+
+
+Note that there is a bug on the latest ~libwebkit2gtk-4.0-dev~ package in ubuntu
+22.04. The connection to the X Windowing System disconnects and Emacs crashes.
+
+I was able to get around it by downgrading the *libwebkit2gtk-4.0-dev* package
+from *2.42.2-0ubuntu0.22.04.1* to *2.36.0.2ubuntu1*, but it took a bit of labour
+because we need to recursively specify the *2.36.0.2ubuntu1* for deeper
+dependencies.
+
+#+begin_src shell
+  sudo apt install -f libwebkit2gtk-4.0-dev=2.36.0-2ubuntu1
+  # Reading package lists... Done
+  # Building dependency tree... Done
+  # Reading state information... Done
+  # Some packages could not be installed. This may mean that you have
+  # requested an impossible situation or if you are using the unstable
+  # distribution that some required packages have not yet been created
+  # or been moved out of Incoming.
+  # The following information may help to resolve the situation:
+  # 
+  # The following packages have unmet dependencies:
+  #  libwebkit2gtk-4.0-dev : Depends: libwebkit2gtk-4.0-37 (= 2.36.0-2ubuntu1) but 2.42.2-0ubuntu0.22.04.1 is to be installed
+  #                          Depends: gir1.2-webkit2-4.0 (= 2.36.0-2ubuntu1) but 2.42.2-0ubuntu0.22.04.1 is to be installed
+  #                          Depends: libjavascriptcoregtk-4.0-dev (= 2.36.0-2ubuntu1) but 2.42.2-0ubuntu0.22.04.1 is to be installed
+  # E: Unable to correct problems, you have held broken packages.
+  sudo apt install \
+       libwebkit2gtk-4.0-dev=2.36.0-2ubuntu1 \
+       libwebkit2gtk-4.0-37=2.36.0-2ubuntu1 \
+       libjavascriptcoregtk-4.0-18=2.36.0-2ubuntu1 \
+       gir1.2-webkit2-4.0=2.36.0-2ubuntu1 \
+       gir1.2-javascriptcoregtk-4.0=2.36.0-2ubuntu1 \
+       libjavascriptcoregtk-4.0-dev=2.36.0-2ubuntu1
+#+end_src
+
+* ./configure
+** --with-json
+** --with-xwidgets
+
+#+name: fix blank page on wsl
+#+begin_src shell
+export WEBKIT_DISABLE_COMPOSITING_MODE=1
+#+end_src

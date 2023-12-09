@@ -3,7 +3,6 @@ default:
     @just --list
 
 server:
-    open http://localhost:1313
     hugo server
 
 lint:

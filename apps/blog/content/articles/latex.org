@@ -1,0 +1,31 @@
+#+title: LaTeX
+#+categories: programming
+#+tags: latex
+#+date: [2023-12-02 Sat]
+
+* Finding source code for classes and packages
+
+The *Kpathsea* library, short for Karl's Path Searching, provides an API for the
+TeX engine to find files. It comes with a CLI *kpsewhich* which we can use to
+find files:
+
+#+begin_src shell :results verbatim
+  kpsewhich article.cls # class
+  kpsewhich geometry.sty # package
+  # /usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+  # /usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
+#+end_src
+
+I read this from the a post from Overleaf: [[https://www.overleaf.com/learn/latex/Articles/An_introduction_to_Kpathsea_and_how_TeX_engines_search_for_files][An introduction to Kpathsea and how
+TeX engines search for files]].
+
+* Enumerating classes and packages
+
+There is a file, ~$(kpsewhich --var-value TEXMFDIST)/ls-R~ that enumerates all
+files and their location.
+
+#+begin_src shell :results verbatim
+  grep --after 1 './tex/latex/geometry:' $(kpsewhich --var-value TEXMFDIST)/ls-R
+  # ./tex/latex/geometry:
+  # geometry.sty
+#+end_src
