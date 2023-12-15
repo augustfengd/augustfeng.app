@@ -12,6 +12,10 @@ Used by  magit's database.
 
 Used to render html in emacs.
 
+** libgif-dev
+
+Used to display gif images.
+
 ** librsvg2-dev
 
 Used to display icons in dired.
