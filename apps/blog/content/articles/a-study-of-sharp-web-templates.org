@@ -1,0 +1,93 @@
+#+title: A study of fsharp web templates
+#+categories: programming
+#+tags: fsharp
+#+date: [2023-12-16 Sat]
+
+* Available templates
+
+I've got an original installation of dotnet 8 and it comes with the following
+templates.
+
+#+begin_src shell
+dotnet new list | grep 'F#'
+# ASP.NET Core Empty                            web                         [C#],F#     Web/Empty
+# ASP.NET Core Web API                          webapi                      [C#],F#     Web/Web API/API/Service
+# ASP.NET Core Web App (Model-View-Controller)  mvc                         [C#],F#     Web/MVC
+# Class Library                                 classlib                    [C#],F#,VB  Common/Library
+# Console App                                   console                     [C#],F#,VB  Common/Console
+# MSTest Test Project                           mstest                      [C#],F#,VB  Test/MSTest
+# NUnit 3 Test Item                             nunit-test                  [C#],F#,VB  Test/NUnit
+# NUnit 3 Test Project                          nunit                       [C#],F#,VB  Test/NUnit
+# Worker Service                                worker                      [C#],F#     Common/Worker/Web
+# xUnit Test Project                            xunit                       [C#],F#,VB  Test/xUnit
+#+end_src
+
+The console is my goto for everything but I'm going to explore the web ones to
+see if there are any that would be suitable for quick throwaway web iterations.
+
+* web-related templates
+** web
+*** study
+
+The first thing I recognized is that this template produces an ~.fsproj~ that
+uses /Microsoft.NET.Sdk.Web/ instead of the typical console application one:
+/Microsoft.NET.Sdk/.
+
+A visit to Microsoft's [[https://learn.microsoft.com/en-us/aspnet/core/razor-pages/web-sdk?view=aspnetcore-8.0][documentation]] mentions that it implicitly the
+/Microsoft.AspNetCore.App/ package.
+
+This package is required by [[https://github.com/giraffe-fsharp/Giraffe][Giraffe]] when building a web application from the
+console template. Nice, that's one mystery solved.
+
+*** how-to
+
+The generated code is a [[https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/overview?view=aspnetcore-8.0][minimal API]] program that uses [[https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.builder.endpointroutebuilderextensions?view=aspnetcore-8.0][.Map{Verb}]] methods to
+route requests.
+
+The patterns for the routers use stringly-typed that
+[[https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/parameter-binding?view=aspnetcore-8.0][bind
+to the function parameters]] of the handlers.
+
+** webapi
+*** study
+
+This template also uses the *Microsoft.NET.Sdk.Web* Sdk. It also enables access
+to culture-specific data.
+
+It uses the same ~WebApplicationBuilder~ from the previous template, but
+configures the application for an MVC-style architecture, without the *View*
+component:
+
+- The controllers are loaded using the ~builder.Services.AddControllers()~
+method.
+
+- The routes are automatically configured using the ~app.MapControllers()~
+  method.
+
+*** how-to
+
+The generated code is a [[https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-8.0][controller-based API]] program, which intersects with the
+[[https://learn.microsoft.com/en-us/aspnet/core/mvc/overview?view=aspnetcore-8.0][ASP.NET Core MVC framework]].
+
+This framework heavily uses attributes;
+- ~[ApiController]~ attribute configures [[https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-8.0#apicontroller-attribute][an opionated set of behaviours]].
+- ~[Route("[controller]")]~ specifies the path for the [[https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/routing?view=aspnetcore-8.0#attribute-routing-for-rest-apis][attribute routing]]
+  mechanism.
+- ~[From{Body,Form,Header,Query,Route,Services}, AsParameters]~ configures the
+  explicit source of parameter binds.
+
+** mvc
+*** study
+
+This is a template for a complete MVC architecture solution.
+
+I'm not going to spend too much on this since the scope of this study was to
+find lightweight backend solutions.
+
+* Conclusions
+
+Since I've always intended to use the Giraffe project for serious projects, the
+_webapi_ and _mvc_ template aren't relevant to me.
+
+I feel that the _web_ template would be a high productivity booster and I look
+forward to integrating that into my toolset.
