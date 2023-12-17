@@ -1,0 +1,43 @@
+#+title: Fsharp namespaces and modules
+#+categories: programming
+#+tags: fsharp
+#+mermaid: true
+#+date: [2023-12-16 Sat]
+
+* About
+
+This article documents some understandings on namespace and modules in F#
+projects.
+
+* Namespace
+
+F# _namespaces_ must be declared at the top of the file. They cannot hold
+values.
+
+Strictly speaking, they're not required and do not appear in the full name of
+the member items if they're absent.
+
+* Module
+
+F# modules translate to static CLR classes. There are two types of modules:
+/top-level/ and /local/.
+
+The _top-level modules_ do not end with a ~=~ and are necessary if a _namespace_ is
+not specified. If the module identifier contains a dot, then everything before
+the last dot is considered as a _namespace_.
+
+* Diagram
+
+{{<mermaid>}}
+stateDiagram-v2
+    [*] --> file
+    [*] --> files
+    file --> namespace
+    files --> namespace
+    file --> top_level_module
+    file --> local_module
+    files --> top_level_module
+    namespace --> local_module
+    local_module --> [*]
+    top_level_module --> [*]
+{{</mermaid>}}
