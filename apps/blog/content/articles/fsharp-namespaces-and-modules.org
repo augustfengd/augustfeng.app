@@ -39,5 +39,6 @@ stateDiagram-v2
     files --> top_level_module
     namespace --> local_module
     local_module --> [*]
+    top_level_module --> local_module
     top_level_module --> [*]
 {{</mermaid>}}
