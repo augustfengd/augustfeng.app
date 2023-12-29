@@ -1,0 +1,12 @@
+#+TITLE: poker
+
+* About
+
+Just a random project about building an application to schedule poker nights.
+
+* Development
+
+#+begin_src shell
+  open index.html
+  npx elm-watch hot
+#+end_src

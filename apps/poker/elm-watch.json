@@ -1,0 +1,10 @@
+{
+    "targets": {
+        "Program": {
+            "inputs": [
+                "src/Program.elm"
+            ],
+            "output": "build/Program.js"
+        }
+    }
+}
