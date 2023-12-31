@@ -1,0 +1,56 @@
+#+title: Rust code organization
+#+categories: programming
+#+mermaid: true
+#+date: [2023-12-31 Sun]
+#+draft: true
+
+* About
+
+I've read the [[https://doc.rust-lang.org/book/ch07-00-managing-growing-projects-with-packages-crates-and-modules.html][Managing Growing Projects with Packages, Crates and Modules]] from
+the rust book a dozen times now but I always forget the details of it.
+
+Hopefully building a diagram will connect me to this group of rust-enabled
+neurons faster.
+
+* Diagram
+
+{{<mermaid>}}
+graph TD
+    subgraph package
+
+    subgraph crate
+
+    subgraph file/module ["file/module"]
+
+    crate_root_file("`_src/main.rs_ or _src/lib.rs_`")
+
+    end
+
+    subgraph file'/module ["file/module"]
+    _("...")
+    end
+
+    subgraph file''/module ["file/module"]
+
+    submodule
+    submodule'
+    submodule''
+
+    end
+
+    file/module --> file'/module
+    file/module --> submodule
+    file/module --> submodule'
+    file/module --> submodule''
+
+    end
+
+    subgraph crate'
+    _'("...")
+    end
+
+    subgraph crate''
+    _''("...")
+    end
+    end
+{{</mermaid>}}
