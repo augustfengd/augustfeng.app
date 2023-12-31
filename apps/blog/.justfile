@@ -3,7 +3,7 @@ default:
     @just --list
 
 server:
-    hugo server
+    hugo --buildDrafts server
 
 lint:
     #!/usr/bin/env bash
