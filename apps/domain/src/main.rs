@@ -4,9 +4,11 @@ use env_logger;
 use log;
 
 use futures::TryFutureExt;
-pub mod kubernetes;
+
+mod kubernetes;
 use kubernetes::{Deployment, Node, NodeAddress, ObjectList, Pod, ReplicaSet};
-pub mod gcp;
+
+mod gcp;
 use crate::gcp::{ResourceRecordSets, ResourceRecordSetsUpdateMask};
 
 struct Program {
