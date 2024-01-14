@@ -4,9 +4,18 @@
 #+date: [2023-08-14 Mon]
 
 * package dependencies
+** libgtk-3-dev
+
+Used as development library for the toolkit.
+
+** libxpm-dev
+
+This library provides xpm capabilities. It's required even when compiling with
+gtk, which is surprising.
+
 ** libsqlite3-dev
 
-Used by  magit's database.
+Used by magit's database.
 
 ** libxml2-dev
 
