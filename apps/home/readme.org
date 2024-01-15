@@ -1,0 +1,3 @@
+* about
+
+Just some experiments writing discord bots.
