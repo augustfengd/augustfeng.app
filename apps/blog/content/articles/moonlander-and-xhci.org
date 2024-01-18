@@ -1,0 +1,30 @@
+#+title: Moonlander and xHCI
+#+categories: configuration
+#+date: [2024-01-18 Thu]
+
+* About
+
+For some odd reason, my computer would sometimes ignore inputs from my keyboard
+and mouse when my moonlander is plugged in. This happened more frequently after
+some period of inactivity.
+
+It did *not* happen when I have planck keyboard though.
+
+* Fix
+
+Someone on the internet recommended going through the BIOS settings. The IO in
+BIOS stands for input/output, so it would make sense that keyboard and mouse
+activity progresses through there.
+
+I found some configuration for xHCI. A search about xHCI on google highlights
+the following idea xHCI's [[https://en.wikipedia.org/wiki/Extensible_Host_Controller_Interface][wikipedia page]]:
+
+#+begin_quote
+The xHCI eliminates host memory based USB transaction schedules, enabling zero
+host memory activity when there is no USB data movement.
+#+end_quote
+
+This sounds like what could be the cause for my issue!
+
+Sure enough, I turned it off and I have successfully written this blog post
+without any jitters.

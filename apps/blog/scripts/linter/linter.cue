@@ -31,6 +31,7 @@ import (
 		"\(#blog_dir)/content/articles/compiling-emacs.org":                                                            "Compiling Emacs"
 		"\(#blog_dir)/content/articles/configure-emacs.org":                                                            "Configure Emacs"
 		"\(#blog_dir)/content/articles/latex.org":                                                                      "LaTeX"
+    "\(#blog_dir)/content/articles/moonlander-and-xhci.org":                                                        "Moonlander and xHCI"
 	}
 }
 
