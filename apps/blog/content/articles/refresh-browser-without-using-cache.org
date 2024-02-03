@@ -1,0 +1,13 @@
+#+title: Refresh browser without using cache
+#+categories: web
+#+date: [2024-02-03 Sat]
+
+* About
+
+I just discovered this neat browser shortcut that will improve my web development productivity!
+
+* What
+
+The shortcut ~Ctrl + Shift + R~ will refresh page without using cache. This is
+useful because sometimes the browser does not realize the source code has been
+updated.
