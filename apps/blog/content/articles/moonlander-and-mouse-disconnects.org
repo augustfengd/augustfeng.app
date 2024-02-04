@@ -1,0 +1,130 @@
+#+title: Moonlander and mouse disconnects
+#+categories: configuration
+#+mermaid: true
+#+date: [2024-01-18 Thu]
+
+* About
+
+For some odd reason, my computer would sometimes ignore inputs from my keyboard
+and mouse when my moonlander is plugged in. This happened more frequently after
+some period of inactivity.
+
+It did *not* happen when I have planck keyboard though.
+
+* Fix
+
+Someone on the internet recommended going through the BIOS settings. The IO in
+BIOS stands for input/output, so it would make sense that keyboard and mouse
+activity progresses through there.
+
+I found some configuration for xHCI. A search about xHCI on google highlights
+the following idea xHCI's [[https://en.wikipedia.org/wiki/Extensible_Host_Controller_Interface][wikipedia page]]:
+
+#+begin_quote
+The xHCI eliminates host memory based USB transaction schedules, enabling zero
+host memory activity when there is no USB data movement.
+#+end_quote
+
+This sounds like what could be the cause for my issue!
+
+Sure enough, I turned it off and I have successfully written this blog post
+without any jitters.
+
+* Update (2024-02-04)
+
+The previous fix did *not* resolve my issue. This time around, I was
+increasingly frustrated and dared to challenge the kernel.
+
+** linux messages
+
+Luckily the dmesg was filled with logs that highlighted my issue.
+
+#+begin_src shell :results verbatim :dir "/sudo::"
+  dmesg -T | grep 'reset full-speed USB device number' | tail -n 10
+#+end_src
+
+#+RESULTS:
+#+begin_example
+[Sun Feb  4 00:39:16 2024] usb 1-1.2.4.4: reset full-speed USB device number 9 using xhci_hcd
+[Sun Feb  4 00:39:17 2024] usb 1-1.2.4.1: reset full-speed USB device number 7 using xhci_hcd
+[Sun Feb  4 00:39:18 2024] usb 1-1.2.4.4: reset full-speed USB device number 9 using xhci_hcd
+[Sun Feb  4 00:39:20 2024] usb 1-1.2.4.4: reset full-speed USB device number 9 using xhci_hcd
+[Sun Feb  4 00:39:21 2024] usb 1-1.2.4.1: reset full-speed USB device number 7 using xhci_hcd
+[Sun Feb  4 00:39:24 2024] usb 1-1.2.4.1: reset full-speed USB device number 7 using xhci_hcd
+[Sun Feb  4 00:39:25 2024] usb 1-1.2.4.4: reset full-speed USB device number 9 using xhci_hcd
+[Sun Feb  4 00:39:45 2024] usb 1-1.2.4.4: reset full-speed USB device number 9 using xhci_hcd
+[Sun Feb  4 00:39:49 2024] usb 1-1.2.4.4: reset full-speed USB device number 9 using xhci_hcd
+[Sun Feb  4 00:39:49 2024] usb 1-1.2.4.4: reset full-speed USB device number 9 using xhci_hcd
+#+end_example
+
+The device *7* and *9* are my moonlander and mouse.
+
+#+begin_src shell :results verbatim
+  lsusb | grep -e '007' -e '009'
+#+end_src
+
+#+RESULTS:
+: Bus 001 Device 009: ID 3297:1969 ZSA Technology Labs Moonlander Mark I
+: Bus 001 Device 007: ID 046d:c53a Logitech, Inc. PowerPlay Wireless Charging System
+
+This is a sigh of relief as I've finally discovered a lead.
+
+
+** hardware troubleshooting
+
+My keyboard and mouse goes through a powered USB hub and is connected to my
+monitor's KVM which is connected to my desktop.
+
+{{<mermaid>}}
+flowchart LR
+   Moonlander --> Powered_USB_Hub[Powered USB Hub]
+   Mouse --> Powered_USB_Hub[Powered USB Hub]
+   Powered_USB_Hub --> Monitor_KVM[Monitor KVM]
+   Monitor_KVM --> Desktop
+{{</mermaid>}}
+
+If I attach my keyboard directly to my desktop, there is no sign of the kernel
+resetting the USB device. This leaves me thinking that the fault lies in either
+the USB Hub or the KVM.
+
+I eliminate the Monitor KVM node but the problem persists. This is where I stop
+for the night as it's 3 in the morning.
+
+While resting on this problem in bed, I thought about connecting the *Powered
+USB Hub* to my laptop.
+
+After I wake up, this is the first thing that I try and a success! There is no
+messages from the kernel about resetting the USB devices.
+
+{{<mermaid>}}
+flowchart LR
+   Moonlander --> Powered_USB_Hub[Powered USB Hub]
+   Mouse --> Powered_USB_Hub[Powered USB Hub]
+   Powered_USB_Hub[Powered USB Hub] --> Laptop
+{{</mermaid>}}
+
+** Motherboard
+
+In the previous section, we've eliminated the *Powered USB Hub* and the *Monitor
+KVM* as the potenteial culprit. This leaves us with only the *Desktop* as the
+cause.
+
+Sure enough, a search on the internet highlights that the chipsets for Zen 3
+processors have a known issue with USB ports.
+
+I have an older motherboard (*B450*) than the ones (*B550*) but I lumped myself into
+the group nevertheless.
+
+The users report fixing the issue with configuring a variety of different things
+in the motherboard's settings:
+- *CPPC*
+- *C-State*
+- *XHCI Hands-off* (what I did earlier)
+- *Power Supply Idle Control*
+- ...
+
+I disabled the *CPPC* right getting into the troubleshooting the hardware, and
+it did not work.
+
+Finally, disabling the *Global C-State Control* and setting the *Power Supply
+Idle Control* to /Typical/ did the trick!
