@@ -1,0 +1,80 @@
+#+title: Elm type variables
+#+categories: web
+#+date: [2024-02-04 Sun]
+
+* About
+
+In the Elm In Action book, Richard Feldman writes:
+
+#+begin_quote
+A command that produces no messages has the type Cmd msg, a sub- scription (for
+example, Sub.none) that produces no messages has the type Sub msg, and a list
+that has no elements—that is, []—has the similar type List val.
+#+end_quote
+
+The lower casing of ~msg~ signifies a /type variable/. Type variables are Elm's
+implementation of generics.
+
+The idea of a value being possible for a non concrete type felt odd to me, so
+I've opt to explore this concept in other languages where I'm more familiar
+with.
+
+* Implementation in different languages
+
+** Elm
+
+In Elm, I'm going to use the ~Maybe~ type as the reference to implement in other
+languages:
+
+#+begin_src elm
+  type Maybe a
+      = Just a
+      | Nothing
+
+  it : Maybe a
+  it = Nothing
+#+end_src
+
+** F#
+
+The F# programming language has good type inference, so we do not actually need
+to annotate the value.
+
+If we annotate the value, the language looks the same and it seems that F# also
+supports values where the type is not concrete.
+
+#+begin_src fsharp
+  type Maybe<'a> =
+      | Just of 'a
+      | Nothing
+
+  let it = Nothing
+  let it : Maybe<'a> = Nothing // this is a verbatim translation of the elm one.
+#+end_src
+
+** rust
+
+The Rust programming language is the exception here in that it does not allow
+values of non concrete type.
+
+#+begin_src rust
+enum Maybe<a> {
+    Just(a),
+    Nothing,
+}
+
+let it: Maybe<i32> = Maybe::Nothing;
+#+end_src
+
+* Conclusion
+
+After studying this in other languages, I've learned that the concept is
+actually not so foreign to me.
+
+I suspect it's just the syntax that threw me off.
+
+Elm's syntax does not make use of angle brackets for generics, and the type
+variables look like ordinary arguments.
+
+This reminds me of a past pair programming session where my lead explained that
+a function's type parameter also counts as an argument.
