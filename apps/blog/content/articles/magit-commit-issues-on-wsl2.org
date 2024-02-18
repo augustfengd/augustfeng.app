@@ -1,0 +1,31 @@
+#+title: magit commit issues on wsl2
+#+categories: configuration
+#+tags: wsl2
+#+tags: linux
+#+date: [2024-02-18 Sun]
+
+* About
+
+The *magit* package uses the /with-editor/ package to spin up an emacsclient in
+order to run subprocesses. This is used when drafting commit messages.
+
+With a vanilla installation of Ubuntu 22.04, I'm *not* able to spin up an
+emacsclient:
+
+#+begin_src shell
+  emacsclient helloworld
+  # emacsclient: can't connect to /run/user/1000//emacs/server: Permission denied
+  # emacsclient: No socket or alternate editor.  Please use:
+  # 
+  #         --socket-name
+  #         --server-file      (or environment variable EMACS_SERVER_FILE
+#+end_src
+
+I've fixed this by changing the ownership of that directory to myself: ~sudo
+chown ${USER}:${USER}  $XDG_RUNTIME_DIR~ and it works!
+
+And now I can commit. :)
+
+* References
+
+https://lists.gnu.org/archive/html/emacs-devel/2018-12/msg00094.html

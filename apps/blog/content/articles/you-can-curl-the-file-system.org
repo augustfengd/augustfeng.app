@@ -1,7 +1,6 @@
 #+title: You Can Curl The File System
 #+categories: web
-#+date: [2023-11-28 Tue]
-#+draft: true
+#+date: [2024-02-18 Sun]
 
 * About
 
