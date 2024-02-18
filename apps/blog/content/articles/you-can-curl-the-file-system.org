@@ -1,0 +1,15 @@
+#+title: You Can Curl The File System
+#+categories: web
+#+date: [2023-11-28 Tue]
+#+draft: true
+
+* About
+
+Did you know you can curl files in the file system?!
+
+#+begin_src shell
+  curl file:///etc/hostname
+#+end_src
+
+#+RESULTS:
+: DESKTOP2020
