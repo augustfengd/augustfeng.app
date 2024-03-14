@@ -15,6 +15,7 @@ manifests: [
 	clusterroles.manifests,
 	clusterrolebinding.manifests,
 	serviceaccount.manifests,
+	prometheus.manifests,
 ]
 
 command: kubectl & {
