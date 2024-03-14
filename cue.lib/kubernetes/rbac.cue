@@ -17,12 +17,18 @@ import (
 		list:   bool | *false
 		watch:  bool | *false
 		update: bool | *false
+		create: bool | *false
+		delete: bool | *false
+		patch:  bool | *false
 	}
 
 	#get:    _#verbs & {get:    true}
 	#list:   _#verbs & {list:   true}
 	#watch:  _#verbs & {watch:  true}
 	#update: _#verbs & {update: true}
+	#create: _#verbs & {create: true}
+	#delete: _#verbs & {delete: true}
+	#patch:  _#verbs & {patch:  true}
 
 	name: string
 	rules: [_#apiGroups]: [_#resources]: _#verbs

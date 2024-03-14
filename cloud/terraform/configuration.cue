@@ -39,9 +39,8 @@ configuration: terraform.configuration & {
 		}
 		#kubernetes: namespaces: {
 			"system-ingress": {}
+			"system-monitoring": {}
 			// "system-gitops": {}
-			// "system-metrics": {}
-			// "system-visualization": {}
 			// "system-logging": {}
 
 			// applications
