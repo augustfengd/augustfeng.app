@@ -4,7 +4,7 @@ import (
 	"github.com/augustfengd/augustfeng.app/cue.lib/kubernetes"
 )
 
-deployment: kubernetes.#deployment & {
+prometheus_operator: deployment: kubernetes.#deployment & {
 	image: {
 		name: "quay.io/prometheus-operator/prometheus-operator"
 		tag:  "v0.72.0"

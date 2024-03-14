@@ -7,11 +7,13 @@ import (
 )
 
 #clusterrole: {
-	_#apiGroups: "" | "extensions" | "networking.k8s.io" | string // exhaust this disjunction later.
+	_#type: "apiGroups" | "nonResourceURLs"
 
-	_#nonResourceURLs: =~"/.+"
+	_#apiGroups: ["", "extensions", "networking.k8s.io", "apps", "monitoring.coreos.com", "storage.k8s.io"]
 
-	_#resources: "services" | "endpoints" | "secrets" | "ingresses" | "ingressclasses" | "ingresses/status" | string // exhaust this disjunction later.
+	_#nonResourceURLs: ["/metrics"]
+
+	_#resources: "services" | "endpoints" | "secrets" | "ingresses" | "ingressclasses" | "ingresses/status" | "nodes" | "nodes/metrics" | "configmaps" | "pods" | string // no benefits in exhausting this list.
 
 	_#verbs: {
 		// exhaust this disjunction later
@@ -22,6 +24,7 @@ import (
 		create: bool | *false
 		delete: bool | *false
 		patch:  bool | *false
+		'*':    bool | *false
 	}
 
 	#get:    _#verbs & {get:    true}
@@ -31,16 +34,19 @@ import (
 	#create: _#verbs & {create: true}
 	#delete: _#verbs & {delete: true}
 	#patch:  _#verbs & {patch:  true}
+	#all:    _#verbs & {"*":    true}
 
 	name: string
-	rules: [_#apiGroups]: [_#resources]: _#verbs
+	rules: [or(_#apiGroups)]: [_#resources]: _#verbs
+
+	rules: [or(_#nonResourceURLs)]: _#verbs
 
 	manifests: [rbac.#ClusterRole & {
 		metadata: "name": name
 
-		_rules: [ for apiGroup, resources in rules {
+		_rulesApiGroups: [ for name, resources in rules if list.Contains(_#apiGroups, name) {
 			[ for resource, verbs in resources {
-				"apiGroups": [apiGroup]
+				"apiGroups": [name]
 				"resources": [resource]
 				"verbs": {
 					let filter = {for verb, it in verbs if it == true {(verb): it}}
@@ -48,6 +54,16 @@ import (
 				}
 			}]
 		}]
+		_rulesNonResourceURLs: [ for name, verbs in rules if list.Contains(_#nonResourceURLs, name) {
+			"nonResourceURLs": [name]
+			"verbs": {
+				let t = {for verb, b in verbs if b == true {(verb): true}}
+				[ for verb, _ in t {verb}]
+			}
+		}]
+
+		_rules: _rulesApiGroups + _rulesNonResourceURLs
+
 		"rules": list.FlattenN(_rules, 1)
 	}]
 }

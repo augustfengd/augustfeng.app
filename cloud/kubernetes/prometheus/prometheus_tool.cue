@@ -6,17 +6,27 @@ import (
 	"tool/exec"
 
 	"github.com/augustfengd/augustfeng.app/cue.lib/tools:git"
+	"github.com/augustfengd/augustfeng.app/cue.lib/tools:secrets"
 	"github.com/augustfengd/augustfeng.app/cue.lib/tools:kubectl"
 )
 
 manifests: [
 	crd.manifests,
-	deployment.manifests,
-	clusterroles.manifests,
-	clusterrolebinding.manifests,
-	serviceaccount.manifests,
+	prometheus_operator.clusterroles.manifests,
+	prometheus_operator.serviceaccount.manifests,
+	prometheus_operator.clusterrolebinding.manifests,
+	prometheus_operator.deployment.manifests,
+	prometheus.clusterroles.manifests,
+	prometheus.serviceaccount.manifests,
+	prometheus.clusterrolebinding.manifests,
 	prometheus.manifests,
+	alertmanagerconfig.manifests,
+	alertmanager.manifests,
 ]
+
+command: secrets & {
+	#secrets: path: "cloud/kubernetes/prometheus/secrets"
+}
 
 command: kubectl & {
 	#namespace: "system-monitoring"

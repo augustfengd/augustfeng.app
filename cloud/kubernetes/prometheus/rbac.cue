@@ -14,35 +14,36 @@ prometheus_operator: {
 			let #watch = kubernetes.#clusterrole.#watch
 			let #update = kubernetes.#clusterrole.#update
 			let #patch = kubernetes.#clusterrole.#patch
+			let #all = kubernetes.#clusterrole.#all
 
 			name: "prometheus-operator"
 			rules: {
 				"monitoring.coreos.com": {
-					"alertmanagers":               #get & #list & #watch & #update
-					"alertmanagers/finalizers":    #get & #list & #watch & #update
-					"alertmanagers/status":        #get & #list & #watch & #update
-					"alertmanagerconfigs":         #get & #list & #watch & #update
-					"prometheuses":                #get & #list & #watch & #update
-					"prometheuses/finalizers":     #get & #list & #watch & #update
-					"prometheuses/status":         #get & #list & #watch & #update
-					"prometheusagents":            #get & #list & #watch & #update
-					"prometheusagents/finalizers": #get & #list & #watch & #update
-					"prometheusagents/status":     #get & #list & #watch & #update
-					"thanosrulers":                #get & #list & #watch & #update
-					"thanosrulers/finalizers":     #get & #list & #watch & #update
-					"thanosrulers/status":         #get & #list & #watch & #update
-					"scrapeconfigs":               #get & #list & #watch & #update
-					"servicemonitors":             #get & #list & #watch & #update
-					"podmonitors":                 #get & #list & #watch & #update
-					"probes":                      #get & #list & #watch & #update
-					"prometheusrules":             #get & #list & #watch & #update
+					"alertmanagers":               #all
+					"alertmanagers/finalizers":    #all
+					"alertmanagers/status":        #all
+					"alertmanagerconfigs":         #all
+					"prometheuses":                #all
+					"prometheuses/finalizers":     #all
+					"prometheuses/status":         #all
+					"prometheusagents":            #all
+					"prometheusagents/finalizers": #all
+					"prometheusagents/status":     #all
+					"thanosrulers":                #all
+					"thanosrulers/finalizers":     #all
+					"thanosrulers/status":         #all
+					"scrapeconfigs":               #all
+					"servicemonitors":             #all
+					"podmonitors":                 #all
+					"probes":                      #all
+					"prometheusrules":             #all
 				}
 				"apps": {
-					"statefulsets": #get & #list & #watch & #update
+					"statefulsets": #all
 				}
 				"": {
-					"configmaps":          #get & #list & #watch & #update
-					"secrets":             #get & #list & #watch & #update
+					"configmaps":          #all
+					"secrets":             #all
 					"pods":                #list & #delete
 					"services":            #get & #create & #update & #delete
 					"services/finalizers": #get & #create & #update & #delete
@@ -70,16 +71,11 @@ prometheus_operator: {
 }
 
 prometheus: {
-
 	clusterroles:
 		kubernetes.#clusterrole & {
 			let #get = kubernetes.#clusterrole.#get
 			let #list = kubernetes.#clusterrole.#list
-			let #delete = kubernetes.#clusterrole.#delete
-			let #create = kubernetes.#clusterrole.#create
 			let #watch = kubernetes.#clusterrole.#watch
-			let #update = kubernetes.#clusterrole.#update
-			let #patch = kubernetes.#clusterrole.#patch
 
 			name: "prometheus"
 			rules: {
@@ -96,8 +92,13 @@ prometheus: {
 				}
 				"/metrics": #get
 			}
-
-			serviceaccount:
-				kubernetes.#serviceaccount & {name: "prometheus"}
 		}
+
+	clusterrolebinding:
+		kubernetes.#clusterrolebindings & {
+			binding: "prometheus": [{name: "prometheus", namespace: "system-monitoring"}]
+		}
+
+	serviceaccount:
+		kubernetes.#serviceaccount & {name: "prometheus"}
 }

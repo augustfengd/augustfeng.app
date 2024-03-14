@@ -23,4 +23,3 @@ ingressroute:
 				port: 80
 			}]}]
 	}
-
