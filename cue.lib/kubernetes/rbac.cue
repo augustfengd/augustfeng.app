@@ -9,7 +9,7 @@ import (
 #clusterrole: {
 	_#type: "apiGroups" | "nonResourceURLs"
 
-	_#apiGroups: ["", "extensions", "networking.k8s.io", "apps", "monitoring.coreos.com", "storage.k8s.io"]
+	_#apiGroups: ["", "extensions", "networking.k8s.io", "apps", "monitoring.coreos.com", "storage.k8s.io", "traefik.io", "traefik.containo.us"]
 
 	_#nonResourceURLs: ["/metrics"]
 

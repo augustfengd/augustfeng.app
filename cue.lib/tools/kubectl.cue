@@ -7,7 +7,7 @@ import (
 )
 
 #namespace: string
-#manifests: [...[...]] & [...[...{metadata: namespace: #namespace}]]
+#manifests: [...[...]] & [...[...{metadata: namespace: string | *#namespace}]]
 
 template: exec.Run & {
 	cmd:   "cat"

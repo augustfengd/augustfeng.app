@@ -17,6 +17,7 @@ manifests: [
 	cm.manifests,
 	deployment.manifests,
 	ingressroute.manifests,
+	monitoring.manifests,
 ]
 
 command: kubectl & {

@@ -6,6 +6,7 @@ prometheus: manifests: [{
 	metadata: name: "prometheus"
 	spec: {
 		replicas: 1
+		serviceMonitorSelector: {}
 		alerting: alertmanagers: [{
 			namespace: "system-monitoring"
 			name:      "alertmanager"

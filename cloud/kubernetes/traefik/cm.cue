@@ -9,6 +9,7 @@ import (
 
 traefik_yml: {
 	api: {}
+	metrics: prometheus: {}
 	entryPoints: websecure: address: ":443"
 	providers: kubernetesCRD: {}
 	certificatesResolvers: letsencrypt: acme: {
