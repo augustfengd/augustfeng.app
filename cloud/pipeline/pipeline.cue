@@ -18,7 +18,7 @@ workflows: "cloud.yaml": {
 
 	jobs: github.#Workflow.#Jobs & {
 		"configure": {
-			name:      "configure terraform cloud workspace"
+			name:      "configure"
 			"runs-on": "ubuntu-latest"
 			steps: [
 				#actions.checkoutCode,

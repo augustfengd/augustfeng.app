@@ -1,6 +1,7 @@
 * About
 
-Hello! This is a project for my cloud infrastructure and some personal projects.
+Hello! This is the repository for my cloud infrastructure and some personal
+applications.
 
 * Setup
 

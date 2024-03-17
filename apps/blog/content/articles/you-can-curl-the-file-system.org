@@ -1,4 +1,4 @@
-#+title: You Can Curl The File System
+#+title: You can curl the file system
 #+categories: web
 #+date: [2024-02-18 Sun]
 

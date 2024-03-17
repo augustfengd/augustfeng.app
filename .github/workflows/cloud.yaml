@@ -9,7 +9,7 @@ name: cloud
 concurrency: augustfeng.app
 jobs:
   configure:
-    name: configure terraform cloud workspace
+    name: configure
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

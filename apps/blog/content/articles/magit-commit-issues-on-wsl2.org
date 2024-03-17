@@ -1,4 +1,4 @@
-#+title: magit commit issues on wsl2
+#+Title: Magit commit issues on wsl2
 #+categories: configuration
 #+tags: wsl2
 #+tags: linux
