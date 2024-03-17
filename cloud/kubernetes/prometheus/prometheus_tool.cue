@@ -22,6 +22,7 @@ manifests: [
 	prometheus.manifests,
 	alertmanagerconfig.manifests,
 	alertmanager.manifests,
+	ingressroute.manifests,
 ]
 
 command: secrets & {

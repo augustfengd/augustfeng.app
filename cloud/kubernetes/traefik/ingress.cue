@@ -13,5 +13,13 @@ ingressroute:
 				name: "api@internal"
 				kind: "TraefikService"
 			}]
+			middlewares: ["basic-auth"]
 		}]
 	}
+
+middleware: manifests: [{
+	apiVersion: "traefik.io/v1alpha1"
+	kind:       "Middleware"
+	metadata: name: "basic-auth"
+	spec: basicAuth: secret: "basic-auth"
+}]

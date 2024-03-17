@@ -11,7 +11,9 @@ traefik_yml: {
 	api: {}
 	metrics: prometheus: {}
 	entryPoints: websecure: address: ":443"
-	providers: kubernetesCRD: {}
+	providers: kubernetesCRD: {
+		allowCrossNamespace: true
+	}
 	certificatesResolvers: letsencrypt: acme: {
 		email:   "augustfengd@gmail.com"
 		storage: "acme.json"

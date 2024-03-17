@@ -23,6 +23,7 @@ deployment:
 	} & {
 		manifests: [
 			{
+				spec: strategy: type: "Recreate"
 				spec: template: spec: {
 					containers: [{
 						ports: [{

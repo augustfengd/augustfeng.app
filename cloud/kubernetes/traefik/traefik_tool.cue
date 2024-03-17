@@ -7,6 +7,7 @@ import (
 
 	"github.com/augustfengd/augustfeng.app/cue.lib/tools:git"
 	"github.com/augustfengd/augustfeng.app/cue.lib/tools:kubectl"
+	"github.com/augustfengd/augustfeng.app/cue.lib/tools:secrets"
 )
 
 manifests: [
@@ -17,8 +18,14 @@ manifests: [
 	cm.manifests,
 	deployment.manifests,
 	ingressroute.manifests,
+	middleware.manifests,
+	basic_auth.manifests,
 	monitoring.manifests,
 ]
+
+command: secrets & {
+	#secrets: path: "cloud/kubernetes/traefik/secrets"
+}
 
 command: kubectl & {
 	#namespace: "system-ingress"
