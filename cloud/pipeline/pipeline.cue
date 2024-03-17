@@ -81,6 +81,12 @@ workflows: "cloud.yaml": {
 				},
 				#actions.with.decryptionKey & #actions.secrets.decrypt,
 				#actions.secrets.import,
+				#actions.with.decryptionKey & #actions.secrets.decrypt & {
+					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik/secrets"
+				},
+				#actions.secrets.import & {
+					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik/secrets"
+				},
 				#actions.cue.command & {
 					#command: "apply"
 					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik"

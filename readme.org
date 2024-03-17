@@ -6,12 +6,19 @@ Hello! This is a project for my cloud infrastructure and some personal projects.
 
 ** Secrets
 
-The credentials are statically encrypted in the repository using sops and can be
-easily decrypted, and imported for CUE consumption as required.
+Infrastructure related secrets are statically encrypted in the repository using
+SOPS and are easily decrypted, and imported for CUE consumption as required.
 
 #+begin_src shell :results none
-  cue decrypt github.com/augustfengd/augustfeng.app/secrets
-  cue convert github.com/augustfengd/augustfeng.app/secrets
+cue decrypt github.com/augustfengd/augustfeng.app/secrets
+cue convert github.com/augustfengd/augustfeng.app/secrets
+#+end_src
+
+Secrets that are specific to services can be just as prepared for usage:
+
+#+begin_src shell :resultss none
+cue decrypt github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+cue convert github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
 #+end_src
 
 ** Building the pipelines
@@ -41,46 +48,47 @@ make -C apps/domain ../../.github/workflows/apps.domain.yaml
 - toolchain pipeline:
 
 #+begin_src shell :results none
-cue build github.com/augustfengd/augustfeng.app/apps/toolchain/pipeline
+cue cmd build github.com/augustfengd/augustfeng.app/apps/toolchain/pipeline
 #+end_src
 
 ** Terraform
 
-The entire terraform (cloud) setup and operations is automated:
+The terraform cloud project configuration is configured prior to the plan and
+applies:
 
-- configure the workspace variables:
+- configure the terraform workspace variables:
 
 #+begin_src shell
-# if working from root directory.
-cue configure github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
-
-# if working from cloud/terraform directory.
-cue configure
+  # if working from root directory.
+  cue cmd configure github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
 #+end_src
 
 - build, plan and apply:
 
 #+begin_src shell
-cue build
-cue init
-cue plan
-cue apply
+# for a better ux, we can run the commands directly from the package to typing the package's fqdn.
+cd cloud/terraform
+
+cue cmd build
+cue cmd init
+cue cmd plan
+cue cmd apply
 #+end_src
 
 ** Kubernetes
 
 I have written some abstractions in CUE to easily author kubernetes
-configuration. Additionally, there is a thin scripting layer which integrates
-this and helm charts:
+configuration. Additionally, there is also scripting layer to consumes the
+configuration:
 
 #+begin_src shell
-  # kubectl backend
-  cue template github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
-  cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
-  cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+# kubectl backend
+cue cmd template github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+cue cmd diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+cue cmd apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
 
-  # kubectl/helm backend
-  cue template github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert-manager
-  cue diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert-manager
-  cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert-manager
+# kubectl/helm backend
+cue cmd template github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert-manager # this project doesn't use cert-manager anymore though.
+cue cmd diff github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert-manager
+cue cmd apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/cert-manager
 #+end_src

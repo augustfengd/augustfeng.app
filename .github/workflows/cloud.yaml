@@ -29,8 +29,8 @@ jobs:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
       - name: import secrets
         run: cue convert github.com/augustfengd/augustfeng.app/secrets
-      - name: cue configure github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
-        run: cue configure github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
+      - name: cue cmd configure github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
+        run: cue cmd configure github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
     container:
       image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
   terraform:
@@ -48,12 +48,12 @@ jobs:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
       - name: import secrets
         run: cue convert github.com/augustfengd/augustfeng.app/secrets
-      - name: cue build github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
-        run: cue build github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
-      - name: cue init github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
-        run: cue init github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
-      - name: cue apply github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
-        run: cue apply github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
+      - name: cue cmd build github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
+        run: cue cmd build github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
+      - name: cue cmd init github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
+        run: cue cmd init github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
+      - name: cue cmd apply github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
+        run: cue cmd apply github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
     container:
       image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
   kubernetes:
@@ -81,7 +81,13 @@ jobs:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
       - name: import secrets
         run: cue convert github.com/augustfengd/augustfeng.app/secrets
-      - name: cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
-        run: cue apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+      - name: decrypt secrets
+        run: cue decrypt github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik/secrets
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+      - name: import secrets
+        run: cue convert github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik/secrets
+      - name: cue cmd apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+        run: cue cmd apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
     container:
       image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest

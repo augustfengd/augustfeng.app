@@ -16,8 +16,8 @@ import (
 		files: [...string]
 	}
 	encrypted: [ for _, f in secret.files if strings.HasSuffix(f, ".enc.json") {f}]
-	decrypted: [ for _, f in secret.files if !strings.HasSuffix(f, ".enc.json") && !strings.HasSuffix(f, "_tool.cue") && !strings.HasSuffix(f, "secrets.cue") {f}]
-	converted: [ for _, f in secret.files if !strings.HasSuffix(f, ".enc.json") && !strings.HasSuffix(f, "_tool.cue") && !strings.HasSuffix(f, "secrets.cue") {strings.Replace(f, ".json", ".cue", -1)}]
+	decrypted: [ for _, f in secret.files if !strings.HasSuffix(f, ".enc.json") && !strings.HasSuffix(f, "_tool.cue") && !strings.HasSuffix(f, "secrets.cue") && !strings.HasSuffix(f, ".gitignore") {f}]
+	converted: [ for _, f in secret.files if !strings.HasSuffix(f, ".enc.json") && !strings.HasSuffix(f, "_tool.cue") && !strings.HasSuffix(f, "secrets.cue") && !strings.HasSuffix(f, ".gitignore") {strings.Replace(f, ".json", ".cue", -1)}]
 }
 
 encrypt: {
