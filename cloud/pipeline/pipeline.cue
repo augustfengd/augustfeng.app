@@ -17,16 +17,8 @@ workflows: "cloud.yaml": {
 	let #actions = pipeline.#actions
 
 	jobs: github.#Workflow.#Jobs & {
-		"build": {
-			"runs-on": "ubuntu-latest"
-			steps: [
-				#actions.checkoutCode,
-			]
-			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
-		}
 		"configure": {
-			name: "terraform cloud"
-			needs: ["build"]
+			name:      "configure terraform cloud workspace"
 			"runs-on": "ubuntu-latest"
 			steps: [
 				#actions.checkoutCode,
@@ -40,7 +32,7 @@ workflows: "cloud.yaml": {
 			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
 		}
 		"terraform": {
-			name: "terraform"
+			name: "terraform apply"
 			needs: ["configure"]
 			"runs-on": "ubuntu-latest"
 			if:        "github.event_name =='push'"
@@ -63,8 +55,8 @@ workflows: "cloud.yaml": {
 			]
 			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
 		}
-		"kubernetes": {
-			name: "kubernetes"
+		"traefik": {
+			name: "traefik"
 			needs: ["terraform"]
 			"runs-on": "ubuntu-latest"
 			if:        "github.event_name =='push'"
@@ -82,14 +74,45 @@ workflows: "cloud.yaml": {
 				#actions.with.decryptionKey & #actions.secrets.decrypt,
 				#actions.secrets.import,
 				#actions.with.decryptionKey & #actions.secrets.decrypt & {
-					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik/secrets"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik"
 				},
 				#actions.secrets.import & {
-					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik/secrets"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik"
 				},
 				#actions.cue.command & {
 					#command: "apply"
 					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik"
+				},
+			]
+			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"
+		}
+		"prometheus": {
+			name: "prometheus"
+			needs: ["terraform"]
+			"runs-on": "ubuntu-latest"
+			if:        "github.event_name =='push'"
+			steps: [
+				#actions.checkoutCode,
+				#actions.gcloud.auth,
+				#actions.gcloud.install,
+				#actions.gcloud.command & {
+					#command: "components install gke-gcloud-auth-plugin"
+				},
+				#actions.gcloud.command & {
+					#command: "container clusters get-credentials augustfeng-app"
+					#flags: "--zone": "us-east1-b"
+				},
+				#actions.with.decryptionKey & #actions.secrets.decrypt,
+				#actions.secrets.import,
+				#actions.with.decryptionKey & #actions.secrets.decrypt & {
+					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/prometheus"
+				},
+				#actions.secrets.import & {
+					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/prometheus"
+				},
+				#actions.cue.command & {
+					#command: "apply"
+					#package: "github.com/augustfengd/augustfeng.app/cloud/kubernetes/prometheus"
 				},
 			]
 			container: image: "ghcr.io/augustfengd/augustfeng.app/toolchain:latest"

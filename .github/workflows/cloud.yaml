@@ -8,17 +8,8 @@ name: cloud
       - cue.lib/**
 concurrency: augustfeng.app
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-    container:
-      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
   configure:
-    name: terraform cloud
-    needs:
-      - build
+    name: configure terraform cloud workspace
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -34,7 +25,7 @@ jobs:
     container:
       image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
   terraform:
-    name: terraform
+    name: terraform apply
     needs:
       - configure
     runs-on: ubuntu-latest
@@ -56,8 +47,8 @@ jobs:
         run: cue cmd apply github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
     container:
       image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
-  kubernetes:
-    name: kubernetes
+  traefik:
+    name: traefik
     needs:
       - terraform
     runs-on: ubuntu-latest
@@ -82,12 +73,47 @@ jobs:
       - name: import secrets
         run: cue convert github.com/augustfengd/augustfeng.app/secrets
       - name: decrypt secrets
-        run: cue decrypt github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik/secrets
+        run: cue decrypt github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
       - name: import secrets
-        run: cue convert github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik/secrets
+        run: cue convert github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
       - name: cue cmd apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
         run: cue cmd apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+    container:
+      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
+  prometheus:
+    name: prometheus
+    needs:
+      - terraform
+    runs-on: ubuntu-latest
+    if: github.event_name =='push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: configure google application credentials
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+      - name: install gcloud
+        uses: google-github-actions/setup-gcloud@v1
+      - name: gcloud components install gke-gcloud-auth-plugin
+        run: 'gcloud components install gke-gcloud-auth-plugin '
+      - name: gcloud container clusters get-credentials augustfeng-app
+        run: gcloud container clusters get-credentials augustfeng-app --zone=us-east1-b
+      - name: decrypt secrets
+        run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+      - name: import secrets
+        run: cue convert github.com/augustfengd/augustfeng.app/secrets
+      - name: decrypt secrets
+        run: cue decrypt github.com/augustfengd/augustfeng.app/cloud/kubernetes/prometheus
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+      - name: import secrets
+        run: cue convert github.com/augustfengd/augustfeng.app/cloud/kubernetes/prometheus
+      - name: cue cmd apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/prometheus
+        run: cue cmd apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/prometheus
     container:
       image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
