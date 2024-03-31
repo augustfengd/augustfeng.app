@@ -1,6 +1,6 @@
 #+TITLE: Learning and configuring git push
 #+categories: programming
-#+tags: git
+#+tags[]: git
 #+date: <2023-09-14 Thu>
 
 * About

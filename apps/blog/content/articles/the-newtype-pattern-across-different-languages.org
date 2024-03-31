@@ -1,8 +1,6 @@
 #+title: The newtype pattern across different languages
 #+categories: programming
-#+tags: cpp
-#+tags: rust
-#+tags: fsharp
+#+tags[]: cpp rust fsharp
 #+date: [2023-11-01 Wed]
 
 * About

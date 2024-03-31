@@ -1,6 +1,6 @@
 #+title: Create fsharp test projects from scratch
 #+categories: programming
-#+tags: dotnet
+#+tags[]: dotnet
 #+date: [2023-05-31 Wed]
 
 * About

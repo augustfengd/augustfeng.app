@@ -1,6 +1,6 @@
 #+title: Consuming upstream themes in Hugo
 #+categories: project
-#+tags: hugo
+#+tags[]: hugo
 #+date: [2023-11-08 Wed]
 
 * About

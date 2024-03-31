@@ -1,6 +1,6 @@
 #+title: Fsharp namespaces and modules
 #+categories: programming
-#+tags: fsharp
+#+tags[]: fsharp
 #+mermaid: true
 #+date: [2023-12-16 Sat]
 

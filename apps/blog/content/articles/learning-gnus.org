@@ -1,6 +1,6 @@
 #+TITLE: Learning gnus
 #+categories: emacs
-#+tags: shortcuts
+#+tags[]: shortcuts
 #+date: [2023-08-14 Mon]
 
 * Shortcuts

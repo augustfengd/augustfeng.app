@@ -1,6 +1,6 @@
 #+title: Configure JetBrains
 #+categories: configuration
-#+tags: jetbrains
+#+tags[]: jetbrains
 #+draft: true
 #+date: [2023-04-02 Sun]
 

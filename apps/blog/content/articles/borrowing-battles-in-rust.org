@@ -1,6 +1,6 @@
 #+title: Borrowing battles in Rust
 #+categories: programming
-#+tags: rust
+#+tags[]: rust
 #+date: [2023-07-01 Sat]
 
 * About

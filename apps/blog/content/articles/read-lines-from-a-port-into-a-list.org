@@ -1,7 +1,6 @@
 #+title: Read lines from a port into a list
 #+categories: scripting
-#+tags: scheme
-#+tags: guile
+#+tags[]: scheme guile
 #+date: [2023-05-31 Wed]
 
 Just some elegant code (that took me way too long to learn and write) for

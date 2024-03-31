@@ -1,7 +1,6 @@
 #+Title: Magit commit issues on wsl2
 #+categories: configuration
-#+tags: wsl2
-#+tags: linux
+#+tags[]: wsl2 linux
 #+date: [2024-02-18 Sun]
 
 * About

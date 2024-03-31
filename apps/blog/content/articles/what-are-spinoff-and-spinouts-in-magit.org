@@ -1,6 +1,6 @@
 #+title: What are spinoff and spinouts in magit
 #+categories: programming
-#+tags: git
+#+tags[]: git
 #+date: [2023-09-14 Thu]
 #+mermaid: true
 

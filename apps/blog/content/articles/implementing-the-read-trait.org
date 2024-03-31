@@ -1,6 +1,6 @@
 #+title: Implementing the Read trait
 #+categories: programming
-#+tags: rust
+#+tags[]: rust
 #+date: [2022-12-20 Tue]
 
 I'm almost halfway through Ken Youens-Clark's *Command-Line Rust: A

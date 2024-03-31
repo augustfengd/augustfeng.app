@@ -1,8 +1,6 @@
 #+title: Keeping a linear history with GitHub Actions
 #+categories: programming
-#+tags: github
-#+tags: git
-#+tags: cicd
+#+tags[]: github git cicd
 #+date: [2023-04-02 Sun]
 #+mermaid: true
 

@@ -1,7 +1,6 @@
 #+title: Configure Guile
 #+categories: configuration
-#+tags: scheme
-#+tags: guile
+#+tags[]: scheme guile
 #+draft: true
 #+date: [2022-12-16 Fri]
 

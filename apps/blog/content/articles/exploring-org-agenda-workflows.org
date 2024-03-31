@@ -1,7 +1,6 @@
 #+title: Exploring org-agenda workflows
 #+categories: emacs
-#+tags: org-mode
-#+tags: shortcuts
+#+tags[]: org-mode shortcuts
 #+date: [2023-06-26 Mon]
 
 * Cycling between agenda files

@@ -1,6 +1,6 @@
 #+title: A study of fsharp web templates
 #+categories: programming
-#+tags: fsharp
+#+tags[]: fsharp
 #+date: [2023-12-16 Sat]
 
 * Available templates

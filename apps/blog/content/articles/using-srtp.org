@@ -1,6 +1,6 @@
 #+title: Using SRTP
 #+categories: programming
-#+tags: fsharp
+#+tags[]: fsharp
 #+date: [2023-06-20 Tue]
 
 F#7 introduced a [[https://devblogs.microsoft.com/dotnet/announcing-fsharp-7/#making-working-with-srtps-easier][friendlier syntax]] for using SRTP. The constraints can now be

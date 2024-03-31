@@ -1,6 +1,6 @@
 #+title: LaTeX
 #+categories: programming
-#+tags: latex
+#+tags[]: latex
 #+date: [2023-12-02 Sat]
 
 * Finding source code for classes and packages

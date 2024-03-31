@@ -1,6 +1,6 @@
 #+title: Writing emacs lisp
 #+categories: emacs
-#+tags: emacs-lisp
+#+tags[]: emacs-lisp
 #+date: [2023-11-28 Tue]
 #+draft: true
 
