@@ -1,0 +1,14 @@
+#+title: Git templates
+#+tags: git
+#+date: [2024-05-24 Fri]
+
+* About
+
+We can create predefined templates and configure git to source it for our
+prepared messages.
+
+#+begin_src shell
+  git init
+  echo 'augustfeng:' > .gitmessage.txt
+  git config commit.template .gitmessage.txt
+#+end_src

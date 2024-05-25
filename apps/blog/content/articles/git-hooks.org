@@ -1,0 +1,75 @@
+#+TITLE: Git hooks
+#+tags: git
+#+date: [2024-05-24 Fri]
+
+* About
+
+A study on git hooks. There are more, but these are the ones that interest me at
+the moment.
+
+* Hooks
+
+** pre-commit
+
+The *pre-commit* is a shell script that does not take any parameters.
+
+It stops the commit if the exit code is not zero, so we should use this feature
+to communicate messages.
+
+#+begin_src shell
+  #!/bin/sh
+
+  if git diff --staged --name-only | grep -q helloworld; then
+      echo 'on parle francais s.v.p' && exit 1;
+  fi
+#+end_src
+
+** prepare-commit-msg
+
+The *prepare-commit-msg* is a shell script that takes three parameters.
+
+The first argument is simply the /.git/COMMIT_EDITMSG/ file.
+
+*We use this file to prepare the commit message that git will present to us*.
+
+The second argument communicates the way the commit is being done.
+
+For example, its value is /message/ when we use a flag from this non-exhaustive
+list of flags: ~--message~, ~--file~, ~--fixup~, ~--amend~.
+
+The third argument is a commit sha that is provided given the correct context.
+
+An example would be when we amend a commit, the original commit sha will be
+passed to the script as the third argument.
+
+#+begin_src shell
+  #!/bin/sh
+
+  echo "Modify $(git diff --staged --name-only | wc -l | tr -d ' ') files" > $1
+#+end_src
+
+** commit-msg
+
+The *commit-msg* is a shell script that takes only the /.git/COMMIT_EDITMSG/
+file as parameter.
+
+We can use this to validate the commit message, and exit with a non-zero value
+to fail the commit.
+
+#+begin_src shell
+  #!/bin/sh
+
+  test $(cat .git/COMMIT_EDITMSG | head --lines=1 | wc -c) -lt 72
+#+end_src
+
+** post-commit
+
+The *post-commit* is a shell script that does not take any parameters.
+
+It's run after the commit is done and can be used for notification purposes.
+
+#+begin_src shell
+  #!/bin/sh
+
+  echo "Nice job on $(git rev-parse HEAD)!"
+#+end_src
