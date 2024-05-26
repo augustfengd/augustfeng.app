@@ -1,0 +1,23 @@
+#+title: Calculating monitor refresh rate using javascript
+#+categories: programming
+#+tags[]: javascript
+#+date: [2024-05-26 Sun]
+
+* About
+
+In order to learn a bit more about ~requestAnimationFrame~, I write some code to
+calculate and log a monitor's refresh rate.
+
+#+begin_src javascript
+  function callback() {
+      let n = 0;
+      let start = performance.now();
+
+      requestAnimationFrame(function _() {
+          if (performance.now() - start < 1000) { n = n + 1; requestAnimationFrame(_); }
+          else { console.log(n / 1); }
+      });
+  }
+
+  requestAnimationFrame(callback);
+#+end_src
