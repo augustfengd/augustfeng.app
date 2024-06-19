@@ -1,0 +1,90 @@
+#+title: Instant previews using grip
+#+categories: emacs
+#+tags[]: documentation
+#+date: [2024-06-19 Wed]
+
+* About
+
+A few years ago, I had discovered a setup for live previewing markdown/org files
+in Emacs. It took me a little while to remember how I did that, and implement it
+again on my new work machine.
+
+I don't want this to happen again, so I am documenting the steps for the future
+me.
+
+:)
+
+* Implementation
+** xwidgets support
+
+Emacs needs to be buitl with xwidgets support.
+
+I don't use many flags when compiling for MacOS, so the following configure
+command is what I most recently used:
+
+#+begin_src shell
+  ./configure --with-mailutils --with-xwidgets
+#+end_src
+
+** Credentials
+
+The public api requests to github are easily rate limited, so I'm configuring
+~/.authinfo.gpg file with my github credentials and letting grip-mode use them.
+
+I'll prefer to use the encrypted approach (~/.authinfo.gpg) and let Emacs
+automatically decrypt the file when my GPG key is imported.
+
+#+begin_src authinfo
+  machine api.github.com login augustfengd password _
+#+end_src
+
+** Spacemacs
+
+I've been using Spacemacs for many years now and aim leverage the builtin layers
+for customization.
+
+This is one of the few exceptions where I need to be a little more involved
+because there is no layer that includes the *grip-mode* package anymore.
+
+I maintain an *augustfengd* layer to concentrate any of these custom
+configurations.
+
+It integrates the following code.
+
+#+begin_src emacs-lisp
+  (defconst augustfengd-packages
+    grip-mode)
+
+  (defun augustfengd/init-grip-mode ()
+    ;; grip-mode requires the 'python-shell-interpreter to be configured.
+    (require 'python))
+
+  (defun augustfengd/post-init-grip-mode ()
+    (require 'auth-source)
+    (let ((credential (auth-source-user-and-password "api.github.com")))
+      (setq grip-github-user (car credential)
+            grip-github-password (cadr credential))))
+#+end_src
+
+** grip
+
+The *grip-mode* package uses the [[https://github.com/joeyespo/grip][grip]] tool, which is distributed as a python
+package.
+
+Luckily the *python* layer from Spacemacs includes the [[https://github.com/jorgenschaefer/pyvenv][pyvenv]] package. This
+package includes the ~M-x pyvenv-workon~ command that lets us use a python
+virtual environment.
+
+I create the virtual environment like so:
+
+#+begin_src shell
+  python3 -m venv ~/.virtualenvs/grip # ~/.virtualenvs is the default expected folder of pyvenv.
+  source ~/.virtualenvs/grip/bin/activate
+  python3 -m pip install grip
+  deactivate
+#+end_src
+
+* Usage
+
+When I visit an org/md file now, I will activate *grip* virtual environment and
+turn on grip-mode for a live preview of the document.

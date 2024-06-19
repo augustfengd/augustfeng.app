@@ -58,7 +58,7 @@ import (
 	}
 	taxonomies: {
 		"CATEGORIES": [ ...{"programming" | "emacs" | "configuration" | "scripting" | "kubernetes" | "containers" | "project" | "web"}] & list.UniqueItems
-		"TAGS":       [ ...{"fsharp" | "rust" | "go" | "jsonnet" | "cue" | "emacs-lisp" | "scheme" | "guile" | "cpp" | "latex" | "github" | "hugo" | "dotnet" | "kubernetes" | "linux" | "windows" | "wsl2" | "org-mode" | "git" | "shell" | "helm" | "docker" | "shortcuts" | "cicd" | "jetbrains"}] & list.UniqueItems
+		"TAGS":       [ ...{"fsharp" | "rust" | "go" | "jsonnet" | "cue" | "emacs-lisp" | "scheme" | "guile" | "cpp" | "latex" | "github" | "hugo" | "dotnet" | "kubernetes" | "linux" | "windows" | "wsl2" | "org-mode" | "git" | "shell" | "helm" | "docker" | "shortcuts" | "cicd" | "documentation" | "jetbrains"}] & list.UniqueItems
 		...
 	}
 }
