@@ -1,5 +1,5 @@
 #+TITLE: Git hooks
-#+tags: git
+#+tags[]: git
 #+date: [2024-05-24 Fri]
 
 * About
