@@ -58,6 +58,20 @@ use quelpa to thoroughly rebuild the package at
   (lsp-mode (recipe :fetcher file :files (:defaults "clients/*.el") :path "~/repositories/gh/emacs-lsp/lsp-mode")) ;; see melpa/melpa's recipes folder for ~:files~ values.
 #+end_src
 
+** using not to exclude existing packages from layers
+
+I wanted to iterate on the *poetry* package, which is bundled with the *python*
+layer.
+
+I own it in my *augustfengd* layer and ignore it in the *python* layer via the
+~:packages~ keyword. ([[https://develop.spacemacs.org/doc/DOCUMENTATION.html#selectingignoring-packages-of-a-layer][ref]])
+
+#+begin_src emacs-lisp
+  ;; dotspacemacs-configuration-layers
+  '(augustfengd
+    (python :packages (not poetry)))
+#+end_src
+
 * Breakpoints
 ** instrumenting functions
 *** removing instrumentation
@@ -85,7 +99,7 @@ We can remove breakpoints caused by entry on functions.
 This breakpoint surfaced the call stack, and I was able to identify the code
 that inadvertently caused the loading of ~org-capture~.
 
-#+begin_src
+#+begin_src emacs-lisp
   (debug-on-variable-change 'org-capture-templates)
 #+end_src
 

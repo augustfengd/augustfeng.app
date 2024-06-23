@@ -1,0 +1,63 @@
+#+title: Experiments with poetry
+#+categories: programming
+#+tags[]: python
+#+date: [2024-06-22 Sat]
+
+* About
+
+These are some behaviors (frustrations) that I've experienced with Poetry.
+
+* Behaviors
+** using poetry in an activated virtual environment
+
+When using an installation of poetry in a virtual environment, a ~poetry
+install~ on a project will assume poetry's virtual environment.
+
+#+begin_src shell
+  python3 -m venv ~/.virtualenvs/poetry
+  ~/.virtualenvs/poetry/bin/python3 -m pip install -U pip setuptools
+  ~/.virtualenvs/poetry/bin/python3 -m pip install poetry
+#+end_src
+
+#+begin_src shell
+  source ~/.virtualenvs/poetry/bin/activate
+  python3 -m pip list > a.txt
+#+end_src
+
+#+begin_src shell
+  poetry new foobar
+  poetry add diagrams -C foobar
+#+end_src
+
+#+begin_src
+  python3 -m pip list > b.txt
+#+end_src
+
+#+begin_src shell
+  diff a.txt b.txt
+#+end_src
+
+#+begin_src diff
+9a10
+> diagrams             0.23.4
+13a15
+> graphviz             0.20.3
+17a20
+> Jinja2               3.1.4
+18a22
+> MarkupSafe           2.1.5
+39a44
+> typed-ast            1.5.5
+#+end_src
+
+The lesson learned is that we should use the binary,
+~~/.virtualenvs/poetry/bin/poetry~, directly rather than activating the virtual
+environment that contains poetry.
+
+** using poetry with pyright
+
+Besides hacking around a few emacs packages and submitted a few patches so that
+the *poetry* package would work correctly, I needed enable the
+[[https://python-poetry.org/docs/configuration/#virtualenvsin-project][virtualenvs.in-project]] configuration so that pyright would detect it.
+
+And now things work smoothly. :)

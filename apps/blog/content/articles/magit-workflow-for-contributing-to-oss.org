@@ -1,0 +1,30 @@
+#+title: Magit workflow for contributing to oss
+#+categories: emacs
+#+date: [2024-06-22 Sat]
+
+* About
+
+It's been only a little while since I made a pull request to an open-source
+project and I forgot the conclusion I had about setting up my local git
+repository.
+
+* Conclusion
+
+I structure my file system with git repositories from github so that it
+replicates the ~<OWNER>/<REPO>~ in github.
+
+Earlier, I nearly duplicated the repository to ~augustfengd/<REPO>~ because the
+repository will technically exist as as fork and I will be pushing there. *No.*
+
+Instead, I should configure the local upstream repository so that pushes default
+there:
+
+#+begin_src toml
+[remote "augustfengd"]
+	url = https://github.com/augustfengd/spacemacs
+	fetch = +refs/heads/*:refs/remotes/augustfengd/*
+[remote]
+	pushDefault = augustfengd
+#+end_src
+
+And I should pull with rebase.
