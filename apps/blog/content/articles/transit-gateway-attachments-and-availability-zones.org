@@ -1,5 +1,5 @@
 #+title: Transit gateway attachments and availability zones
-#+categories: devops
+#+categories: cloud
 #+tags[]: aws
 #+mermaid: true
 #+date: [2024-06-26 Wed]
