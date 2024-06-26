@@ -70,7 +70,7 @@ I spun up an instance in each subnet of each vpc and ran some connection tests.
 
 Between each node:
 - I ran a ping test and drew a *solid line* when there was a response.
-- I ran a tcpdump dump test and drew a *dotted arrow line* when the traffic was
+- I ran a tcpdump test and drew a *dotted arrow line* when the traffic was
   received but not returned.
 - Finally, I drew a *dotted line* when there was simply no connection.
 
