@@ -1,0 +1,141 @@
+#+title: Transit gateway attachments and availability zones
+#+categories: devops
+#+tags[]: aws
+#+mermaid: true
+#+date: [2024-06-26 Wed]
+
+* About
+
+The Transit Gateway has some specifics when it comes to attachment
+configurations and availability zones.
+
+This is what is described in the [[https://docs.aws.amazon.com/vpc/latest/tgw/how-transit-gateways-work.html][Availability Zone]] section of the documention.
+
+#+begin_quote
+When you attach a VPC to a transit gateway, you must enable one or more
+Availability Zones to be used by the transit gateway to route traffic to
+resources in the VPC subnets. To enable each Availability Zone, you specify
+exactly one subnet. The transit gateway places a network interface in that
+subnet using one IP address from the subnet. After you enable an Availability
+Zone, traffic can be routed to all subnets in the VPC, not just the specified
+subnet or Availability Zone. However, only resources that reside in Availability
+Zones where there is a transit gateway attachment can reach the transit gateway.
+#+end_quote
+
+#+begin_quote
+If traffic is sourced from an Availability Zone that the destination attachment
+is not present in, AWS Transit Gateway will internally route that traffic to a
+random Availability Zone where the attachment is present. There is no additional
+transit gateway charge for this type of cross-Availability Zone traffic.
+#+end_quote
+
+The description is a little bit confusing, I was worried about the repercussions
+of ignoring this so I experimented a little bit.
+
+* Experimentation
+** Architecture
+
+Let's assume the following diagram where *data* and *compute* are VPCs. In each
+VPC, there are three subnets in different availability zones: *a* and *b*.
+
+We connect the two VPCs together via the /transit gateway/ and /two transit
+gateway attachments/, where each attachment link to a subnet in availability
+zone *a*.
+
+{{<mermaid>}}
+flowchart TB
+  tgw["transit gateway"]
+  tgwa_data["transit gateway attachment"]
+  tgwa_compute["transit gateway attachment"]
+
+  tgw --> tgwa_data
+  tgwa_data --> compute_subnet_a_tgw
+  tgw --> tgwa_compute
+  tgwa_compute --> data_subnet_a_tgw
+
+  subgraph data
+  data_subnet_a_tgw["subnet a (tgw)"]
+  data_subnet_a["subnet a"]
+  data_subnet_b["subnet b"]
+  end
+
+  subgraph compute
+  compute_subnet_a_tgw["subnet a (tgw)"]
+  compute_subnet_a["subnet a"]
+  compute_subnet_b["subnet b"]
+  end
+{{</mermaid>}}
+
+** Test
+
+I spun up an instance in each subnet of each vpc and ran some connection tests.
+
+Between each node:
+- I ran a ping test and drew a *solid line* when there was a response.
+- I ran a tcpdump dump test and drew a *dotted arrow line* when the traffic was
+  received but not returned.
+  - Finally, I drew a *dotted line* when there was simply no connection.
+
+{{<mermaid>}}
+flowchart TB
+  A["(vpc compute , availability zone a)"]
+  B["(vpc compute , availability zone b)"]
+  C["(vpc data , availability zone a)"]
+  D["(vpc data , availability zone b)"]
+
+  A <--> B
+  A <--> C
+  A -.-> D
+
+  B -.- D
+
+  C -.-> B
+  C <--> D
+{{</mermaid>}}
+
+** Conclusion
+
+Overall, the test agrees with the behavior described by AWS. I'll attempt
+describe the networking between VPCs in my own simple term:
+- There is *bidirectional* routing within the same subnets that have an transit
+  gateway attachment in their Availability Zone.
+
+- There is *unidirectional* routing when only the source subnet's Availability
+  Zone has a transit gateway attachment.
+
+- There is *nothing* when neither subnets have a transit gateway attachment in
+  their Availability Zone.
+
+For a network topology, it would be very unintuitive to not enable the transit
+gateway attachment in all the Availability Zones.
+
+We should correct the architecture to an implementation of this diagram.
+
+{{<mermaid>}}
+flowchart TB
+  tgw["transit gateway"]
+  tgwa_data["transit gateway attachment"]
+  tgwa_compute["transit gateway attachment"]
+
+  tgw --> tgwa_data
+  tgwa_data --> compute_subnet_a_tgw
+  tgwa_data --> compute_subnet_b_tgw
+
+  tgw --> tgwa_compute
+  tgwa_compute --> data_subnet_a_tgw
+  tgwa_compute --> data_subnet_b_tgw
+
+  subgraph data
+  data_subnet_a_tgw["subnet a (tgw)"]
+  data_subnet_b_tgw["subnet b (tgw)"]
+  data_subnet_a["subnet a"]
+  data_subnet_b["subnet b"]
+  end
+
+  subgraph compute
+  compute_subnet_a_tgw["subnet a (tgw)"]
+  compute_subnet_b_tgw["subnet b (tgw)"]
+  compute_subnet_a["subnet a"]
+  compute_subnet_b["subnet b"]
+  end
+{{</mermaid>}}

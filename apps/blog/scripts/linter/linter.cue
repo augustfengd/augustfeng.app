@@ -57,8 +57,8 @@ import (
 		title: #exceptions.titles[filename]
 	}
 	taxonomies: {
-		"CATEGORIES": [ ...{"programming" | "emacs" | "configuration" | "scripting" | "kubernetes" | "containers" | "project" | "web"}] & list.UniqueItems
-		"TAGS":       [ ...{"fsharp" | "rust" | "go" | "jsonnet" | "cue" | "emacs-lisp" | "scheme" | "guile" | "cpp" | "python" | "latex" | "github" | "hugo" | "dotnet" | "kubernetes" | "linux" | "windows" | "wsl2" | "org-mode" | "git" | "shell" | "helm" | "docker" | "shortcuts" | "cicd" | "documentation" | "jetbrains"}] & list.UniqueItems
+		"CATEGORIES": [ ...{"programming" | "emacs" | "configuration" | "scripting" | "kubernetes" | "containers" | "project" | "web" | "cloud" }] & list.UniqueItems
+		"TAGS":       [ ...{"fsharp" | "rust" | "go" | "jsonnet" | "cue" | "emacs-lisp" | "scheme" | "guile" | "cpp" | "python" | "latex" | "github" | "hugo" | "dotnet" | "kubernetes" | "linux" | "windows" | "wsl2" | "org-mode" | "git" | "shell" | "helm" | "docker" | "gcp" | "aws" | "shortcuts" | "cicd" | "documentation" | "jetbrains"}] & list.UniqueItems
 		...
 	}
 }
