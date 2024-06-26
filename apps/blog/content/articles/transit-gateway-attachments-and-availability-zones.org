@@ -20,9 +20,7 @@ subnet using one IP address from the subnet. After you enable an Availability
 Zone, traffic can be routed to all subnets in the VPC, not just the specified
 subnet or Availability Zone. However, only resources that reside in Availability
 Zones where there is a transit gateway attachment can reach the transit gateway.
-#+end_quote
 
-#+begin_quote
 If traffic is sourced from an Availability Zone that the destination attachment
 is not present in, AWS Transit Gateway will internally route that traffic to a
 random Availability Zone where the attachment is present. There is no additional
@@ -74,7 +72,7 @@ Between each node:
 - I ran a ping test and drew a *solid line* when there was a response.
 - I ran a tcpdump dump test and drew a *dotted arrow line* when the traffic was
   received but not returned.
-  - Finally, I drew a *dotted line* when there was simply no connection.
+- Finally, I drew a *dotted line* when there was simply no connection.
 
 {{<mermaid>}}
 flowchart TB
@@ -95,8 +93,9 @@ flowchart TB
 
 ** Conclusion
 
-Overall, the test agrees with the behavior described by AWS. I'll attempt
-describe the networking between VPCs in my own simple term:
+In conclusion, I now understand the AWS documentation and in retrospect, I just
+couldn't believe this unintuitive behavior. I'll attempt describe the networking
+between VPCs in my own simple term:
 - There is *bidirectional* routing within the same subnets that have an transit
   gateway attachment in their Availability Zone.
 
