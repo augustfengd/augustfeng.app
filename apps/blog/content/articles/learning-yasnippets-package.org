@@ -15,14 +15,28 @@ abbreviation of the snippets before expansion.
 
 Wrap the lisp code with ~`~. This will be evaluated upon expansion.
 
-* Finding snippets
+** avoiding auto indentations
 
-I don't think there's a way to list *all* snippets, but I'm mostly often
-interested in editing snippets I've written, which are saved in the first
-directory of the ~yas-snippet-dirs~.
+The leading space before $2 is deleted when the template is inserted. We need to
+use the directive ~# expand-env: ((yas-indent-line 'fixed))~ to avoid that.
 
-#+begin_src emacs-lisp
-  (expand-file-name (car yas-snippet-dirs))
-#+end_src
+#+begin_quote
+* $1
+:PROPERTIES:
+:ANKI_DECK: $2
+:END:
+$0
+#+end_quote
 
-The directory is organized by major modes with the applicable snippets.
+* Viewing snippets
+** individual snippets
+
+We can visit individual snippets with the ~M-x yas/visit-snippet-file~ command.
+
+** snippet directories
+
+The top-level snippet directories is configured with the ~yas-snippet-dirs~
+variable.
+
+The directory is organized by major modes and their applicable snippets.
+

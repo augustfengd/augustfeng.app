@@ -1,0 +1,42 @@
+#+title: Instances and auto assigned public ip addresses
+#+categories: devops
+#+date: [2024-07-12 Fri]
+#+mermaid: true
+
+* About
+
+I want to learn about the algorithm that auto assigns ip addresses to ec2
+instances so I tried out the different combinations.
+
+The results have been diagrammed for future reference. 😊
+
+{{<mermaid>}}
+flowchart TB
+map_public_ip_on_launch_true["aws_subnet { map_public_ip_on_launch == true }"]
+map_public_ip_on_launch_false["aws_subnet { map_public_ip_on_launch == false }"]
+
+associate_public_ip_address_true["aws_instance { associate_public_ip_address == true }"]
+associate_public_ip_address_false["aws_instance { associate_public_ip_address == false }"]
+
+public_ip_address_true["public ip address present."]
+public_ip_address_false["public ip address missing."]
+
+map_public_ip_on_launch_false_default["default"]
+map_public_ip_on_launch_true_default["default"]
+
+map_public_ip_on_launch_false --> associate_public_ip_address_false
+associate_public_ip_address_false --> public_ip_address_false
+
+map_public_ip_on_launch_false --> associate_public_ip_address_true
+associate_public_ip_address_true --> public_ip_address_true
+
+map_public_ip_on_launch_true --> associate_public_ip_address_false
+
+map_public_ip_on_launch_true --> associate_public_ip_address_true
+
+map_public_ip_on_launch_true --> map_public_ip_on_launch_true_default
+map_public_ip_on_launch_true_default --> public_ip_address_true
+
+map_public_ip_on_launch_false --> map_public_ip_on_launch_false_default
+map_public_ip_on_launch_false_default --> public_ip_address_false
+{{</mermaid>}}
