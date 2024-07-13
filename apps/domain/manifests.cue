@@ -4,7 +4,7 @@ import (
 	"github.com/augustfengd/augustfeng.app/cue.lib/kubernetes"
 )
 
-_app: {
+app: {
 	deployment: kubernetes.#deployment & {
 		image: {
 			name: "ghcr.io/augustfengd/augustfeng.app/domain"
@@ -18,7 +18,7 @@ _app: {
 		apiVersion: "batch/v1"
 		kind:       "CronJob"
 		metadata: {
-			name: "domain"
+			name:      "domain"
 			namespace: "system-ingress"
 			labels: "app.kubernetes.io/name": "domain"
 		}
@@ -114,7 +114,7 @@ _app: {
 }
 
 manifests: {
-	cronjob:    _app.cronjob.manifests
-	deployment: _app.deployment.manifests
-	rbac:       _app.rbac.manifests
+	cronjob:    app.cronjob.manifests
+	deployment: app.deployment.manifests
+	rbac:       app.rbac.manifests
 }
