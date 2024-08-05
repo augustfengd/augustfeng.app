@@ -1,8 +1,12 @@
 package kubernetes
 
 import (
-	traefik "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefikio/v1alpha1"
+	ingressroute "traefik.io/ingressroute/v1alpha1"
 )
+
+traefik: {
+	#IngressRoute: ingressroute.#IngressRoute
+}
 
 #ingressroute: {
 	fqdn: string
