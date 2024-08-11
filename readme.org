@@ -11,15 +11,15 @@ Infrastructure related secrets are statically encrypted in the repository using
 SOPS and are easily decrypted, and imported for CUE consumption as required.
 
 #+begin_src shell :results none
-cue decrypt github.com/augustfengd/augustfeng.app/secrets
-cue convert github.com/augustfengd/augustfeng.app/secrets
+cue cmd decrypt github.com/augustfengd/augustfeng.app/secrets
+cue cmd convert github.com/augustfengd/augustfeng.app/secrets
 #+end_src
 
 Secrets that are specific to services can be just as prepared for usage:
 
 #+begin_src shell :resultss none
-cue decrypt github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
-cue convert github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+cue cmd decrypt github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+cue cmd convert github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
 #+end_src
 
 ** Building the pipelines
@@ -31,13 +31,13 @@ methods.
 - cloud pipeline:
 
 #+begin_src shell :results none
-cue build github.com/augustfengd/augustfeng.app/cloud/pipeline
+cue cmd build github.com/augustfengd/augustfeng.app/cloud/pipeline
 #+end_src
 
 - blog pipeline:
 
 #+begin_src shell :results none
-cue pipeline github.com/augustfengd/augustfeng.app/apps/blog
+cue cmd pipeline github.com/augustfengd/augustfeng.app/apps/blog
 #+end_src
 
 - domain pipeline:

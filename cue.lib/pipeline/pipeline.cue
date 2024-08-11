@@ -155,12 +155,12 @@ import (
 		decrypt: github.#Workflow.#Step & {
 			#package: string | *"github.com/augustfengd/augustfeng.app/secrets"
 			name:     "decrypt secrets"
-			run:      "cue decrypt \(#package)"
+			run:      "cue cmd decrypt \(#package)"
 		}
 		import: github.#Workflow.#Step & {
 			#package: string | *"github.com/augustfengd/augustfeng.app/secrets"
 			name:     "import secrets"
-			run:      "cue convert \(#package)"
+			run:      "cue cmd convert \(#package)"
 		}
 	}
 

@@ -15,11 +15,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: decrypt secrets
-        run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
+        run: cue cmd decrypt github.com/augustfengd/augustfeng.app/secrets
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
       - name: import secrets
-        run: cue convert github.com/augustfengd/augustfeng.app/secrets
+        run: cue cmd convert github.com/augustfengd/augustfeng.app/secrets
       - name: cue cmd configure github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
         run: cue cmd configure github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
     container:
@@ -34,11 +34,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: decrypt secrets
-        run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
+        run: cue cmd decrypt github.com/augustfengd/augustfeng.app/secrets
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
       - name: import secrets
-        run: cue convert github.com/augustfengd/augustfeng.app/secrets
+        run: cue cmd convert github.com/augustfengd/augustfeng.app/secrets
       - name: cue cmd build github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
         run: cue cmd build github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
       - name: cue cmd init github.com/augustfengd/augustfeng.app/cloud/terraform:augustfeng_app
@@ -67,17 +67,17 @@ jobs:
       - name: gcloud container clusters get-credentials augustfeng-app
         run: gcloud container clusters get-credentials augustfeng-app --zone=us-east1-b
       - name: decrypt secrets
-        run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
+        run: cue cmd decrypt github.com/augustfengd/augustfeng.app/secrets
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
       - name: import secrets
-        run: cue convert github.com/augustfengd/augustfeng.app/secrets
+        run: cue cmd convert github.com/augustfengd/augustfeng.app/secrets
       - name: decrypt secrets
-        run: cue decrypt github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+        run: cue cmd decrypt github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
       - name: import secrets
-        run: cue convert github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
+        run: cue cmd convert github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
       - name: cue cmd apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
         run: cue cmd apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/traefik
     container:
@@ -102,17 +102,17 @@ jobs:
       - name: gcloud container clusters get-credentials augustfeng-app
         run: gcloud container clusters get-credentials augustfeng-app --zone=us-east1-b
       - name: decrypt secrets
-        run: cue decrypt github.com/augustfengd/augustfeng.app/secrets
+        run: cue cmd decrypt github.com/augustfengd/augustfeng.app/secrets
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
       - name: import secrets
-        run: cue convert github.com/augustfengd/augustfeng.app/secrets
+        run: cue cmd convert github.com/augustfengd/augustfeng.app/secrets
       - name: decrypt secrets
-        run: cue decrypt github.com/augustfengd/augustfeng.app/cloud/kubernetes/prometheus
+        run: cue cmd decrypt github.com/augustfengd/augustfeng.app/cloud/kubernetes/prometheus
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
       - name: import secrets
-        run: cue convert github.com/augustfengd/augustfeng.app/cloud/kubernetes/prometheus
+        run: cue cmd convert github.com/augustfengd/augustfeng.app/cloud/kubernetes/prometheus
       - name: cue cmd apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/prometheus
         run: cue cmd apply github.com/augustfengd/augustfeng.app/cloud/kubernetes/prometheus
     container:
