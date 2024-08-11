@@ -15,7 +15,7 @@ dagger.#Plan & {
 
 	actions: build: {
 		toolchain: {
-			_cue: core.#Pull & {source: "cuelang/cue:0.5.0"}
+			_cue: core.#Pull & {source: "cuelang/cue:0.9.2"}
 			_jsonnet: {
 				archive: core.#HTTPFetch & {
 					source: "https://github.com/google/go-jsonnet/releases/download/v0.19.1/go-jsonnet_0.19.1_Linux_x86_64.tar.gz"
@@ -56,11 +56,11 @@ dagger.#Plan & {
 				}
 				output: files.output
 			}
-			_hugo:      core.#Pull & {source: "klakegg/hugo:0.107.0-alpine"}
+			_hugo: core.#Pull & {source: "klakegg/hugo:0.107.0-alpine"}
 			_terraform: core.#Pull & {source: "hashicorp/terraform:1.3.0"}
-			_helm:      core.#Pull & {source: "alpine/helm:3.11.3"}
-			_sops:      core.#Pull & {source: "mozilla/sops:v3.7.3-alpine"}
-			_kubectl:   core.#Pull & {source: "bitnami/kubectl:1.26"}
+			_helm: core.#Pull & {source: "alpine/helm:3.11.3"}
+			_sops: core.#Pull & {source: "mozilla/sops:v3.7.3-alpine"}
+			_kubectl: core.#Pull & {source: "bitnami/kubectl:1.26"}
 			docker.#Build & {
 				steps: [
 					alpine.#Build & {
