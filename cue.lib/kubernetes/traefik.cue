@@ -15,7 +15,7 @@ traefik: {
 		middlewares: [...string] | *[] // NOTE: only support zero or one for now; abstract later.
 		services: [...{
 			name:  string
-			port?: number | string
+			port?: int
 			kind:  *"Service" | "TraefikService"
 		}]
 	}]
