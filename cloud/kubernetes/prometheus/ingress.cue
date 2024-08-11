@@ -11,7 +11,7 @@ ingressroute: {
 			match: "Host(`\(fqdn)`)"
 			services: [{
 				name: "alertmanager-operated"
-				port: 9093
+				port: "9093"
 			}]
 			middlewares: ["basic-auth"]
 		}]
