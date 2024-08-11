@@ -23,7 +23,7 @@ ingressroute: {
 				match: "Host(`\(fqdn)`)"
 				services: [{
 					name: "prometheus-operated"
-					port: 9090
+					port: "9090"
 				}]
 				middlewares: ["basic-auth"]}]
 			}
