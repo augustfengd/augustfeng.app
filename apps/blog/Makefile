@@ -13,7 +13,7 @@ build/public: $(THEME_FILES) $(CONTENT_FILES) ; @mkdir -p build
 $(THEME_FILES) &: ; @mkdir -p themes
 	@wget -qO- 'https://github.com/nanxiaobei/hugo-paper/archive/master.tar.gz' | $(TAR) xzf - -C themes --transform 's/hugo-paper-main/hugo-paper/' --overwrite
 	# patch upstream code
-	cp --preserve themes/hugo-paper/layouts/partials/footer.html themes/hugo-paper/layouts/partials/footer.original.html
+	cp -p themes/hugo-paper/layouts/partials/footer.html themes/hugo-paper/layouts/partials/footer.original.html
 	sed -i 's/endif/end/' themes/hugo-paper/layouts/partials/footer.html
 	touch --reference themes/hugo-paper/layouts/partials/footer.original.html themes/hugo-paper/layouts/partials/footer.html
 	rm themes/hugo-paper/layouts/partials/footer.original.html
