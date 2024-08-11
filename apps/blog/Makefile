@@ -12,6 +12,7 @@ build/public: $(THEME_FILES) $(CONTENT_FILES) ; @mkdir -p build
 
 $(THEME_FILES) &: ; @mkdir -p themes
 	@wget -qO- 'https://github.com/nanxiaobei/hugo-paper/archive/master.tar.gz' | $(TAR) xzf - -C themes --transform 's/hugo-paper-main/hugo-paper/' --overwrite
+	sed -i 's/endif/end/' themes/hugo-paper/layouts/partials/footer.html
 
 # docker
 
