@@ -17,6 +17,7 @@ $(THEME_FILES) &: ; @mkdir -p themes
 
 docker.build: build/public
 	@docker build . -t ghcr.io/augustfengd/augustfeng.app/blog:latest
+	@touch $@
 
 docker.push: docker.build
 	@docker push ghcr.io/augustfengd/augustfeng.app/blog:latest
