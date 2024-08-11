@@ -1,7 +1,7 @@
 TAR := $(if $(shell command -v gtar),gtar,tar)
 CONTENT_FILES := $(shell find content/articles -type f)
 THEME_FILES := \
-	$(addprefix themes/, $(shell wget -qO- 'https://github.com/nanxiaobei/hugo-paper/archive/master.tar.gz' | $(TAR) tzf - --transform 's/hugo-paper-main/hugo-paper/' --show-transformed | grep --invert '/$$')) \
+	$(addprefix themes/, $(shell wget -qO- 'https://github.com/nanxiaobei/hugo-paper/archive/master.tar.gz' | $(TAR) tzf - --transform 's/hugo-paper-main/hugo-paper/' --show-transformed | grep -v '/$$')) \
 	$(shell find themes/augustfeng.app -type f)
 
 .PHONY: all
