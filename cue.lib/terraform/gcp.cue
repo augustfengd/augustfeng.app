@@ -70,13 +70,13 @@ lib: gcp: {
 			}
 		}
 		google_container_node_pool: "e2-micro": {
-			name:       "e2-small-pool"
+			name:       "e2-micro-pool"
 			cluster:    "${google_container_cluster.augustfeng-app.id}"
 			node_count: 0
 
 			node_config: {
 				spot:         true
-				machine_type: "e2-small"
+				machine_type: "e2-micro"
 				disk_size_gb: "10"
 				disk_type:    "pd-standard"
 
