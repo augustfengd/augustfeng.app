@@ -92,7 +92,7 @@ lib: gcp: {
 		google_container_node_pool: "e2-small": {
 			name:       "e2-small-pool"
 			cluster:    "${google_container_cluster.augustfeng-app.id}"
-			node_count: 1
+			node_count: 0
 
 			node_config: {
 				spot:         true
