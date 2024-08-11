@@ -9,6 +9,7 @@ all: build/public
 
 build/public: $(THEME_FILES) $(CONTENT_FILES) ; @mkdir -p build
 	@hugo --destination $@
+	touch $@
 
 $(THEME_FILES) &: ; @mkdir -p themes
 	@wget -qO- 'https://github.com/nanxiaobei/hugo-paper/archive/master.tar.gz' | $(TAR) xzf - -C themes --transform 's/hugo-paper-main/hugo-paper/' --overwrite
