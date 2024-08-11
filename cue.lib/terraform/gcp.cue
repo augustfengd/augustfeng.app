@@ -10,7 +10,7 @@ lib: gcp: {
 		iam: [string]: {
 			account_id: string
 			roles: [...string]
-			display_name:     string | *""
+			display_name: string | *""
 			workloadIdentity: {
 				namespace:      string
 				serviceaccount: string
@@ -67,6 +67,25 @@ lib: gcp: {
 			}
 			workload_identity_config: {
 				workload_pool: "${data.google_project.project.project_id}.svc.id.goog"
+			}
+		}
+
+		google_container_node_pool: "e2-micro": {
+			name:       "e2-micro-pool"
+			cluster:    "${google_container_cluster.augustfeng-app.id}"
+			node_count: 1
+
+			node_config: {
+				spot:         true
+				machine_type: "e2-micro"
+				disk_size_gb: "10"
+				disk_type:    "pd-standard"
+
+				// Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+				service_account: "${google_service_account.augustfeng-app.email}"
+				oauth_scopes: [
+					"https://www.googleapis.com/auth/cloud-platform",
+				]
 			}
 		}
 

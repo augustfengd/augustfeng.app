@@ -57,9 +57,9 @@ graph TD
 
 * Targets
 
-The chapter does not make cover [[https://doc.rust-lang.org/cargo/reference/cargo-targets.html][targets]], but I think it was used interchangeably
-with the crate concept in [[https://doc.rust-lang.org/book/ch07-01-packages-and-crates.html][section 7.1]] when it's mentioned that binary and
-library crates share the same name.
+The chapter does not cover [[https://doc.rust-lang.org/cargo/reference/cargo-targets.html][targets]], but I think it was used interchangeably with
+the crate concept in [[https://doc.rust-lang.org/book/ch07-01-packages-and-crates.html][section 7.1]] when it's mentioned that binary and library
+crates share the same name.
 
 I ran a small experiment with with both /src/main.rs/ and /src/lib.rs/ to see if
 the crates could reference each other using the same crate name. Only the binary
