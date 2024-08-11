@@ -11,7 +11,7 @@ ingressroute: {
 			match: "Host(`\(fqdn)`)"
 			services: [{
 				name: "alertmanager-operated"
-				port: 9093
+				port: "web"
 			}]
 			middlewares: ["basic-auth"]
 		}]
@@ -23,7 +23,7 @@ ingressroute: {
 				match: "Host(`\(fqdn)`)"
 				services: [{
 					name: "prometheus-operated"
-					port: 9090
+					port: "web"
 				}]
 				middlewares: ["basic-auth"]}]
 			}

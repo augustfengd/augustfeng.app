@@ -20,6 +20,6 @@ ingressroute:
 			match: "Host(`\(fqdn)`)"
 			services: [{
 				name: "blog"
-				port: 80
+				port: "http"
 			}]}]
 	}

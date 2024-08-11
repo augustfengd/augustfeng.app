@@ -15,7 +15,7 @@ traefik: {
 		middlewares: [...string] | *[] // NOTE: only support zero or one for now; abstract later.
 		services: [...{
 			name:  string
-			port?: int
+			port: string // int's don't work with the generated traefik cue files.
 			kind:  *"Service" | "TraefikService"
 		}]
 	}]
