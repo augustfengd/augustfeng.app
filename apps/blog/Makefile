@@ -1,7 +1,7 @@
 TAR := $(if $(shell command -v gtar),gtar,tar)
 CONTENT_FILES := $(shell find content/articles -type f)
 THEME_FILES := \
-	$(addprefix themes/, $(shell wget -qO- 'https://github.com/nanxiaobei/hugo-paper/archive/master.tar.gz' | $(TAR) tzf - --transform 's/hugo-paper-main/hugo-paper/' --show-transformed | grep -v '/$$')) \
+	$(addprefix themes/, $(shell wget -qO- 'https://github.com/augustfengd/hugo-paper/archive/master.tar.gz' | $(TAR) tzf - --transform 's/hugo-paper-main/hugo-paper/' --show-transformed)) \
 	$(shell find themes/augustfeng.app -type f)
 
 .PHONY: all
@@ -12,11 +12,6 @@ build/public: $(THEME_FILES) $(CONTENT_FILES) ; @mkdir -p build
 
 $(THEME_FILES) &: ; @mkdir -p themes
 	@wget -qO- 'https://github.com/nanxiaobei/hugo-paper/archive/master.tar.gz' | $(TAR) xzf - -C themes --transform 's/hugo-paper-main/hugo-paper/' --overwrite
-	# patch upstream code
-	cp -p themes/hugo-paper/layouts/partials/footer.html themes/hugo-paper/layouts/partials/footer.original.html
-	sed -i 's/endif/end/' themes/hugo-paper/layouts/partials/footer.html
-	touch --reference themes/hugo-paper/layouts/partials/footer.original.html themes/hugo-paper/layouts/partials/footer.html
-	rm themes/hugo-paper/layouts/partials/footer.original.html
 
 # docker
 
