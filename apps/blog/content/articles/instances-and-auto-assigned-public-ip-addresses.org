@@ -1,5 +1,5 @@
 #+title: Instances and auto assigned public ip addresses
-#+categories: devops
+#+category: cloud
 #+date: [2024-07-12 Fri]
 #+mermaid: true
 
