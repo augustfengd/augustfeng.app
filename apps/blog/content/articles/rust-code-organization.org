@@ -2,7 +2,6 @@
 #+categories: programming
 #+mermaid: true
 #+date: [2023-12-31 Sun]
-#+draft: true
 
 * About
 
