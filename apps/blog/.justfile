@@ -2,7 +2,7 @@
 default:
     @just --list
 
-server:
+serve:
     hugo --buildDrafts server
 
 lint:
