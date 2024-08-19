@@ -19,6 +19,7 @@ import (
 		"\(#blog_dir)/content/articles/learning-rust-iterators.org":                                                    "Learning Rust iterators"
 		"\(#blog_dir)/content/articles/keeping-a-linear-history-with-github-actions.org":                               "Keeping a linear history with GitHub Actions"
 		"\(#blog_dir)/content/articles/implementing-the-read-trait.org":                                                "Implementing the Read trait"
+		"\(#blog_dir)/content/articles/implementing-the-write-trait.org":                                               "Implementing the Write trait"
 		"\(#blog_dir)/content/articles/environment-variables-and-volumes-when-building-images-with-docker-compose.org": "Environment variables and volumes when building images with Docker Compose"
 		"\(#blog_dir)/content/articles/exploring-org-agenda-workflows.org":                                             "Exploring org-agenda workflows"
 		"\(#blog_dir)/content/articles/digests-from-docker-manifests.org":                                              "Digests from Docker manifests"
