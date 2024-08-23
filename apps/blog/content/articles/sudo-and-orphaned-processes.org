@@ -1,0 +1,45 @@
+#+title: sudo and orphaned processes
+#+categories: cloud
+#+date: [2024-08-23 Fri]
+#+draft: true
+
+Let's assume a system where foobar is allowed to run anything as foobar:
+
+#+begin_src sudoers
+  foobar ALL=(foobaz) NOPASSWD:ALL
+#+end_src
+
+
+#+begin_src shell
+#!/bin/sh
+
+sudo --user foobaz /bin/sh -c "tail -f /dev/null"
+
+tail -f /dev/null --quiet
+#+end_src
+
+
+#+begin_src
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND                                                                                                                                                                PGRP TTY
+1641554 foobar    20   0  222948   3248   2992 S   0.0   0.3   0:00.00                                      `- /bin/sh ./script.sh                                                                                                         1641554 pts/2
+1641555 root      20   0  233292   7884   6584 S   0.0   0.8   0:00.00                                          `- sudo --user foobaz /bin/sh -c tail -f /dev/null                                                                         1641554 pts/2
+1641557 root      20   0  233292   2532   1232 S   0.0   0.3   0:00.00                                              `- sudo --user foobaz /bin/sh -c tail -f /dev/null                                                                     1641557 pts/3
+1641558 foobaz    20   0  221392   1024    936 S   0.0   0.1   0:00.00                                                  `- tail -f /dev/null                                                                                               1641558 pts/3
+#+end_src
+
+#+begin_src
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND                                                                                                                                                                                                                                         PGRP TTY
+1641734 foobar    20   0  222948   3252   3000 S   0.0   0.3   0:00.00  `- /bin/sh ./script.sh                                                                                                                                                                                                                      1641734 ?
+1641798 foobar    20   0  221392   1024    936 S   0.0   0.1   0:00.00      `- tail -f /dev/null --quiet                                                                                                                                                                                                            1641734 ?
+1641830 foobar    20   0  222948   3224   2968 S   0.0   0.3   0:00.00  `- /bin/sh ./script.sh                                                                                                                                                                                                                      1641830 ?
+1641831 root      20   0  233292   7844   6556 S   0.0   0.8   0:00.01      `- sudo --user foobaz /bin/sh -c tail -f /dev/null                                                                                                                                                                                      1641830 ?
+1641833 foobaz    20   0  221392   1028    936 S   0.0   0.1   0:00.00          `- tail -f /dev/null                                                                                                                                                                                                                1641830 ?
+#+end_src
+
+#+begin_src 
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND                                                                                                                                                                                               PGRP TTY
+1641798 foobar    20   0  221392   1024    936 S   0.0   0.1   0:00.00  `- tail -f /dev/null --quiet                                                                                                                                                                      1641734 ?
+1641830 foobar    20   0  222948   3224   2968 S   0.0   0.3   0:00.00  `- /bin/sh ./script.sh                                                                                                                                                                            1641830 ?
+1641831 root      20   0  233292   7844   6556 S   0.0   0.8   0:00.01      `- sudo --user foobaz /bin/sh -c tail -f /dev/null                                                                                                                                            1641830 ?
+1641833 foobaz    20   0  221392   1028    936 S   0.0   0.1   0:00.00          `- tail -f /dev/null                                                                                                                                                                      1641830 ?
+#+end_src
