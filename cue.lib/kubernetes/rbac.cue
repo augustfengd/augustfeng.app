@@ -62,7 +62,7 @@ import (
 			}
 		}]
 
-		_rules: _rulesApiGroups + _rulesNonResourceURLs
+		_rules: list.Concat([_rulesApiGroups, _rulesNonResourceURLs])
 
 		"rules": list.FlattenN(_rules, 1)
 	}]
