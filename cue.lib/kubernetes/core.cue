@@ -38,7 +38,7 @@ import (
 				"command": [command]
 			}
 			if args != null {
-				"args": [ for k, v in args if v == null {k}] + list.FlattenN([ for k, v in args if v != null {[k, v]}], -1)
+				"args": list.Concat([[ for k, v in args if v == null {k}], list.FlattenN([ for k, v in args if v != null {[k, v]}], -1)])
 			}}]
 	}]
 }
