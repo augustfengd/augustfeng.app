@@ -15,7 +15,7 @@ dagger.#Plan & {
 
 	actions: build: {
 		toolchain: {
-			_cue: core.#Pull & {source: "cuelang/cue:0.9.2"}
+			_cue: core.#Pull & {source: "cuelang/cue:0.10.0"}
 			_jsonnet: {
 				archive: core.#HTTPFetch & {
 					source: "https://github.com/google/go-jsonnet/releases/download/v0.19.1/go-jsonnet_0.19.1_Linux_x86_64.tar.gz"
