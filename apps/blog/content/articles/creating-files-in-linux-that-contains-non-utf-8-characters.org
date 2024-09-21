@@ -1,0 +1,32 @@
+#+title: creating files in linux that contains non utf-8 characters
+#+categories: programming
+#+date: [2024-09-20 Fri]
+
+* About
+
+The Rust std library implements OsString, but it doesn't translate directly to
+String because file names on operating systems can be non utf-8-encoded.
+
+* Linux
+
+On linux, we can create a non utf-8-encoded string like this.
+
+#+begin_src shell
+  printf "hello_\x80_world" | xargs touch
+  ls -l hello_\200_world
+  # -rw-r--r-- 1 root root 0 Sep 21 01:49 'hello_'$'\200''_world
+#+end_src
+
+* MacOS
+
+On macOS, the command above would fail because the OS does not allow non UTF-8
+encoded filenames.
+
+#+begin_src shell
+  ls -l hello_\200_world
+  # -rw-r--r-- 1 root root 0 Sep 21 01:49 'hello_'$'\200''_world'
+#+end_src
+
+* Windows
+
+Meh.
