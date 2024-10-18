@@ -57,8 +57,6 @@ jobs:
       image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
   prometheus:
     name: prometheus
-    needs:
-      - terraform
     runs-on: ubuntu-latest
     if: github.event_name =='push'
     steps:

@@ -118,7 +118,7 @@ resource "google_dns_managed_zone" "augustfeng-app" {
 
 resource "google_dns_record_set" "augustfeng-app" {
   lifecycle {
-    ignore_changes = ["rrdatas"]
+    ignore_changes = [rrdatas]
   }
 
   managed_zone = google_dns_managed_zone.augustfeng-app.name
