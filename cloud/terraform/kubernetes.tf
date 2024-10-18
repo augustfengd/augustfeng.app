@@ -1,5 +1,5 @@
 resource "kubernetes_namespace" "blog" {
-  depends_on = ["google_container_cluster.augustfeng-app"]
+  depends_on = [google_container_cluster.augustfeng-app]
 
   metadata {
     name = "blog"
@@ -7,7 +7,7 @@ resource "kubernetes_namespace" "blog" {
 }
 
 resource "kubernetes_namespace" "system-ingress" {
-  depends_on = ["google_container_cluster.augustfeng-app"]
+  depends_on = [google_container_cluster.augustfeng-app]
 
   metadata {
     name = "system-ingress"
@@ -15,7 +15,7 @@ resource "kubernetes_namespace" "system-ingress" {
 }
 
 resource "kubernetes_namespace" "system-monitoring" {
-  depends_on = ["google_container_cluster.augustfeng-app"]
+  depends_on = [google_container_cluster.augustfeng-app]
 
   metadata {
     name = "system-monitoring"
