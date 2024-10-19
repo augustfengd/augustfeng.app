@@ -32,7 +32,7 @@ resource "aws_identitystore_user" "augustfengd" {
 
 resource "aws_ssoadmin_account_assignment" "augustfengd" {
   instance_arn       = local.aws_ssoadmin_instance_arn
-  permission_set_arn = data.aws_ssoadmin_permission_set.AdministratorAccess.arn
+  permission_set_arn = aws_ssoadmin_permission_set.AdministratorAccess.arn
 
   principal_id   = aws_identitystore_user.augustfengd.id
   principal_type = "USER"
