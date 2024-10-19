@@ -8,7 +8,7 @@ resource "aws_vpc" "compute" {
 }
 
 resource "aws_identitystore_user" "augustfengd" {
-  identity_store_id = "ssoins-7223dea311e105c1"
+  identity_store_id = "d-9067d66925"
 
   display_name = "August Feng"
   user_name    = "augustfengd"
@@ -19,7 +19,6 @@ resource "aws_identitystore_user" "augustfengd" {
   }
 
   emails {
-    primary = true
-    value   = "augustfengd@gmail.com"
+    value = "augustfengd@gmail.com"
   }
 }
