@@ -34,7 +34,7 @@ resource "aws_ssoadmin_account_assignment" "augustfengd" {
   instance_arn       = local.aws_ssoadmin_instance_arn
   permission_set_arn = aws_ssoadmin_permission_set.AdministratorAccess.arn
 
-  principal_id   = aws_identitystore_user.augustfengd.id
+  principal_id   = aws_identitystore_user.augustfengd.user_id
   principal_type = "USER"
 
   target_id   = data.aws_caller_identity.default.account_id
