@@ -19,6 +19,7 @@ resource "aws_identitystore_user" "augustfengd" {
   }
 
   emails {
-    value = "augustfengd@gmail.com"
+    primary = true
+    value   = "augustfengd@gmail.com"
   }
 }
