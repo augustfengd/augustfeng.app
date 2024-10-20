@@ -30,7 +30,7 @@ traefik: {
 		}]
 
 		if fqdn =~ ".home.arpa" {
-			spec: entrypoints: ["web"]
+			spec: entryPoints: ["web"]
 		}
 		spec: {
 			entryPoints: ["web"]

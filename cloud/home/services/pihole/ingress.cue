@@ -11,7 +11,7 @@ ingressroute:
 			match: "Host(`\(fqdn)`)"
 			services: [{
 				name: "pihole"
-				port: 80
+				port: "web"
 			}]
 		}]
 	}
@@ -25,7 +25,7 @@ ingressrouteudp: manifests: [{
 		routes: [{
 			services: [{
 				name: "pihole"
-				port: 53
+				port: "dns"
 			}]
 		}]
 	}
