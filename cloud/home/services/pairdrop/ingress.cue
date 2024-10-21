@@ -8,10 +8,10 @@ ingressroute:
 	kubernetes.#ingressroute & {
 		fqdn: "pairdrop.home.arpa"
 		rules: [{
-			match: "Host(`\(fqdn)`)"
+			match: "Host(`\(fqdn)`) || Host(`pairdrop`)"
 			services: [{
 				name: "pairdrop"
-				port: 3000
+				port: "web"
 			}]
 		}]
 	}

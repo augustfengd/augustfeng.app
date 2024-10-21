@@ -12,6 +12,7 @@ cm:
 				cname=pairdrop.home.arpa,home.arpa
 				cname=syncthing.home.arpa,home.arpa
 				cname=traefik.home.arpa,home.arpa
+				cname=laptop2020.home.arpa,home.arpa
 				"""
 			"custom.list": """
 				192.168.0.254 home.arpa

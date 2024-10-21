@@ -8,7 +8,7 @@ ingressroute:
 	kubernetes.#ingressroute & {
 		fqdn: "pihole.home.arpa"
 		rules: [{
-			match: "Host(`\(fqdn)`)"
+			match: "Host(`\(fqdn)`) || Host(`pihole`)"
 			services: [{
 				name: "pihole"
 				port: "web"
