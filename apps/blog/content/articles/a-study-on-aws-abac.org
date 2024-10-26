@@ -1,0 +1,187 @@
+#+TITLE: A Study on AWS ABAC
+#+categories: cloud
+#+date: [2024-10-25 Fri]
+
+* About
+
+It's been a frustrating experience due to a lack of docs and maturity on this
+technology so here some conclusions from my learnings.
+
+** aws:RequestTag
+*** experiment
+
+#+begin_src terraform
+  data "aws_iam_policy_document" "assume-role" {
+    statement {
+      actions = ["sts:AssumeRole"]
+
+      principals {
+        type = "AWS"
+        identifiers = [
+          data.aws_caller_identity.current.account_id
+        ]
+      }
+    }
+  }
+
+  data "aws_iam_policy_document" "secretsmanager" {
+    statement {
+      actions   = ["secretsmanager:CreateSecret", "secretsmanager:TagResource"]
+      resources = ["*"]
+      condition {
+        test     = "StringLike"
+        variable = "aws:RequestTag/Foobar"
+        values   = ["helloworld"]
+      }
+    }
+  }
+
+  resource "aws_iam_role" "augustfeng" {
+    name               = "augustfeng"
+    assume_role_policy = data.aws_iam_policy_document.assume-role.json
+    inline_policy {
+      name   = "secretsmanager"
+      policy = data.aws_iam_policy_document.secretsmanager.json
+    }
+  }
+#+end_src
+
+Given this environment, the ~aws secretsmanager create-secret --name foobar~
+will fail because the request needs to include tags.
+
+#+begin_src shell
+  aws secretsmanager create-secret --name foobar
+  # An error occurred (AccessDeniedException) when calling the CreateSecret operation: User: arn:aws:sts::123456789012:assumed-role/augustfeng/augustfengd@gmail.com is not authorized to perform: secretsmanager:CreateSecret on resource: foobar because no identity-based policy allows the secretsmanager:CreateSecret actionz
+#+end_src
+
+If we include tags, ~aws secretsmanager create-secret --name foobar --tags
+Key=Foobar,Value=helloworld~, the request will still fail because there is no
+statement to permit tagging.
+
+#+begin_src shell
+  aws secretsmanager create-secret --name foobar
+  # An error occurred (AccessDeniedException) when calling the CreateSecret operation: User: arn:aws:sts::123456789012:assumed-role/augustfeng/augustfengd@gmail.com is not authorized to perform: secretsmanager:TagResource on resource: foobar because no identity-based policy allows the secretsmanager:TagResource action
+#+end_src
+
+We need to include the ~secretsmanager:TagResource~ action for this to work.
+
+#+begin_src diff
++ actions   = ["secretsmanager:CreateSecret", "secretsmanager:TagResource"]
+- actions   = ["secretsmanager:CreateSecret"]
+#+end_src
+
+Now able to create a secret only when its tagged with ~Foobar=helloworld~: ~aws
+secretsmanager create-secret --name foobar --tags Key=Foobar,Value=bonjour~.
+
+A different tag will not work.
+
+#+begin_src shell
+  # An error occurred (AccessDeniedException) when calling the CreateSecret operation: User: arn:aws:sts::123456789012:assumed-role/augustfeng/augustfengd@gmail.com is not authorized to perform: secretsmanager:CreateSecret on resource: foobar because no identity-based policy allows the secretsmanager:CreateSecret action
+#+end_src
+
+*** conclusion
+
+This key is pertinent to tagging operations.
+
+** aws:ResourceTag
+*** experiments
+
+#+begin_src terraform
+  data "aws_iam_policy_document" "assume-role" {
+    statement {
+      actions = ["sts:AssumeRole"]
+
+      principals {
+        type = "AWS"
+        identifiers = [
+          data.aws_caller_identity.current.account_id
+        ]
+      }
+    }
+  }
+
+  data "aws_iam_policy_document" "foo" {
+    statement {
+      principals {
+        type        = "AWS"
+        identifiers = ["arn:aws:sts::654654412147:role/augustfeng"]
+      }
+      actions   = ["secretsmanager:GetSecretValue"]
+      resources = ["*"]
+      condition {
+        test     = "StringLike"
+        variable = "aws:ResourceTag/Foo"
+        values   = ["helloworld"]
+      }
+    }
+  }
+
+  resource "aws_iam_role" "augustfeng" {
+    name               = "augustfeng"
+    assume_role_policy = data.aws_iam_policy_document.assume-role.json
+  }
+
+  resource "aws_secretsmanager_secret" "foo" {
+    name = "foo"
+    tags = {
+      Foobar = "helloworld"
+    }
+  }
+
+  resource "aws_secretsmanager_secret_policy" "foo" {
+    secret_arn = aws_secretsmanager_secret.foo.arn
+    policy     = data.aws_iam_policy_document.foo.json
+  }
+#+end_src
+
+In this environment, the *augustfeng* iam identity does not have permission to
+get the secret's value in *foo*.
+
+The resource policy on the secret conditionally grants access to the
+*augustfeng* role, but only if the resource is tagged ~Foo=helloworld~ (which it
+is not).
+
+If we attach this policy to the *augustfeng* role, then it *will* be able to get
+the secret.
+
+#+begin_src terraform
+  resource "aws_iam_role" "augustfeng" {
+    name               = "augustfeng"
+    assume_role_policy = data.aws_iam_policy_document.assume-role.json
+    inline_policy {
+      name   = "foobar"
+      policy = data.aws_iam_policy_document.foobar.json
+    }
+  }
+#+end_src
+
+*** conclusion
+
+In the case of a resource policy, the ~aws:ResourceTag~ applies to the resource
+that where the policy is applied on.
+
+When the policy is applied on an identity, the ~aws:ResourceTag~ applies to the
+resource that is a target.
+
+** aws:PrincipalTag
+
+This key is present when the principal has tags attached to them.
+
+I've encountered two scenarios where this happens:
+  - When the role has a tag configured.
+  - When the role is assumed via sts with ~-tags~.
+
+AWS uses ~aws:PrincipalTag~ to implement session tags.
+
+** aws:SourceArn
+
+I wanted to configure a resource policy on a secret in Secrets Manager that
+would allow a specific task to get its value.
+
+This did *not* work because I don't think ECS exposes task-level ARNs as source.
+
+In fact, the docs (at the time of writing) say it doesn't even support
+cluster-specific ARNs.
+
+In fact x2, I don't think this would even work because an identity is involved
+when getting the secrets value and this is for service-to-service calls.

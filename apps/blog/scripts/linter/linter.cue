@@ -8,6 +8,7 @@ import (
 
 #schema: [filename=string]: {
 	#exceptions: titles: {
+		"\(#blog_dir)/content/articles/a-study-on-aws-abac.org":                                                        "A study on AWS ABAC"
 		"\(#blog_dir)/content/articles/command-line-completion-frameworks.org":                                         "Command-Line Completion Frameworks"
 		"\(#blog_dir)/content/articles/borrowing-battles-in-rust.org":                                                  "Borrowing battles in Rust"
 		"\(#blog_dir)/content/articles/a-study-of-newtype-usage-in-rust.org":                                           "A study of newtype usage in Rust"
