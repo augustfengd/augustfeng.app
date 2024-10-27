@@ -1,0 +1,50 @@
+#+title: Threads in rust
+
+* About
+
+What will for this process look like!?
+
+#+begin_src rust
+  use std::fs::OpenOptions;
+  use std::io::Write;
+  use std::time::SystemTime;
+
+  fn write(path: String) -> Result<(), std::io::Error> {
+      let mut file = OpenOptions::new()
+          .create(true)
+          .write(true)
+          .append(true)
+          .open(path)?;
+
+      loop {
+          let now = SystemTime::now();
+          let datetime = chrono::DateTime::<chrono::Local>::from(now);
+
+          let time_now = datetime.to_string();
+
+          if let Err(e) = writeln!(file, "{}", time_now) {
+              eprintln!("Couldn't write to file: {}", e);
+          }
+
+          if let Err(e) = file.flush() {
+              eprintln!("Couldn't flush buffer: {}", e);
+          }
+
+          std::thread::sleep(std::time::Duration::from_millis(1000));
+      }
+  }
+
+  fn main() -> Result<(), std::io::Error> {
+      std::thread::spawn(|| write("/tmp/a.txt".to_string()).unwrap());
+      std::thread::spawn(|| write("/tmp/b.txt".to_string()).unwrap());
+      std::io::stdin().read_line(&mut String::new()).map(std::mem::drop)
+  }
+#+end_src
+
+* Conclusion
+
+They're native os threads?!
+
+
+#+ATTR_HTML: :width 100% :height 100% :class border-2 :alt top :title top
+[[./threads-in-rust/top.png]]
