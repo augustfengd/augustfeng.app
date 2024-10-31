@@ -104,17 +104,18 @@ The *ours* strategy behaves slightly in a unexpected way if we don't understand
 what happens during a rebase operation.
 
 If we use the *ours* strategy option when using the ~rebase~ command on the
-*foobaz* branch, we'll end up with *foobar*'s change:
+*foobar* branch, we'll end up with *foobaz*'s change:
 
 #+begin_src shell
-  git rebase --strategy-option ours foobar 2>&1 | tr '\r' '\n'
+  git switch foobar
+  git rebase --strategy-option ours foobaz 2>&1 | tr '\r' '\n'
   cat helloworld.txt
   # foo
-  # bar
+  # baz
 #+end_src
 
 The reason is that a *rebase* command will _stash_ away the current branch's
-commits and switch into *foobar* to subsequently apply them one by one.
+commits and switch into *foobaz* to subsequently apply them one by one.
 
-The corollary of this is that we'll be on the *foobar* branch as we merge the
-stashed commits, so "our" changes are actually *foobar*'s.
+The corollary of this is that we'll be on the *foobaz* branch as we merge the
+stashed commits, so "our" changes are actually *foobaz*'s.
