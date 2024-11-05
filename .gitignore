@@ -27,3 +27,5 @@ bazel-*
 
 # local
 .local/
+
+*.swp
