@@ -1,7 +1,7 @@
 TAR := $(if $(shell command -v gtar),gtar,tar)
 CONTENT_FILES := $(shell find content/articles -type f)
 THEME_FILES := \
-	$(addprefix themes/, $(shell wget -qO- 'https://github.com/augustfengd/hugo-paper/archive/main.tar.gz' | $(TAR) tzf - --transform 's/hugo-paper-main/hugo-paper/' --show-transformed)) \
+	$(addprefix themes/, $(shell wget -qO- 'https://github.com/nanxiaobei/hugo-paper/archive/main.tar.gz' | $(TAR) tzf - --transform 's/hugo-paper-main/hugo-paper/' --show-transformed)) \
 	$(shell find themes/augustfeng.app -type f)
 
 .PHONY: all
@@ -11,7 +11,7 @@ build/public: $(THEME_FILES) $(CONTENT_FILES) ; @mkdir -p build
 	@hugo --destination $@
 
 $(THEME_FILES) &: ; @mkdir -p themes
-	@wget -qO- 'https://github.com/augustfengd/hugo-paper/archive/main.tar.gz' | $(TAR) xzf - -C themes --transform 's/hugo-paper-main/hugo-paper/' --overwrite
+	@wget -qO- 'https://github.com/nanxiaobei/hugo-paper/archive/main.tar.gz' | $(TAR) xzf - -C themes --transform 's/hugo-paper-main/hugo-paper/' --overwrite
 
 # docker
 
