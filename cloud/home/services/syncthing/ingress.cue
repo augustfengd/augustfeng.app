@@ -8,7 +8,7 @@ ingressroute:
 	kubernetes.#ingressroute & {
 		fqdn: "syncthing.home.arpa"
 		rules: [{
-			match: "Host(`\(fqdn)`)"
+			match: "Host(`\(fqdn)`) || Host(`syncthing`)"
 			services: [{
 				name: "syncthing"
 				port: 8384
