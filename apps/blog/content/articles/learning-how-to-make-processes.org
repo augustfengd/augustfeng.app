@@ -1,0 +1,29 @@
+#+TITLE: Learning how to make procesess
+#+categories: programming
+#+tags: dotnet
+#+date: [2024-11-15 Fri]
+
+* About
+
+Let's learn how to make some processes in FSharp in the most simplest way!
+
+#+begin_src fsharp
+  open System.Diagnostics
+
+  let makeProcess exe args =
+      let startInfo = new ProcessStartInfo(
+        fileName = exe,
+        Arguments = String.concat " " args
+      )
+      new Process(StartInfo = startInfo)
+
+  let run (proc : Process) =
+      proc.Start() |> ignore
+      proc.WaitForExit()
+
+  [<EntryPoint>]
+  let main _ =
+      use proc = makeProcess "echo" ["helloworld"]
+      run proc
+      0
+#+end_src
