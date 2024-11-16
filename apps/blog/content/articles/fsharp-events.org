@@ -27,7 +27,8 @@ The ~.Trigger~ method allows to trigger events with parameters.
 ** Modules, types and interfaces
 
 The ~IEvent<T>~ type provides the ~.Add~ method to events, which is just a
-wrapper around the IObservable<T>'s Subscribe method.
+wrapper around the ~IObservable<T>~'s Subscribe method: it builds an
+~IObserver<T>~ using the provided lambda.
 
 The ~Event~ module contains functions that can is more functional friendly:
 
