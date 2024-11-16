@@ -1,0 +1,43 @@
+#+title: fsharp events
+#+categories: programming
+#+tags: dotnet
+#+date: [2024-11-15 Fri]
+
+* About
+
+Just some explorations on interoperability with dotnet events.
+
+* Explorations
+** Basic demonstration
+
+The ~.Publish~ property returns an ~IEvent~ and we can use it to add handlers.
+
+The ~.Trigger~ method allows to trigger events with parameters.
+
+#+begin_src fsharp
+  let e = new Event<string>()
+
+  [<EntryPoint>]
+  let main _ =
+      e.Publish.Add(fun s -> s.ToUpper() |> printf "%s")
+      e.Trigger("helloworld")
+      0
+#+end_src
+
+** Modules, types and interfaces
+
+The ~IEvent<T>~ type provides the ~.Add~ method to events, which is just a
+wrapper around the IObservable<T>'s Subscribe method.
+
+The ~Event~ module contains functions that can is more functional friendly:
+
+#+begin_src fsharp
+  Event.add (fun s -> printfn "%s!" s) e.Publish
+#+end_src
+
+The ~Event<T>~ is a class that implements ~Publish~ and ~Trigger~ methods.
+
+* References
+
+I visited the FSharp.Core's [[https://fsharp.github.io/fsharp-core-docs/reference/fsharp-control.html#category-1_1][Event and Observables]] documentation for most of
+these information.
