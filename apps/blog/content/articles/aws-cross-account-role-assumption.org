@@ -1,0 +1,91 @@
+#+TITLE: AWS cross account role assumption
+#+categories: cloud
+#+date: [2024-11-22 Fri]
+
+* About
+
+Let's assum there is a role *Foobar* in account *A* and a role *Foobaz* in
+account *B*.
+
+If the role *Foobaz* trusts the role *Foobaz* in account *A*, are other accounts
+allowed to assume it?
+
+* Experiment
+** Trust Relationship Only
+
+This terraform configuration provisions the two roles above.
+
+#+begin_src terraform
+  data "aws_iam_policy_document" "foobar" {
+    statement {
+      actions = ["sts:AssumeRole"]
+      principals {
+        type        = "AWS"
+        identifiers = [var.aws_account_ids.a]
+      }
+    }
+  }
+
+  resource "aws_iam_role" "foobar" {
+    provider           = aws.a
+    name               = "foobar"
+    assume_role_policy = data.aws_iam_policy_document.foobar.json
+  }
+
+  data "aws_iam_policy_document" "foobaz" {
+    statement {
+      actions = ["sts:AssumeRole"]
+      principals {
+        type        = "AWS"
+        identifiers = [aws_iam_role.foobar.arn]
+      }
+    }
+  }
+
+  resource "aws_iam_role" "foobaz" {
+    provider           = aws.b
+    name               = "foobaz"
+    assume_role_policy = data.aws_iam_policy_document.foobaz.json
+  }
+#+end_src
+
+The ~~/.aws/config~ is also configured to enable easy role chaining:
+
+#+begin_src toml
+[profile foobar]
+source_profile = a
+role_arn = arn:aws:iam::<a>:role/foobar
+region = ca-central-1
+[profile foobaz-from-foobar]
+source_profile = foobar
+role_arn = arn:aws:iam::<b>:role/foobaz
+region = ca-central-1
+#+end_src
+
+When we assume the role *foobar*, we're *NOT* able to subsequently assume the
+role foobaz because the role *foobar* still needs the sts:AssumeRole permission.
+
+#+begin_src shell
+  aws sts --profile foobaz-from-foobar get-caller-identity
+  # An error occurred (AccessDenied) when calling the AssumeRole operation: User: arn:aws:sts::<a>:assumed-role/foobar/botocore-session-1732291132 is not authorized to perform: sts:AssumeRole on resource: arn:aws:iam::<b>:role/foobaz
+#+end_src
+
+** Trust Relationship and Permissions
+
+When we grant foobar the permission to assume role, then it works:
+
+#+begin_src shell
+  aws sts --profile foobaz-from-foobar get-caller-identity
+  # {
+  #     "UserId": "AROAZI2LD6OML6ONHJQPB:botocore-session-1732291672",
+  #     "Account": "637423317912",
+  #     "Arn": "arn:aws:sts::<b>:assumed-role/foobaz/botocore-session-1732291672"
+  # }
+#+end_src
+
+** Can an administrator in account a assume the role without transitively going about it?
+
+#+begin_src shell
+  aws sts assume-role --role-arn arn:aws:iam::637423317912:role/foobaz --role-session-name augustfengd
+  # An error occurred (AccessDenied) when calling the AssumeRole operation: User: arn:aws:sts::<a>:assumed-role/AWSReservedSSO_AdministratorAccess_dc4bb76cf910dcda/augustfengd is not authorized to perform: sts:AssumeRole on resource: arn:aws:iam::<b>:role/foobaz
+#+end_src
