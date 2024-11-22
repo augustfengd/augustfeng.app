@@ -1,0 +1,43 @@
+#+TITLE: A study on default font in emacs on macos
+#+date: [2024-11-21 Thu]
+
+* About
+
+An unconfigured Emacs on an unconfigured MacOS will use this font:
+
+#+begin_quote
+-*-Menlo-regular-normal-normal-*-12-*-*-*-m-0-iso10646-1
+#+end_quote
+
+Why?
+
+* Discovery
+
+The ~x-create-frame~ emacs lisp function will use the [[https://developer.apple.com/documentation/appkit/nsfont/userfixedpitchfont(ofsize:)?language=objc][userFixedPitchFontOfSize]]
+case to identify the default monospace font.
+
+This is defined in the ~nsfns.m~ file.
+
+* Minimal Reproducer (Sorta)
+
+#+begin_src objc
+  int main(int argc, const char * argv[]) {
+    @autoreleasepool {
+      CTFontRef name = CTFontCreateUIFontForLanguage(kCTFontUIFontUserFixedPitch, 0, NULL);
+      CGFloat size = CTFontGetSize(name);
+      NSLog(@"User Fixed Pitch Font: %@, Default Size: %.2f", name, size);
+    }
+    return 0;
+  }
+#+end_src
+
+#+begin_quote
+2024-11-21 23:56:50.349 a.out[19798:994265] User Fixed Pitch Font: <CTFont: 0x135f06a70>{name = Menlo-Regular, size = 10.000000, matrix = 0x0, descriptor = <CTFontDescriptor: 0x600000808960>{attributes = {
+    NSFontNameAttribute = "Menlo-Regular";
+}>}}, Default Size: 10.00
+#+end_quote
+
+I'm able to resolve correctly the font name, but the default size doesn't
+reflect the above.
+
+It's late so I'll call it a night :)
