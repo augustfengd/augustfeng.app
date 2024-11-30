@@ -14,9 +14,16 @@ clusterroles:
 		name: "ingress-controller"
 		rules: {
 			"": {
-				services:  #get & #list & #watch
-				endpoints: #get & #list & #watch
-				secrets:   #get & #list & #watch
+				services: #get & #list & #watch
+				secrets:  #get & #list & #watch
+				nodes:    #get & #list & #watch
+			}
+			"discovery.k8s.io": {
+				endpointslices:  #list & #watch
+			}
+			"extensions": {
+				ingresses:      #get & #list & #watch
+				ingressclasses: #get & #list & #watch
 			}
 			"networking.k8s.io": {
 				ingresses:      #get & #list & #watch
@@ -26,15 +33,16 @@ clusterroles:
 				"ingresses/status": #update
 			}
 			"traefik.io": {
-				middlewares:       #get & #list & #watch
-				middlewaretcps:    #get & #list & #watch
-				ingressroutes:     #get & #list & #watch
-				traefikservices:   #get & #list & #watch
-				ingressroutetcps:  #get & #list & #watch
-				ingressrouteudps:  #get & #list & #watch
-				tlsoptions:        #get & #list & #watch
-				tlsstores:         #get & #list & #watch
-				serverstransports: #get & #list & #watch
+				middlewares:          #get & #list & #watch
+				middlewaretcps:       #get & #list & #watch
+				ingressroutes:        #get & #list & #watch
+				traefikservices:      #get & #list & #watch
+				ingressroutetcps:     #get & #list & #watch
+				ingressrouteudps:     #get & #list & #watch
+				tlsoptions:           #get & #list & #watch
+				tlsstores:            #get & #list & #watch
+				serverstransports:    #get & #list & #watch
+				serverstransporttcps: #get & #list & #watch
 			}
 		}
 	}
