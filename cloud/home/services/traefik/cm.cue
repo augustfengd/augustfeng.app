@@ -16,7 +16,7 @@ traefik_yml: {
 	}
 	entryPoints: {
 		web: address:                   ":80"
-		dns: address:                   ":53/udp"
+		dns: address:                   "192.168.0.254:53/udp"
 		"syncthing-tcp": address:       ":22000/tcp"
 		"syncthing-udp": address:       ":22000/udp"
 		"syncthing-discovery": address: ":21027/udp"

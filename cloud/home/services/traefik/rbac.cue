@@ -36,8 +36,6 @@ clusterroles:
 				tlsstores:         #get & #list & #watch
 				serverstransports: #get & #list & #watch
 			}
-			// support old api groups until traefik v3
-			"traefik.containo.us": rules."traefik.io"
 		}
 	}
 
