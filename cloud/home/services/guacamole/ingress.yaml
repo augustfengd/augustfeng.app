@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: guacamole.home.arpa
+  namespace: guacamole
+spec:
+  entryPoints:
+  - web
+  routes:
+  - kind: Rule
+    match: Host(`guacamole.home.arpa`) || Host(`guacamole`)
+    services:
+    - kind: Service
+      name: guacamole
+      port: web

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guacd
+  namespace: guacamole
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: guacd
+  template:
+    metadata:
+      labels:
+        app: guacd
+    spec:
+      containers:
+      - name: guacd
+        image: guacamole/guacd:1.5.5
+        ports:
+        - containerPort: 4822
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: guacd
+  namespace: guacamole
+spec:
+  selector:
+    app: guacd
+  ports:
+  - protocol: TCP
+    port: 4822
+    targetPort: 4822
