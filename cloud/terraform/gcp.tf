@@ -9,7 +9,7 @@ resource "google_compute_firewall" "ingress" {
   target_service_accounts = ["${google_service_account.augustfeng-app.email}"]
 
   allow {
-    ports    = ["443"]
+    ports    = ["442"]
     protocol = "tcp"
   }
 }
