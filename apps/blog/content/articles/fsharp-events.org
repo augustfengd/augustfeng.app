@@ -1,6 +1,6 @@
 #+title: fsharp events
 #+categories: programming
-#+tags: dotnet
+#+tags[]: dotnet
 #+date: [2024-11-15 Fri]
 
 * About

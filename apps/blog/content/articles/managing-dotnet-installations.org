@@ -4,23 +4,56 @@
 #+date: [2023-06-22 Thu]
 
 * list versions
+** dotnet --list-sdks
 
-#+begin_src shell
-  dotnet --list-sdks
-#+end_src
+The ~dotnet --list-sdks~ command invokes native code from the *[[https://github.com/dotnet/runtime/blob/main/docs/design/features/host-components.md][host component]]*.
+We can confirm by setting ~COREHOST_TRACE=1~ when running the command and
+investigating some of the traces.
 
-#+begin_src shell
-  dotnet sdk check
-#+end_src
+An interesting side effect of this is that providing the ~--list-sdk~ option
+directly to the ~dotnet.dll~ is not handled because the host component is
+expected to handle before the execution reaches managed code.
 
-#+begin_src shell
-  dotnet --version # this checks the entrypoint version (/usr/local/bin/dotnet)
-#+end_src
+That is, these two commands will have different outcomes:
+- ~dotnet --list-sdks~
+- ~dotnet /Users/augustfengd/.dotnet/sdk/9.0.100/dotnet.dll --list-sdks~
 
-#+begin_src shell
-  dotnet --info
-#+end_src
+** dotnet --list-runtimes
 
-* delete installations
+The ~dotnet --list-runtimes~ is works similar to ~dotnet --list-sdks~ but it
+will print the sdks instead.
+
+** dotnet sdk check
+
+The ~dotnet sdk check~ command invokes managed code, *but* the managed code
+eventually calls native code in the *host component* to print the information.
+
+At the time of writing, this involves loading the fxr library, and calling its
+~hostfxr_get_dotnet_environment_info~ function.
+
+** dotnet --version
+
+The ~dotnet --version~ command invokes managed code and prints the runtime's
+version using reflection.
+
+** dotnet --info
+
+The ~dotnet --info~ command relies on both managed code and native code to
+produce the information.
+
+The first half of the information is printed by the managed code, and the second
+half is printed by the *host component*.
+
+* installations
+** MacOS
+*** Rider installation
+
+On a fresh machine, I installed Rider first and found the installation of dotnet
+in a [[https://learn.microsoft.com/en-us/dotnet/core/install/macos#install-net-manually][manual style]] at ~/.dotnet.
+
+I installed newer versions by downloading the binaries and extracting it in the
+same location: ~tar xf dotnet-sdk-*.tar.gz -C ~/.dotnet~.
+
+* uninstallations
 
 Ah, these files are everywhere.

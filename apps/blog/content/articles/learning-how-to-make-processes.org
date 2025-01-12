@@ -1,6 +1,6 @@
 #+TITLE: Learning how to make procesess
 #+categories: programming
-#+tags: dotnet
+#+tags[]: dotnet
 #+date: [2024-11-15 Fri]
 
 * About

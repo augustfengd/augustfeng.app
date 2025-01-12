@@ -25,6 +25,9 @@ docker.push: docker.build
 
 docker.pull: docker.push; cp $< $@
 
+docker.run: docker.build
+	docker run -it -p 8080:80 ghcr.io/augustfengd/augustfeng.app/blog:latest
+
 digest.cue: docker.pull
 	cue import --force --package blog --path 'deployment: image: digest: ' --outfile $@ text: $<
 
