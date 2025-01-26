@@ -1,11 +1,14 @@
-resource "cloudflare_ruleset" "aws_access_portal" {
-  name  = "Redirect from aws.augustfeng.app to AWS access portal"
-  kind  = "zone"
-  phase = "http_request_dynamic_redirect"
+resource "cloudflare_ruleset" "single_redirects" {
+  zone_id     = var.cloudflare_zone_ids.augustfeng-app
+  name        = "redirects"
+  description = "Redirects ruleset"
+  kind        = "zone"
+  phase       = "http_request_dynamic_redirect"
 
   rules {
-    action     = "redirect"
-    expression = "(http.host eq \"aws.augustfeng.app\")"
+    description = "Redirect from aws.augustfeng.app to AWS access portal"
+    expression  = "(http.host eq \"aws.augustfeng.app\")"
+    action      = "redirect"
     action_parameters {
       from_value {
         status_code = 301
