@@ -32,6 +32,7 @@ resource "google_container_cluster" "augustfeng-app" {
   }
 }
 
-provider "google" {
-  project = "augustfengd"
+resource "google_service_account" "augustfeng-app" {
+  account_id   = "augustfeng-app"
+  display_name = "augustfeng-app"
 }

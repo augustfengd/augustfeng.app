@@ -16,9 +16,27 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "2.21.1"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "4.51.0"
+    }
+    sops = {
+      source = "carlpett/sops"
+      version = "1.1.1"
+    }
   }
+}
+
+provider "sops" {}
+
+provider "cloudflare" {
+  api_token = data.sops_file.secrets.data["CLOUDFLARE_API_TOKEN"]
 }
 
 provider "aws" {
   region = "us-east-1" # yolo
+}
+
+provider "google" {
+  project = "augustfengd"
 }
