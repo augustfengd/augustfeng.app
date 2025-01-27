@@ -8,67 +8,22 @@ concurrency: apps/blog
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: make all
-        run: make all
-        working-directory: apps/blog
-      - uses: actions/upload-artifact@v3
-        with:
-          name: blog
-          path: apps/blog/build/
+    - uses: actions/checkout@v4
+    - run: cd apps/blog ; make
+    - uses: actions/upload-artifact@v4
+      with:
+        name: blog
+        path: apps/blog/build/
   push:
     runs-on: ubuntu-latest
-    needs:
-      - build
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: docker login
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
-      - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
         with:
           name: blog
           path: apps/blog/build/
-      - name: make docker.push
-        run: make docker.push
-        working-directory: apps/blog
-      - name: make docker.pull
-        run: make docker.pull
-        working-directory: apps/blog
-      - name: make digest.cue
-        uses: docker://ghcr.io/augustfengd/augustfeng.app/toolchain
-        with:
-          args: make -C apps/blog digest.cue
-      - uses: actions/upload-artifact@v3
-        with:
-          name: digest
-          path: apps/blog/digest.cue
-  apply:
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/augustfengd/augustfeng.app/toolchain:latest
-    needs:
-      - push
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: configure google application credentials
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-      - name: install gcloud
-        uses: google-github-actions/setup-gcloud@v1
-      - name: gcloud components install gke-gcloud-auth-plugin
-        run: 'gcloud components install gke-gcloud-auth-plugin '
-      - name: gcloud container clusters get-credentials augustfeng-app
-        run: gcloud container clusters get-credentials augustfeng-app --zone=us-east1-b
-      - uses: actions/download-artifact@v3
-        with:
-          name: digest
-          path: apps/blog
-      - name: cue cmd apply github.com/augustfengd/augustfeng.app/apps/blog
-        run: cue cmd apply github.com/augustfengd/augustfeng.app/apps/blog
+    - uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: us-east-1
+        role-to-assume: "arn:aws:iam::449594425026:role/GitHubActionsAugustfengApp"
+      - run: aws s3 cp apps/blog/build/public s3://augustfeng-app/blog/ --recursive

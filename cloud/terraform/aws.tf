@@ -49,11 +49,6 @@ resource "aws_ssoadmin_managed_policy_attachment" "AdministratorAccess" {
   permission_set_arn = aws_ssoadmin_permission_set.AdministratorAccess.arn
 }
 
-import {
-  to = aws_s3_bucket.augustfengd
-  id = "augustfengd"
-}
-
 resource "aws_s3_bucket" "augustfengd" {
   bucket = "augustfengd"
 }
@@ -176,4 +171,66 @@ resource "cloudflare_record" "blog_augustfeng_app-validation" {
   name    = each.value.resource_record_name
   content = each.value.resource_record_value
   type    = each.value.resource_record_type
+}
+
+resource "aws_iam_openid_connect_provider" "gha" {
+  url = "https://token.actions.githubusercontent.com"
+
+  client_id_list = ["sts.amazonaws.com"]
+
+  thumbprint_list = [
+    "6938fd4d98bab03faadb97b34396831e3780aea1",
+    "1c58a3a8518e8759bf075b76b750d4f2df264fcd"
+  ]
+}
+
+data "aws_iam_policy_document" "gha-augustfeng-app-trust-policy" {
+  statement {
+    principals {
+      type        = "Federated"
+      identifiers = [aws_iam_openid_connect_provider.gha.arn]
+    }
+
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    condition {
+      test     = "StringLike"
+      variable = "token.actions.githubusercontent.com:sub"
+      values   = ["repo:augustfengd/augustfeng-app:*"]
+    }
+  }
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.default.account_id}:root"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "gha" {
+  statement {
+    actions   = ["s3:ListBucket"]
+    resources = [aws_s3_bucket.augustfeng-app.arn]
+  }
+  statement {
+    actions   = ["s3:PutObject"]
+    resources = [format("%s/*", aws_s3_bucket.augustfeng-app.arn)]
+  }
+}
+
+resource "aws_iam_policy" "gha-augustfeng-app" {
+  name   = "GitHubActionsAugustfengApp"
+  policy = data.aws_iam_policy_document.gha.json
+}
+
+resource "aws_iam_role" "gha-augustfeng-app" {
+  name               = "GitHubActionsAugustfengApp"
+  assume_role_policy = data.aws_iam_policy_document.gha-augustfeng-app-trust-policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "gha-augustfeng-app" {
+  role       = aws_iam_role.gha-augustfeng-app.name
+  policy_arn = aws_iam_policy.gha-augustfeng-app.arn
 }
