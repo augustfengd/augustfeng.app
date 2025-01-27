@@ -36,3 +36,11 @@ resource "google_service_account" "augustfeng-app" {
   account_id   = "augustfeng-app"
   display_name = "augustfeng-app"
 }
+
+resource "kubernetes_namespace" "system-ingress" {
+  depends_on = [google_container_cluster.augustfeng-app]
+
+  metadata {
+    name = "system-ingress"
+  }
+}

@@ -196,7 +196,7 @@ data "aws_iam_policy_document" "gha-augustfeng-app-trust-policy" {
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:augustfengd/augustfeng.app:*"]
+      values   = ["repo:augustfengd/augustfeng-app:*"]
     }
   }
   statement {

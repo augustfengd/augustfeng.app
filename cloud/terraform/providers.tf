@@ -40,3 +40,9 @@ provider "aws" {
 provider "google" {
   project = "augustfengd"
 }
+
+provider "kubernetes" {
+  cluster_ca_certificate = base64decode(google_container_cluster.augustfeng-app.master_auth[0].cluster_ca_certificate)
+  host                   = "https://${google_container_cluster.augustfeng-app.endpoint}"
+  token                  = data.google_client_config.provider.access_token
+}
