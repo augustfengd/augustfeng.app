@@ -19,11 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/download-artifact@v4
-        with:
-          name: blog
-          path: apps/blog/build/
+      with:
+        name: blog
+        path: apps/blog/build/
     - uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: us-east-1
         role-to-assume: "arn:aws:iam::449594425026:role/GitHubActionsAugustfengApp"
-      - run: aws s3 cp apps/blog/build/public s3://augustfeng-app/blog/ --recursive
+    - run: "aws s3 cp apps/blog/build/public s3://augustfeng-app/blog/ --recursive"
