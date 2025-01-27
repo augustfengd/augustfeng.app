@@ -13,7 +13,7 @@ jobs:
     - run: gh release download v0.142.0 --repo gohugoio/hugo --pattern hugo_0.142.0_linux-arm64.deb
       env:
         GH_TOKEN: ${{ github.token }}
-    - run: dpkg -i hugo_0.142.0_linux-arm64.deb
+    - run: sudo dpkg -i hugo_0.142.0_linux-arm64.deb
     - run: cd apps/blog ; make
     - uses: actions/upload-artifact@v4
       with:
