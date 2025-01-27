@@ -121,6 +121,11 @@ resource "aws_cloudfront_distribution" "blog-augustfeng-app" {
     cached_methods         = ["GET", "HEAD"]
     target_origin_id       = aws_s3_bucket.augustfeng-app.bucket_regional_domain_name
     cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" // Managed-CachingOptimized
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.url-rewrite-single-page-apps.arn
+    }
   }
 
   price_class = "PriceClass_All"
@@ -135,6 +140,12 @@ resource "aws_cloudfront_distribution" "blog-augustfeng-app" {
       restriction_type = "none"
     }
   }
+}
+
+resource "aws_cloudfront_function" "url-rewrite-single-page-apps" {
+  name    = "url-rewrite-single-page-apps"
+  runtime = "cloudfront-js-2.0"
+  code    = file("${path.module}/src/cloudfront_functions/url-rewrite-single-page-apps.js")
 }
 
 resource "cloudflare_record" "blog_augustfeng_app" {
