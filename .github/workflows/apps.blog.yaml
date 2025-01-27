@@ -17,6 +17,7 @@ jobs:
         path: apps/blog/build/
   push:
     runs-on: ubuntu-latest
+    needs: [build]
     steps:
     - uses: actions/download-artifact@v4
       with:
