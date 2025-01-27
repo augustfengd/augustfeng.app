@@ -75,15 +75,15 @@ data "aws_iam_policy_document" "augustfeng-app" {
     condition {
       test     = "StringEquals"
       variable = "AWS:SourceArn"
-      values   = [aws_cloudfront_distribution.augustfengd.arn]
+      values   = [aws_cloudfront_distribution.blog-augustfeng-app.arn]
     }
   }
 }
 
 
-resource "aws_s3_bucket_policy" "augustfengd" {
+resource "aws_s3_bucket_policy" "augustfeng-app" {
   bucket = aws_s3_bucket.augustfengd.id
-  policy = data.aws_iam_policy_document.augustfengd.json
+  policy = data.aws_iam_policy_document.augustfeng-app.json
 }
 
 import {
@@ -111,7 +111,7 @@ resource "aws_cloudfront_distribution" "blog-augustfeng-app" {
     origin_id                = aws_s3_bucket.augustfengd.bucket_regional_domain_name
   }
 
-  aliases = [cloudflare_record.blog_augustfeng_app.name]
+  aliases = [aws_acm_certificate.blog_augustfeng_app.domain_name]
 
   enabled             = true
   is_ipv6_enabled     = true
@@ -131,6 +131,7 @@ resource "aws_cloudfront_distribution" "blog-augustfeng-app" {
   price_class = "PriceClass_All"
 
   viewer_certificate {
+    acm_certificate_arn = aws_acm_certificate_validation.blog_augustfeng_app.certificate_arn
     cloudfront_default_certificate = true
   }
 
@@ -159,7 +160,7 @@ resource "aws_acm_certificate" "blog_augustfeng_app" {
 }
 
 resource "aws_acm_certificate_validation" "blog_augustfeng_app" {
-  certificate_arn = aws_acm_certificate.practicing_app.arn
+  certificate_arn = aws_acm_certificate.blog_augustfeng_app.arn
 }
 
 resource "cloudflare_record" "blog_augustfeng_app-validation" {
