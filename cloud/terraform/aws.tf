@@ -105,10 +105,10 @@ import {
 
 resource "aws_cloudfront_distribution" "blog-augustfeng-app" {
   origin {
-    domain_name              = aws_s3_bucket.augustfengd.bucket_regional_domain_name
+    domain_name              = aws_s3_bucket.augustfeng-app.bucket_regional_domain_name
     origin_access_control_id = aws_cloudfront_origin_access_control.sigv4-always-s3.id
-    origin_path              = "/augustfeng.app/blog"
-    origin_id                = aws_s3_bucket.augustfengd.bucket_regional_domain_name
+    origin_path              = "/blog"
+    origin_id                = aws_s3_bucket.augustfeng-app.bucket_regional_domain_name
   }
 
   aliases = [aws_acm_certificate.blog_augustfeng_app.domain_name]
