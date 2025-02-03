@@ -1,0 +1,27 @@
+#+title: How to number a list of lines in org mode
+#+categories: emacs
+#+date: [2025-02-02 Sun]
+
+* About
+
+I never had to number a list of lines so many times until my most recent study
+on TCP sequence numbers.
+
+* How
+
+Paste a bunch of lines, and use the ~string-rectangle~ command to insert "1." at
+the beginning:
+
+#+begin_quote
+1. hello
+1. world
+1. .
+#+end_quote
+
+Finally, move the cursor to any of thes lines and press ~C-c~:
+
+#+begin_quote
+1. hello
+2.  world
+3. .
+#+end_quote
