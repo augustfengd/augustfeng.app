@@ -1,0 +1,290 @@
+#+TITLE: A Study on Kestrel limits
+#+categories: dotnet
+#+date: [2025-02-01 Sat]
+
+* About
+
+Here lies some experiments to learn about Kestrel and its limits.
+
+* Limits
+** KestrelServerLimits.RequestHeadersTimeout
+
+I've written a minimal Kestrel server that configures a five second timeout for
+the *RequestHeadersTimeout*.
+
+#+begin_src fsharp
+open System
+open Microsoft.AspNetCore.Builder
+open Microsoft.AspNetCore.Hosting
+open Microsoft.AspNetCore.Http
+open Microsoft.Extensions.Hosting
+
+[<EntryPoint>]
+let main args =
+    let builder = WebApplication.CreateBuilder(args)
+    builder.WebHost.ConfigureKestrel(fun options ->
+        options.Limits.RequestHeadersTimeout <-TimeSpan.FromSeconds(2.0)) |> ignore
+
+    let app = builder.Build()
+    app.Run()
+
+    0
+#+end_src
+
+I've written a minimal TCP client to trigger the *RequestHeadersTimeout*.
+
+#+begin_src fsharp
+open System
+open System.Diagnostics
+open System.IO
+open System.Net.Sockets
+open System.Text
+
+let startLine = "GET / HTTP/1.1\r\n"
+
+let run () =
+    let client = new TcpClient("localhost", 5075)
+    let stream = client.GetStream()
+    let writer = new StreamWriter(stream, UTF8Encoding())
+    let reader = new StreamReader(stream, UTF8Encoding())
+
+    writer.Write(startLine)
+    // writer.Write("\r\n") // <-- this is important!
+
+    let sw = Stopwatch.StartNew()
+    writer.Flush()
+
+    let s = reader.ReadToEnd()
+
+    sw.Stop()
+
+    printfn $"Elapsed: {sw.Elapsed}\n---"
+    printfn $"{s}"
+    0
+
+run () |> ignore
+#+end_src
+
+The client will get receive a timeout response from the server:
+
+#+begin_quote
+Elapsed: 00:00:00.0002474
+---
+HTTP/1.1 400 Bad Request
+Content-Length: 0
+Connection: close
+Date: Sat, 01 Feb 2025 21:14:03 GMT
+Server: Kestrel
+#+end_quote
+
+The reason is that the HTTP message's request header is not completed.
+
+In the [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages#anatomy_of_an_http_message][Anatomy of an HTTP message]], we describe metadata of the message being the
+/start-line/ and the /optional headers/. A new line is used to terminate the
+metadata of the message.
+
+Since the client above does not send it, the server is still waiting to complete
+the parsing of the metadata and eventually timeouts.
+
+The metadata of the message is also called the *head*. The
+*RequestHeadersTimeout* is most likely ambiguous and also implicates the
+/start-line/.
+
+** KestrelServerLimits.KeepAliveTimeout
+
+I've written a minimal web application with Kestrel that holds a request for 2
+seconds. This will allow us to inspect the sockets on the host machine.
+
+#+begin_src fsharp
+let router : HttpHandler =
+    fun (next : HttpFunc) (ctx : HttpContext) -> task {
+        System.Threading.Thread.Sleep(2 * 1000)
+        return! text "helloworld" next ctx
+    }
+
+[<EntryPoint>]
+let main args =
+    let builder = WebApplication.CreateBuilder(args)
+    builder.WebHost.ConfigureKestrel(fun options -> ()) |> ignore
+    builder.Services.AddGiraffe() |> ignore
+
+    let app = builder.Build()
+    app.UseGiraffe router
+
+    app.Run()
+
+    0
+#+end_src
+
+*** HTTP 1.0 behavior
+
+When we use HTTP 1.0 protocol, the server will terminate the connection as soon
+as the request is served.
+
+Note that a *connection termination* can leave a connection in a half-open state
+and the socket in a ~TIME-WAIT~ state. This is because when a side terminates a
+connection, it only means that is will no longer send data but should continue
+receiving data until the other side terminates as well.
+
+I've a simple client:
+
+#+begin_src fsharp
+  open System
+  open System.Net
+  open System.Net.Http
+
+  let buildMsg () =
+      let o = new HttpRequestMessage()
+      o.Method <- HttpMethod.Get
+      o.RequestUri <- Uri("http://localhost:8080")
+      o.Version <- HttpVersion.Version10
+      o
+
+  let buildClient () = new HttpClient()
+
+  let sendMsg (client : HttpClient) =
+      client.SendAsync >> Async.AwaitTask >> Async.RunSynchronously
+
+  let run () =
+      let client = buildClient ()
+      buildMsg () |> sendMsg client |> ignore
+      buildMsg () |> sendMsg client |> ignore
+
+  run ()
+#+end_src
+
+I've a simple server:
+
+#+begin_src fsharp
+  open System
+  open Microsoft.AspNetCore.Builder
+  open Microsoft.Extensions.Hosting
+
+  let builder = WebApplication.CreateBuilder()
+  let app = builder.Build()
+
+  app.MapGet("/", Func<string>(fun () -> "helloworld")) |> ignore
+
+  app.Run()
+#+end_src
+
+After running the client program, we can inspect the sockets on the server and
+see two connections waiting to be closed:
+
+#+begin_quote
+State                    Recv-Q                Send-Q                                     Local Address:Port                                      Peer Address:Port                 Process
+LISTEN                   0                     512                                                    *:8080                                                 *:*                           
+TIME-WAIT                0                     0                                    [::ffff:172.17.0.3]:8080                               [::ffff:172.17.0.1]:59816                       
+TIME-WAIT                0                     0                                    [::ffff:172.17.0.3]:8080                               [::ffff:172.17.0.1]:59796                       
+#+end_quote
+
+The client side will not have any open connections.
+
+We can also see some pretty straight forward data transmission from the client
+to the server for the request (packet #4-5), and vice versa for the response
+(packet #6-7).
+
+#+begin_quote
+1.  01:58:22.735913 eth0  In  IP 172.17.0.1.57472 > 172.17.0.3.8080: Flags [S], seq 3938213709, win 65495, options [mss 65495,sackOK,TS val 2764971812 ecr 0,nop,wscale 7], length 0
+2.  01:58:22.735932 eth0  Out IP 172.17.0.3.8080 > 172.17.0.1.57472: Flags [S.], seq 795578192, ack 3938213710, win 65483, options [mss 65495,sackOK,TS val 3208331060 ecr 2764971812,nop,wscale 7], length 0
+3.  01:58:22.735948 eth0  In  IP 172.17.0.1.57472 > 172.17.0.3.8080: Flags [.], ack 1, win 512, options [nop,nop,TS val 2764971812 ecr 3208331060], length 0
+4.  01:58:22.738478 eth0  In  IP 172.17.0.1.57472 > 172.17.0.3.8080: Flags [P.], seq 1:41, ack 1, win 512, options [nop,nop,TS val 2764971815 ecr 3208331060], length 40: HTTP: GET / HTTP/1.0
+5.  01:58:22.738494 eth0  Out IP 172.17.0.3.8080 > 172.17.0.1.57472: Flags [.], ack 41, win 512, options [nop,nop,TS val 3208331063 ecr 2764971815], length 0
+6.  01:58:22.738885 eth0  Out IP 172.17.0.3.8080 > 172.17.0.1.57472: Flags [P.], seq 1:144, ack 41, win 512, options [nop,nop,TS val 3208331063 ecr 2764971815], length 143: HTTP: HTTP/1.1 200 OK
+7.  01:58:22.738918 eth0  In  IP 172.17.0.1.57472 > 172.17.0.3.8080: Flags [.], ack 144, win 511, options [nop,nop,TS val 2764971815 ecr 3208331063], length 0
+8.  01:58:22.738939 eth0  Out IP 172.17.0.3.8080 > 172.17.0.1.57472: Flags [F.], seq 144, ack 41, win 512, options [nop,nop,TS val 3208331063 ecr 2764971815], length 0
+9.  01:58:22.741362 eth0  In  IP 172.17.0.1.57472 > 172.17.0.3.8080: Flags [F.], seq 41, ack 145, win 512, options [nop,nop,TS val 2764971817 ecr 3208331063], length 0
+10. 01:58:22.741373 eth0  Out IP 172.17.0.3.8080 > 172.17.0.1.57472: Flags [.], ack 42, win 512, options [nop,nop,TS val 3208331066 ecr 2764971817], length 0
+#+end_quote
+
+*** HTTP 1.1 behavior
+
+In HTTP 1.1, we see that it's the *client* that initiates the connection
+termination (packet #8).
+
+#+begin_quote
+1.  02:01:25.638031 eth0  In  IP 172.17.0.1.57214 > 172.17.0.3.8080: Flags [S], seq 2798590661, win 65495, options [mss 65495,sackOK,TS val 2765154713 ecr 0,nop,wscale 7], length 0
+2.  02:01:25.638057 eth0  Out IP 172.17.0.3.8080 > 172.17.0.1.57214: Flags [S.], seq 375389514, ack 2798590662, win 65483, options [mss 65495,sackOK,TS val 3208513961 ecr 2765154713,nop,wscale 7], length 0
+3.  02:01:25.638080 eth0  In  IP 172.17.0.1.57214 > 172.17.0.3.8080: Flags [.], ack 1, win 512, options [nop,nop,TS val 2765154713 ecr 3208513961], length 0
+4.  02:01:25.640437 eth0  In  IP 172.17.0.1.57214 > 172.17.0.3.8080: Flags [P.], seq 1:41, ack 1, win 512, options [nop,nop,TS val 2765154715 ecr 3208513961], length 40: HTTP: GET / HTTP/1.1
+5.  02:01:25.640458 eth0  Out IP 172.17.0.3.8080 > 172.17.0.1.57214: Flags [.], ack 41, win 512, options [nop,nop,TS val 3208513963 ecr 2765154715], length 0
+6.  02:01:25.640885 eth0  Out IP 172.17.0.3.8080 > 172.17.0.1.57214: Flags [P.], seq 1:163, ack 41, win 512, options [nop,nop,TS val 3208513964 ecr 2765154715], length 162: HTTP: HTTP/1.1 200 OK
+7.  02:01:25.640918 eth0  In  IP 172.17.0.1.57214 > 172.17.0.3.8080: Flags [.], ack 163, win 511, options [nop,nop,TS val 2765154716 ecr 3208513964], length 0
+8.  02:01:25.716777 eth0  In  IP 172.17.0.1.57214 > 172.17.0.3.8080: Flags [F.], seq 41, ack 163, win 512, options [nop,nop,TS val 2765154792 ecr 3208513964], length 0
+9.  02:01:25.716992 eth0  Out IP 172.17.0.3.8080 > 172.17.0.1.57214: Flags [F.], seq 163, ack 42, win 512, options [nop,nop,TS val 3208514040 ecr 2765154792], length 0
+10. 02:01:25.717022 eth0  In  IP 172.17.0.1.57214 > 172.17.0.3.8080: Flags [.], ack 164, win 512, options [nop,nop,TS val 2765154792 ecr 3208514040], length 0
+#+end_quote
+
+Consequently, the server knows there will be no further messages from the
+*client* and can avoid connections going into a ~TIME-WAIT~ state.
+
+We will see the ~TIME-WAIT~ state on the client side though:
+
+#+begin_quote
+State          Recv-Q       Send-Q                   Local Address:Port                     Peer Address:Port      Process
+TIME-WAIT      0            0                  [::ffff:172.17.0.4]:41696             [::ffff:172.17.0.3]:8080             
+#+end_quote
+
+*** KeepAliveTimeout effects
+
+Let's configure a KeepAliveTimeout of 8 seconds, and have our client wait 4
+seconds between the successive requests. A ~tcpdump~ will show trace a single
+TCP connection. There are no TCP messages with a ~FIN~ flag until the end.
+
+#+begin_quote
+1. 03:51:18.505305 IP 172.17.0.3.38216 > c754cc93dd16.8080: Flags [S], seq 2219939860, win 65495, options [mss 65495,sackOK,TS val 1220874810 ecr 0,nop,wscale 7], length 0
+2. 03:51:18.505313 IP c754cc93dd16.8080 > 172.17.0.3.38216: Flags [S.], seq 2487000610, ack 2219939861, win 65483, options [mss 65495,sackOK,TS val 2356036585 ecr 1220874810,nop,wscale 7], length 0
+3. 03:51:18.505321 IP 172.17.0.3.38216 > c754cc93dd16.8080: Flags [.], ack 1, win 512, options [nop,nop,TS val 1220874810 ecr 2356036585], length 0
+4. 03:51:18.508997 IP 172.17.0.3.38216 > c754cc93dd16.8080: Flags [P.], seq 1:42, ack 1, win 512, options [nop,nop,TS val 1220874814 ecr 2356036585], length 41: HTTP: GET / HTTP/1.1
+5. 03:51:18.509005 IP c754cc93dd16.8080 > 172.17.0.3.38216: Flags [.], ack 42, win 512, options [nop,nop,TS val 2356036589 ecr 1220874814], length 0
+6. 03:51:18.532251 IP c754cc93dd16.8080 > 172.17.0.3.38216: Flags [P.], seq 1:163, ack 42, win 512, options [nop,nop,TS val 2356036612 ecr 1220874814], length 162: HTTP: HTTP/1.1 200 OK
+7. 03:51:18.532274 IP 172.17.0.3.38216 > c754cc93dd16.8080: Flags [.], ack 163, win 511, options [nop,nop,TS val 1220874837 ecr 2356036612], length 0
+8. 03:51:22.540673 IP 172.17.0.3.38216 > c754cc93dd16.8080: Flags [P.], seq 42:83, ack 163, win 512, options [nop,nop,TS val 1220878845 ecr 2356036612], length 41: HTTP: GET / HTTP/1.1
+9. 03:51:22.544264 IP c754cc93dd16.8080 > 172.17.0.3.38216: Flags [P.], seq 163:325, ack 83, win 512, options [nop,nop,TS val 2356040624 ecr 1220878845], length 162: HTTP: HTTP/1.1 200 OK
+10. 03:51:22.544350 IP 172.17.0.3.38216 > c754cc93dd16.8080: Flags [.], ack 325, win 511, options [nop,nop,TS val 1220878849 ecr 2356040624], length 0
+11. 03:51:22.548332 IP 172.17.0.3.38216 > c754cc93dd16.8080: Flags [F.], seq 83, ack 325, win 512, options [nop,nop,TS val 1220878853 ecr 2356040624], length 0
+12. 03:51:22.549326 IP c754cc93dd16.8080 > 172.17.0.3.38216: Flags [F.], seq 325, ack 84, win 512, options [nop,nop,TS val 2356040629 ecr 1220878853], length 0
+13. 03:51:22.549362 IP 172.17.0.3.38216 > c754cc93dd16.8080: Flags [.], ack 326, win 512, options [nop,nop,TS val 1220878854 ecr 2356040629], length 0
+#+end_quote
+
+Let's have our client wait 16 seconds, which exceeds the configured
+KeepAliveTimeout value:
+
+#+begin_quote
+1. 03:53:54.626681 IP 172.17.0.3.54412 > c754cc93dd16.8080: Flags [S], seq 754396352, win 65495, options [mss 65495,sackOK,TS val 1221030933 ecr 0,nop,wscale 7], length 0
+2. 03:53:54.626689 IP c754cc93dd16.8080 > 172.17.0.3.54412: Flags [S.], seq 2349966104, ack 754396353, win 65483, options [mss 65495,sackOK,TS val 2356192708 ecr 1221030933,nop,wscale 7], length 0
+3. 03:53:54.626697 IP 172.17.0.3.54412 > c754cc93dd16.8080: Flags [.], ack 1, win 512, options [nop,nop,TS val 1221030933 ecr 2356192708], length 0
+4. 03:53:54.630479 IP 172.17.0.3.54412 > c754cc93dd16.8080: Flags [P.], seq 1:42, ack 1, win 512, options [nop,nop,TS val 1221030937 ecr 2356192708], length 41: HTTP: GET / HTTP/1.1
+5. 03:53:54.630493 IP c754cc93dd16.8080 > 172.17.0.3.54412: Flags [.], ack 42, win 512, options [nop,nop,TS val 2356192712 ecr 1221030937], length 0
+6. 03:53:54.630797 IP c754cc93dd16.8080 > 172.17.0.3.54412: Flags [P.], seq 1:163, ack 42, win 512, options [nop,nop,TS val 2356192712 ecr 1221030937], length 162: HTTP: HTTP/1.1 200 OK
+7. 03:53:54.630813 IP 172.17.0.3.54412 > c754cc93dd16.8080: Flags [.], ack 163, win 511, options [nop,nop,TS val 1221030937 ecr 2356192712], length 0
+8. 03:54:03.698088 IP c754cc93dd16.8080 > 172.17.0.3.54412: Flags [F.], seq 163, ack 42, win 512, options [nop,nop,TS val 2356201779 ecr 1221030937], length 0
+9. 03:54:03.742015 IP 172.17.0.3.54412 > c754cc93dd16.8080: Flags [.], ack 164, win 511, options [nop,nop,TS val 1221040048 ecr 2356201779], length 0
+10. 03:54:09.628939 IP 172.17.0.3.54412 > c754cc93dd16.8080: Flags [F.], seq 42, ack 164, win 512, options [nop,nop,TS val 1221045935 ecr 2356201779], length 0
+11. 03:54:09.628970 IP c754cc93dd16.8080 > 172.17.0.3.54412: Flags [.], ack 43, win 512, options [nop,nop,TS val 2356207710 ecr 1221045935], length 0
+12. 03:54:10.639782 IP 172.17.0.3.46628 > c754cc93dd16.8080: Flags [S], seq 2499564957, win 65495, options [mss 65495,sackOK,TS val 1221046946 ecr 0,nop,wscale 7], length 0
+13. 03:54:10.639833 IP c754cc93dd16.8080 > 172.17.0.3.46628: Flags [S.], seq 2484206028, ack 2499564958, win 65483, options [mss 65495,sackOK,TS val 2356208721 ecr 1221046946,nop,wscale 7], length 0
+14. 03:54:10.639868 IP 172.17.0.3.46628 > c754cc93dd16.8080: Flags [.], ack 1, win 512, options [nop,nop,TS val 1221046946 ecr 2356208721], length 0
+15. 03:54:10.640723 IP 172.17.0.3.46628 > c754cc93dd16.8080: Flags [P.], seq 1:42, ack 1, win 512, options [nop,nop,TS val 1221046947 ecr 2356208721], length 41: HTTP: GET / HTTP/1.1
+16. 03:54:10.640739 IP c754cc93dd16.8080 > 172.17.0.3.46628: Flags [.], ack 42, win 512, options [nop,nop,TS val 2356208722 ecr 1221046947], length 0
+17. 03:54:10.641730 IP c754cc93dd16.8080 > 172.17.0.3.46628: Flags [P.], seq 1:163, ack 42, win 512, options [nop,nop,TS val 2356208723 ecr 1221046947], length 162: HTTP: HTTP/1.1 200 OK
+18. 03:54:10.641865 IP 172.17.0.3.46628 > c754cc93dd16.8080: Flags [.], ack 163, win 511, options [nop,nop,TS val 1221046948 ecr 2356208723], length 0
+19. 03:54:10.646518 IP 172.17.0.3.46628 > c754cc93dd16.8080: Flags [F.], seq 42, ack 163, win 512, options [nop,nop,TS val 1221046953 ecr 2356208723], length 0
+20. 03:54:10.646878 IP c754cc93dd16.8080 > 172.17.0.3.46628: Flags [F.], seq 163, ack 43, win 512, options [nop,nop,TS val 2356208728 ecr 1221046953], length 0
+21. 03:54:10.646911 IP 172.17.0.3.46628 > c754cc93dd16.8080: Flags [.], ack 164, win 512, options [nop,nop,TS val 1221046953 ecr 2356208728], length 0
+#+end_quote
+
+Note that the server began terminating its side of the TCP connection at packet
+#8, which is a bit above 8 seconds since the first request.
+
+Consequently, the client opened a new TCP connection towards the server on
+packet #12.
+
+*** Conclusion
+
+This configuration took me a significant amount of head banging and studying
+before I understood it.
+
+My summary of it is that in HTTP 1.1, the client is responsible for terminating
+the TCP connection but the server won't shy from terminating it if it does not
+receive a request within the duration of the configured KeepAlive timeout.
