@@ -10,7 +10,7 @@ Let's simulate a some TCP traffic between a server (~nc -l 1234~) and client
 If we dump this with ~tcpdump -i lo port 1234~, we'll see that the sequence
 numbers reset to ~1~ after the initial handshake is completed.
 
-#+begin_quote
+#+begin_src text
 1. 22:57:07.921614 IP localhost.47162 > localhost.1234: Flags [S], seq 934227076, win 65495, options [mss 65495,sackOK,TS val 2756153644 ecr 0,nop,wscale 7], length 0
 2. 22:57:07.921626 IP localhost.1234 > localhost.47162: Flags [S.], seq 2435073417, ack 934227077, win 65483, options [mss 65495,sackOK,TS val 2756153644 ecr 2756153644,nop,wscale 7], length 0
 3. 22:57:07.921636 IP localhost.47162 > localhost.1234: Flags [.], ack 1, win 512, options [nop,nop,TS val 2756153644 ecr 2756153644], length 0
@@ -19,7 +19,7 @@ numbers reset to ~1~ after the initial handshake is completed.
 6. 22:57:07.921700 IP localhost.47162 > localhost.1234: Flags [F.], seq 8, ack 1, win 512, options [nop,nop,TS val 2756153644 ecr 2756153644], length 0
 7. 22:57:07.921758 IP localhost.1234 > localhost.47162: Flags [F.], seq 1, ack 9, win 512, options [nop,nop,TS val 2756153644 ecr 2756153644], length 0
 8. 22:57:07.921781 IP localhost.47162 > localhost.1234: Flags [.], ack 2, win 512, options [nop,nop,TS val 2756153644 ecr 2756153644], length 0
-#+end_quote
+#+end_src
 
 Note that I've enumerated the packets to help with illustration in the following
 sections.
@@ -30,7 +30,7 @@ This is actually just ~tcpdump~ using relative sequence numbers to make it
 easier. We can get the actual sequence number values by providing the ~S~
 (~-absolute-tcp-sequence-number~) flag:
 
-#+begin_quote
+#+begin_src text
 1. 22:57:39.363197 IP localhost.35954 > localhost.1234: Flags [S], seq 625186957, win 65495, options [mss 65495,sackOK,TS val 2756185086 ecr 0,nop,wscale 7], length 0
 2. 22:57:39.363207 IP localhost.1234 > localhost.35954: Flags [S.], seq 960599189, ack 625186958, win 65483, options [mss 65495,sackOK,TS val 2756185086 ecr 2756185086,nop,wscale 7], length 0
 3. 22:57:39.363216 IP localhost.35954 > localhost.1234: Flags [.], ack 960599190, win 512, options [nop,nop,TS val 2756185086 ecr 2756185086], length 0
@@ -39,7 +39,7 @@ easier. We can get the actual sequence number values by providing the ~S~
 6. 22:57:39.363275 IP localhost.35954 > localhost.1234: Flags [F.], seq 625186965, ack 960599190, win 512, options [nop,nop,TS val 2756185086 ecr 2756185086], length 0
 7. 22:57:39.363329 IP localhost.1234 > localhost.35954: Flags [F.], seq 960599190, ack 625186966, win 512, options [nop,nop,TS val 2756185086 ecr 2756185086], length 0
 8. 22:57:39.363349 IP localhost.35954 > localhost.1234: Flags [.], ack 960599191, win 512, options [nop,nop,TS val 2756185086 ecr 2756185086], length 0
-#+end_quote
+#+end_src
 
 * Acknowledgements during the handshake
 
@@ -103,7 +103,7 @@ container.
 
 Nevertheless, I'm going to preserve the original experiment's weirdness here.
 
-#+begin_quote
+#+begin_src text
 1.  18:10:18.422576 IP 127.0.0.1.60566 > 127.0.0.1.1234: Flags [S], seq 1198051244, win 65535, options [mss 16344,nop,wscale 6,nop,nop,TS val 337147874 ecr 0,sackOK,eol], length 0
 2.  18:10:18.422685 IP 127.0.0.1.1234 > 127.0.0.1.60566: Flags [S.], seq 1838975788, ack 1198051245, win 65535, options [mss 16344,nop,wscale 6,nop,nop,TS val 135178069 ecr 337147874,sackOK,eol], length 0
 3.  18:10:18.422705 IP 127.0.0.1.60566 > 127.0.0.1.1234: Flags [.], ack 1838975789, win 6379, options [nop,nop,TS val 337147874 ecr 135178069], length 0
@@ -114,7 +114,7 @@ Nevertheless, I'm going to preserve the original experiment's weirdness here.
 8.  18:10:18.422777 IP 127.0.0.1.1234 > 127.0.0.1.60566: Flags [.], ack 1198051253, win 6379, options [nop,nop,TS val 135178069 ecr 337147874], length 0
 9.  18:10:18.422818 IP 127.0.0.1.1234 > 127.0.0.1.60566: Flags [F.], seq 1838975789, ack 1198051253, win 6379, options [nop,nop,TS val 135178069 ecr 337147874], length 0
 10. 18:10:18.422854 IP 127.0.0.1.60566 > 127.0.0.1.1234: Flags [.], ack 1838975790, win 6379, options [nop,nop,TS val 337147874 ecr 135178069], length 0
-#+end_quote
+#+end_src
 
 ** On macOS, there's a fourth packet after the tcp handshake
 

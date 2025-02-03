@@ -67,7 +67,7 @@ run () |> ignore
 
 The client will get receive a timeout response from the server:
 
-#+begin_quote
+#+begin_src text
 Elapsed: 00:00:00.0002474
 ---
 HTTP/1.1 400 Bad Request
@@ -75,7 +75,7 @@ Content-Length: 0
 Connection: close
 Date: Sat, 01 Feb 2025 21:14:03 GMT
 Server: Kestrel
-#+end_quote
+#+end_src
 
 The reason is that the HTTP message's request header is not completed.
 
@@ -171,12 +171,14 @@ I've a simple server:
 After running the client program, we can inspect the sockets on the server and
 see two connections waiting to be closed:
 
-#+begin_quote
+
+#+begin_src text
 State                    Recv-Q                Send-Q                                     Local Address:Port                                      Peer Address:Port                 Process
 LISTEN                   0                     512                                                    *:8080                                                 *:*                           
 TIME-WAIT                0                     0                                    [::ffff:172.17.0.3]:8080                               [::ffff:172.17.0.1]:59816                       
 TIME-WAIT                0                     0                                    [::ffff:172.17.0.3]:8080                               [::ffff:172.17.0.1]:59796                       
-#+end_quote
+#+end_src
+
 
 The client side will not have any open connections.
 
@@ -184,7 +186,7 @@ We can also see some pretty straight forward data transmission from the client
 to the server for the request (packet #4-5), and vice versa for the response
 (packet #6-7).
 
-#+begin_quote
+#+begin_src text
 1.  01:58:22.735913 eth0  In  IP 172.17.0.1.57472 > 172.17.0.3.8080: Flags [S], seq 3938213709, win 65495, options [mss 65495,sackOK,TS val 2764971812 ecr 0,nop,wscale 7], length 0
 2.  01:58:22.735932 eth0  Out IP 172.17.0.3.8080 > 172.17.0.1.57472: Flags [S.], seq 795578192, ack 3938213710, win 65483, options [mss 65495,sackOK,TS val 3208331060 ecr 2764971812,nop,wscale 7], length 0
 3.  01:58:22.735948 eth0  In  IP 172.17.0.1.57472 > 172.17.0.3.8080: Flags [.], ack 1, win 512, options [nop,nop,TS val 2764971812 ecr 3208331060], length 0
@@ -195,14 +197,14 @@ to the server for the request (packet #4-5), and vice versa for the response
 8.  01:58:22.738939 eth0  Out IP 172.17.0.3.8080 > 172.17.0.1.57472: Flags [F.], seq 144, ack 41, win 512, options [nop,nop,TS val 3208331063 ecr 2764971815], length 0
 9.  01:58:22.741362 eth0  In  IP 172.17.0.1.57472 > 172.17.0.3.8080: Flags [F.], seq 41, ack 145, win 512, options [nop,nop,TS val 2764971817 ecr 3208331063], length 0
 10. 01:58:22.741373 eth0  Out IP 172.17.0.3.8080 > 172.17.0.1.57472: Flags [.], ack 42, win 512, options [nop,nop,TS val 3208331066 ecr 2764971817], length 0
-#+end_quote
+#+end_src
 
 *** HTTP 1.1 behavior
 
 In HTTP 1.1, we see that it's the *client* that initiates the connection
 termination (packet #8).
 
-#+begin_quote
+#+begin_src text
 1.  02:01:25.638031 eth0  In  IP 172.17.0.1.57214 > 172.17.0.3.8080: Flags [S], seq 2798590661, win 65495, options [mss 65495,sackOK,TS val 2765154713 ecr 0,nop,wscale 7], length 0
 2.  02:01:25.638057 eth0  Out IP 172.17.0.3.8080 > 172.17.0.1.57214: Flags [S.], seq 375389514, ack 2798590662, win 65483, options [mss 65495,sackOK,TS val 3208513961 ecr 2765154713,nop,wscale 7], length 0
 3.  02:01:25.638080 eth0  In  IP 172.17.0.1.57214 > 172.17.0.3.8080: Flags [.], ack 1, win 512, options [nop,nop,TS val 2765154713 ecr 3208513961], length 0
@@ -213,17 +215,17 @@ termination (packet #8).
 8.  02:01:25.716777 eth0  In  IP 172.17.0.1.57214 > 172.17.0.3.8080: Flags [F.], seq 41, ack 163, win 512, options [nop,nop,TS val 2765154792 ecr 3208513964], length 0
 9.  02:01:25.716992 eth0  Out IP 172.17.0.3.8080 > 172.17.0.1.57214: Flags [F.], seq 163, ack 42, win 512, options [nop,nop,TS val 3208514040 ecr 2765154792], length 0
 10. 02:01:25.717022 eth0  In  IP 172.17.0.1.57214 > 172.17.0.3.8080: Flags [.], ack 164, win 512, options [nop,nop,TS val 2765154792 ecr 3208514040], length 0
-#+end_quote
+#+end_src
 
 Consequently, the server knows there will be no further messages from the
 *client* and can avoid connections going into a ~TIME-WAIT~ state.
 
 We will see the ~TIME-WAIT~ state on the client side though:
 
-#+begin_quote
+#+begin_src text
 State          Recv-Q       Send-Q                   Local Address:Port                     Peer Address:Port      Process
 TIME-WAIT      0            0                  [::ffff:172.17.0.4]:41696             [::ffff:172.17.0.3]:8080             
-#+end_quote
+#+end_src
 
 *** KeepAliveTimeout effects
 
@@ -231,7 +233,7 @@ Let's configure a KeepAliveTimeout of 8 seconds, and have our client wait 4
 seconds between the successive requests. A ~tcpdump~ will show trace a single
 TCP connection. There are no TCP messages with a ~FIN~ flag until the end.
 
-#+begin_quote
+#+begin_src text
 1. 03:51:18.505305 IP 172.17.0.3.38216 > c754cc93dd16.8080: Flags [S], seq 2219939860, win 65495, options [mss 65495,sackOK,TS val 1220874810 ecr 0,nop,wscale 7], length 0
 2. 03:51:18.505313 IP c754cc93dd16.8080 > 172.17.0.3.38216: Flags [S.], seq 2487000610, ack 2219939861, win 65483, options [mss 65495,sackOK,TS val 2356036585 ecr 1220874810,nop,wscale 7], length 0
 3. 03:51:18.505321 IP 172.17.0.3.38216 > c754cc93dd16.8080: Flags [.], ack 1, win 512, options [nop,nop,TS val 1220874810 ecr 2356036585], length 0
@@ -245,12 +247,12 @@ TCP connection. There are no TCP messages with a ~FIN~ flag until the end.
 11. 03:51:22.548332 IP 172.17.0.3.38216 > c754cc93dd16.8080: Flags [F.], seq 83, ack 325, win 512, options [nop,nop,TS val 1220878853 ecr 2356040624], length 0
 12. 03:51:22.549326 IP c754cc93dd16.8080 > 172.17.0.3.38216: Flags [F.], seq 325, ack 84, win 512, options [nop,nop,TS val 2356040629 ecr 1220878853], length 0
 13. 03:51:22.549362 IP 172.17.0.3.38216 > c754cc93dd16.8080: Flags [.], ack 326, win 512, options [nop,nop,TS val 1220878854 ecr 2356040629], length 0
-#+end_quote
+#+end_src
 
 Let's have our client wait 16 seconds, which exceeds the configured
 KeepAliveTimeout value:
 
-#+begin_quote
+#+begin_src text
 1. 03:53:54.626681 IP 172.17.0.3.54412 > c754cc93dd16.8080: Flags [S], seq 754396352, win 65495, options [mss 65495,sackOK,TS val 1221030933 ecr 0,nop,wscale 7], length 0
 2. 03:53:54.626689 IP c754cc93dd16.8080 > 172.17.0.3.54412: Flags [S.], seq 2349966104, ack 754396353, win 65483, options [mss 65495,sackOK,TS val 2356192708 ecr 1221030933,nop,wscale 7], length 0
 3. 03:53:54.626697 IP 172.17.0.3.54412 > c754cc93dd16.8080: Flags [.], ack 1, win 512, options [nop,nop,TS val 1221030933 ecr 2356192708], length 0
@@ -272,7 +274,7 @@ KeepAliveTimeout value:
 19. 03:54:10.646518 IP 172.17.0.3.46628 > c754cc93dd16.8080: Flags [F.], seq 42, ack 163, win 512, options [nop,nop,TS val 1221046953 ecr 2356208723], length 0
 20. 03:54:10.646878 IP c754cc93dd16.8080 > 172.17.0.3.46628: Flags [F.], seq 163, ack 43, win 512, options [nop,nop,TS val 2356208728 ecr 1221046953], length 0
 21. 03:54:10.646911 IP 172.17.0.3.46628 > c754cc93dd16.8080: Flags [.], ack 164, win 512, options [nop,nop,TS val 1221046953 ecr 2356208728], length 0
-#+end_quote
+#+end_src
 
 Note that the server began terminating its side of the TCP connection at packet
 #8, which is a bit above 8 seconds since the first request.
